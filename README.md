@@ -1,7 +1,5 @@
 # WikiWard
 
-## WikiWard
-
 ## Description
 WikiWard is a fan encyclopedia designed to hide spoilers from curious viewers. Users will inform WikiWard of where they are in a tv series, book, or game and WikiWard will hide an information that may spoil future events.
 
