@@ -3,7 +3,7 @@
 import os
 import sys
 
-
+#a change
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WW_django_wiki.settings')
