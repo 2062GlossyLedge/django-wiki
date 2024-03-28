@@ -1,6 +1,18 @@
+
+
+#ignores all what ww_env contains except wiki path 
+!ww_env/
+ww_env/*
+!ww_env/Lib/
+ww_env/Lib/*
+!ww_env/Lib/site-packages/
+ww_env/Lib/site-packages/*
+!ww_env/Lib/site-packages/wiki
+
 *.pyc
 __pycache__
 db.sqlite3
-/ww_env
+
 *.env
 .vscode
+
