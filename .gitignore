@@ -1,4 +1,11 @@
 *.pyc
+__pycache__
+db.sqlite3
+/ww_env
+*.env
+.vscode
+
+*.pyc
 build
 dist
 *.egg-info
@@ -59,6 +66,7 @@ coverage.xml
 virtualenv
 .venv
 env/
+
 
 #Mr Developer
 .mr.developer.cfg

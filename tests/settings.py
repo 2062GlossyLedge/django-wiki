@@ -9,6 +9,7 @@ MEDIA_ROOT = os.path.join(TESTS_DATA_ROOT, "media")
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3"}}
 
 DEBUG = True
+
 AUTH_USER_MODEL = "testdata.CustomUser"
 WIKI_GROUP_MODEL = "testdata.CustomGroup"
 SITE_ID = 1
