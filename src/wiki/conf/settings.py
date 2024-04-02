@@ -237,6 +237,7 @@ ACCOUNT_SIGNUP_ALLOWED = ACCOUNT_HANDLING and getattr(
     django_settings, "WIKI_ACCOUNT_SIGNUP_ALLOWED", True
 )
 
+#Set account_handling to false to integrate a login apart from django-wiki
 if ACCOUNT_HANDLING:
     LOGIN_URL = reverse_lazy("wiki:login")
     LOGOUT_URL = reverse_lazy("wiki:logout")
