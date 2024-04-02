@@ -8,7 +8,7 @@ django-mptt==0.16.0
 django-nyt==1.4
 django-sekizai==4.1.0
 Markdown==3.6
-pillow==10.2.0
+pillow==10.3.0
 pymdown-extensions==10.5
 PyYAML==6.0.1
 six==1.16.0
