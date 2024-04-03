@@ -4,11 +4,13 @@
 
 <head>
   <meta charset="utf-8">
-  <title>{% block wiki_pagetitle %}{% endblock %}{% block wiki_site_title %} - django-\/\/ i K |{% endblock %}</title>
+  <title>{% block wiki_pagetitle %}{% endblock %}{% block wiki_site_title %}{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="description" content="">
   <meta name="author" content="www.django-wiki.org">
+
+  <link rel="icon" href="{% static 'wiki/img/WikiwardIcon2.png' %}" type="image/x-icon">
 
   <!-- Le styles -->
   <link href="{% static 'wiki/bootstrap/css/wiki-bootstrap.min.css' %}" rel="stylesheet">
