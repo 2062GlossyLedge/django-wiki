@@ -32,7 +32,7 @@ mySettings = {
 		{name:'Picture', key:'P', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!] "[![Title]!]")'},
 		{name:'Link', key:'L', openWith:'[', closeWith:']([![Url:!:http://]!] "[![Title]!]")', placeHolder:'Your text to link here...' },
 		{separator:'---------------'},
-		{name:'Quotes', openWith:'> '},
+		{name:'Quotes', openWith:'>> ', closeWith:' <<(Book: , Chapter: )'},
 		{name:'Code Block / Code', openWith:'(!(\t|!|`)!)', closeWith:'(!(`)!)'},
 		{separator:'---------------'},
 		{name:'Preview', call:'preview', className:"preview"}

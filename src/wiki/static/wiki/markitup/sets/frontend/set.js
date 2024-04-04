@@ -29,7 +29,7 @@ mySettings = {
 			return markItUp.line+'. ';
 		}},
 		{separator:'---------------'},
-		{name:'Quotes', openWith:'> '},
+		{name:'Quotes', openWith:'>> ', closeWith:' <<(Book: , Chapter: )'},
 		{name:'Code Block / Code', openWith:'(!(    |!|`)!)', closeWith:'(!(`)!)'},
 	]
 }
