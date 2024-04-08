@@ -1,4 +1,4 @@
-from django.utils.decorators import method_decorator
+ from django.utils.decorators import method_decorator
 from django.views.generic import View
 from wiki import models
 from wiki.core.utils import object_to_json_response

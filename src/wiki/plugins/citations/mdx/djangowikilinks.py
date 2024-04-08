@@ -4,6 +4,8 @@ Wikipath Extension for Python-Markdown
 
 Converts [Link Name](wiki:ArticleName) to relative links pointing to article.
 
+TODO: Change this page to remove >> if [*](wiki:ArticleName) follows
+
 Basic usage:
 
     >>> import markdown

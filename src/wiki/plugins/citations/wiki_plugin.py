@@ -9,8 +9,8 @@ from wiki.plugins.links.mdx.djangowikilinks import WikiPathExtension
 from wiki.plugins.links.mdx.urlize import makeExtension as urlize_makeExtension
 
 
-class LinkPlugin(BasePlugin):
-    slug = "links"
+class CitationPlugin(BasePlugin):
+    slug = "citations"
     urlpatterns = {
         "article": [
             re_path(
@@ -22,9 +22,9 @@ class LinkPlugin(BasePlugin):
     }
 
     sidebar = {
-        "headline": _("Links"),
+        "headline": _("Citations"),
         "icon_class": "fa-bookmark",
-        "template": "wiki/plugins/links/sidebar.html",
+        "template": "wiki/plugins/citations/sidebar.html",
         "form_class": None,
         "get_form_kwargs": (lambda a: {}),
     }
@@ -40,4 +40,4 @@ class LinkPlugin(BasePlugin):
     ]
 
 
-registry.register(LinkPlugin)
+registry.register(CitationPlugin)
