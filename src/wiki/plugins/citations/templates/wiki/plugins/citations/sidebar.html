@@ -12,7 +12,7 @@
   <select id="citations_page_title_query"></select>
 
   <div class="input-group-append">
-    <button class="btn btn-outline-secondary" type="button" id="citation_insert_button">Add Citation</button>
+    <button class="btn btn-outline-secondary" type="button" id="citation_add_citation_button">Add Citation</button>
   </div>
 </div>
 
@@ -41,7 +41,7 @@ type = "text/javascript" >
       },
     });
 
-    $("#citation_insert_button").on("click", function () {
+    $("#citation_add_citation_button").on("click", function () {
       $('#id_content').insertAtCaret($('#citations_page_title_query').val());
     });
   });
