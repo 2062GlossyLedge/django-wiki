@@ -29,6 +29,11 @@
 .markItUp .markItUpButton8 a {
 	background-image:url(images/clean.png);
 }
+
+.markItUp .markItUpButton11 a	{
+	background-image:url(images/citationIcon.png);
+}
+
 .markItUp .preview a {
 	background-image:url(images/preview.png);
 }
