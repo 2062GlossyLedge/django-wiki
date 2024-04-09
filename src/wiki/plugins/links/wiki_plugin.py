@@ -39,5 +39,4 @@ class LinkPlugin(BasePlugin):
         WikiPathExtension(wikipath_config),
     ]
 
-
 registry.register(LinkPlugin)

@@ -3,10 +3,10 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from wiki.core.plugins import registry
 from wiki.core.plugins.base import BasePlugin
-from wiki.plugins.links import settings
-from wiki.plugins.links import views
-from wiki.plugins.links.mdx.djangowikilinks import WikiPathExtension
-from wiki.plugins.links.mdx.urlize import makeExtension as urlize_makeExtension
+from wiki.plugins.citations import settings
+from wiki.plugins.citations import views
+from wiki.plugins.citations.mdx.djangowikilinks import WikiPathExtension
+from wiki.plugins.citations.mdx.urlize import makeExtension as urlize_makeExtension
 
 
 class CitationPlugin(BasePlugin):
@@ -38,6 +38,5 @@ class CitationPlugin(BasePlugin):
         urlize_makeExtension(),
         WikiPathExtension(wikipath_config),
     ]
-
 
 registry.register(CitationPlugin)
