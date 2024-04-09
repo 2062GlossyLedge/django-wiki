@@ -24,7 +24,7 @@ class QueryUrlPath(View):
             )
             matches = matches.select_related_common()
             matches = [
-                ">> Text [*](wiki:{url:s})".format(
+                "{title:s} : wiki:{url:s}".format(
                     title=m.article.current_revision.title,
                     url="/" + m.path.strip("/"),
                 )

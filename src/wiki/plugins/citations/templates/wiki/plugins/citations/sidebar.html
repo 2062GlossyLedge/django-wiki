@@ -3,11 +3,15 @@
 <h4>{% trans "Add citation" %}</h4>
 
 <p>
-  {% trans "Select in the location where the information added can be found. Keep your text between the >> and the [*]:" %}<br />
-  {% trans "Note that citations are required for all test in the wiki for allow for filtering based on spoilers" %}<br />
+  {% trans "Select in the location where the information added can be found. Keep your contribution between the >> and the [*]:" %}<br />
 </p>
 
-<pre> &gt&gt Text [*](wiki:/BaseWiki/chapters/Chapter#)</pre>
+<pre> &gt&gt TEXT [*](wiki:/BaseWiki/chapters/Chapter#)</pre>
+
+<p>
+{% trans "Note that citations are required for all test in the wiki for allow for filtering based on spoilers" %}<br />
+</p>
+
 <div class="input-group">
   <select id="citations_page_title_query"></select>
 
@@ -40,9 +44,16 @@ type = "text/javascript" >
         },
       },
     });
+    // Store the value to be displayed
+    let addedValue = "";
+
+    // Update the value to add to the page on click of citation_add_citation_button
+    $('#citations_page_title_query').on('select2:select', function (e) {
+        addedValue = ">> ADD YOUR CONTRIBUTION HERE [*](wiki:" + e.params.data.id.split("wiki:")[1] + ")";
+    });
 
     $("#citation_add_citation_button").on("click", function () {
-      $('#id_content').insertAtCaret($('#citations_page_title_query').val());
+      $('#id_content').insertAtCaret(addedValue);
     });
   });
 
