@@ -1,17 +1,18 @@
 {% load i18n sekizai_tags static %}
 
-<h4>{% trans "Add citation to text in wiki" %}</h4>
+<h4>{% trans "Add citation" %}</h4>
 
 <p>
-  {% trans "Type in the chapter number or name and the wiki page to the tag will pop up. Keep your text between the >> and the [*]:" %}<br />
+  {% trans "Select in the location where the information added can be found. Keep your text between the >> and the [*]:" %}<br />
+  {% trans "Note that citations are required for all test in the wiki for allow for filtering based on spoilers" %}<br />
 </p>
 
 <pre> &gt&gt Text [*](wiki:/BaseWiki/chapters/Chapter#)</pre>
 <div class="input-group">
-  <select id="links_page_title_query"></select>
+  <select id="citations_page_title_query"></select>
 
   <div class="input-group-append">
-    <button class="btn btn-outline-secondary" type="button" id="citation_insert_button">Insert</button>
+    <button class="btn btn-outline-secondary" type="button" id="citation_insert_button">Add Citation</button>
   </div>
 </div>
 
@@ -23,12 +24,12 @@
 <script
 type = "text/javascript" >
   $(document).ready(function () {
-    $('#links_page_title_query').select2({
+    $('#citations_page_title_query').select2({
       dropdownAutoWidth: true,
       placeholder: "Type to search...",
       ajax: {
         url: function (params) {
-          return "{% url 'wiki:links_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
+          return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
         },
         processResults: function (data) {
           let ret = [];
@@ -40,8 +41,8 @@ type = "text/javascript" >
       },
     });
 
-    $("#link_insert_button").on("click", function () {
-      $('#id_content').insertAtCaret($('#links_page_title_query').val());
+    $("#citation_insert_button").on("click", function () {
+      $('#id_content').insertAtCaret($('#citations_page_title_query').val());
     });
   });
 

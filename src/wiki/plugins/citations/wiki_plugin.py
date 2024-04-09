@@ -16,14 +16,14 @@ class CitationPlugin(BasePlugin):
             re_path(
                 r"^json/query-urlpath/$",
                 views.QueryUrlPath.as_view(),
-                name="links_query_urlpath",
+                name="citations_query_urlpath",
             ),
         ]
     }
 
     sidebar = {
         "headline": _("Citations"),
-        "icon_class": "fa-bookmark",
+        "icon_class": "fa-quote-left",
         "template": "wiki/plugins/citations/sidebar.html",
         "form_class": None,
         "get_form_kwargs": (lambda a: {}),
