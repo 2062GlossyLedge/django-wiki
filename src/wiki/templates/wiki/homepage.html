@@ -3,6 +3,41 @@
 
 {% block wiki_contents %}
 
-<h1>Home</h1>
+<head>
+    <link rel='stylesheet' href="{%static 'wiki/css/homepage.css' %}">
+</head>
+
+<body>
+
+
+
+    <div class="homepage-container">
+        <div class="image-container">
+            <img src="{% static 'wiki/img/full_logo.png' %}" alt="Centered Image">
+        </div>
+        <div class="dropdowns-container">
+            <!-- <div class="dropdown">
+                <select name="menu1" id="menu1">
+                    <option value="option1">Option 1</option>
+                    <option value="option2">Option 2</option>
+                    <option value="option3">Option 3</option>
+                </select>
+            </div>
+            <div class="dropdown">
+                <select name="menu2" id="menu2">
+                    <option value="option1">Option 1</option>
+                    <option value="option2">Option 2</option>
+                    <option value="option3">Option 3</option>
+                </select>
+            </div> -->
+        </div>
+        <div class="buttons-container">
+            <button class="button"><a href="{%url 'wiki:root' %}">Root Wiki</a></button>
+        </div>
+    </div>
+</body>
+
+
+
 
 {% endblock %}
