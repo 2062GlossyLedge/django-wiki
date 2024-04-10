@@ -2,9 +2,7 @@ from django.contrib import messages
 
 
 MSG = (
-    "This is a Django-Wiki demo, every 2 hours all data is removed from the server. "
-    "If you want to test something try login with admin:admin - "
-    "Please be respectful with the other visitors."
+    
 )
 
 
