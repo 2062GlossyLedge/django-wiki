@@ -43,7 +43,6 @@ class ArticleView(ArticleMixin, TemplateView):
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
-        print("ARTICLE: ", article)
         return super().dispatch(request, article, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -90,10 +89,6 @@ class Create(FormView, ArticleMixin):
     def form_valid(self, form):
         try:
             if self.urlpath.path == "":
-                print("REQUEST: ", self.request)
-                print("ARTICLE: ", self.article)
-                print("URLPATH: ", self.urlpath)
-                print("SLUG: ", form.cleaned_data["slug"])
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
                     self.article,
@@ -108,7 +103,6 @@ class Create(FormView, ArticleMixin):
                     _("New article '%s' created.")
                     % self.newpath.article.current_revision.title,
                 )
-                print("NEW PATH: ", self.newpath.path)
                 
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
@@ -124,15 +118,7 @@ class Create(FormView, ArticleMixin):
                     _("New article '%s' created.")
                     % self.newpath.article.current_revision.title,
                 )
-                print("NEW PATH: ", self.newpath.path)
-                print("ARTICLE: ", self.article)
-                print("Created")
             else:
-                print("REQUEST: ", self.request)
-                print("ARTICLE: ", self.article)
-                print("URLPATH: ", self.urlpath)
-                print("SLUG: ", form.cleaned_data["slug"])
-                print("TYPE: ", type(self.article))
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
                     self.article,
