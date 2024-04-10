@@ -13,6 +13,7 @@
   //<![CDATA[
   (function($) {
 	  $(document).ready(function (){
+      $("#id_chapters, label[for='id_chapters']").hide();
 		  $("#id_title").keyup(function () {
 			  var e = $("#id_slug")[0];
 			  if(!e._changed) {
@@ -20,6 +21,24 @@
 				  e.value = slug;
 			  }
 	      });
+      $("#id_media").change(function () {
+        if ($(this).val()) {
+          if ($(this).val() == "book") {
+            $("#id_chapters").attr("required", "required");
+            $("label[for='id_chapters").text("Number of Books");
+            $("#id_chapters, label[for='id_chapters'], #id_chapters_help_text").show();
+          }
+          else {
+            $("#id_chapters").attr("required", "required");
+            $("label[for='id_chapters").text("Number of Seasons");
+            $("#id_chapters, label[for='id_chapters'], #id_chapters_help_text").show();
+          }
+        }
+        else {
+          $("#id_chapters").removeAttr("required");
+          $("#id_chapters, label[for='id_chapters'], #id_chapters_help_text").hide();
+        }
+      });
 	  });
   })(jQuery);
   //]]>
@@ -28,6 +47,7 @@
   {% endaddtoblock %}
 
   {% include "wiki/includes/editormedia.html" %}
+  
   <h1 class="page-header">{% trans "Add new article" %}</h1>
 
   <form method="POST" class="form-horizontal">

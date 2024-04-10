@@ -32,6 +32,7 @@ from wiki.core.paginator import WikiPaginator
 from wiki.core.plugins import registry as plugin_registry
 from wiki.core.utils import object_to_json_response
 from wiki.decorators import get_article
+from wiki.models.article import Article, ArticleRevision
 from wiki.views.mixins import ArticleMixin
 
 log = logging.getLogger(__name__)
@@ -42,6 +43,7 @@ class ArticleView(ArticleMixin, TemplateView):
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
+        print("ARTICLE: ", article)
         return super().dispatch(request, article, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -63,6 +65,8 @@ class Create(FormView, ArticleMixin):
         """
         if form_class is None:
             form_class = self.get_form_class()
+        if self.urlpath.path == "":
+            form_class = forms.CreateWikiForm
         kwargs = self.get_form_kwargs()
         initial = kwargs.get("initial", {})
         initial["slug"] = self.request.GET.get("slug", None)
@@ -85,20 +89,65 @@ class Create(FormView, ArticleMixin):
 
     def form_valid(self, form):
         try:
-            self.newpath = models.URLPath._create_urlpath_from_request(
-                self.request,
-                self.article,
-                self.urlpath,
-                form.cleaned_data["slug"],
-                form.cleaned_data["title"],
-                form.cleaned_data["content"],
-                form.cleaned_data["summary"],
-            )
-            messages.success(
-                self.request,
-                _("New article '%s' created.")
-                % self.newpath.article.current_revision.title,
-            )
+            if self.urlpath.path == "":
+                print("REQUEST: ", self.request)
+                print("ARTICLE: ", self.article)
+                print("URLPATH: ", self.urlpath)
+                print("SLUG: ", form.cleaned_data["slug"])
+                self.newpath = models.URLPath._create_urlpath_from_request(
+                    self.request,
+                    self.article,
+                    self.urlpath,
+                    form.cleaned_data["slug"],
+                    form.cleaned_data["title"],
+                    "",
+                    form.cleaned_data["summary"],
+                )
+                messages.success(
+                    self.request,
+                    _("New article '%s' created.")
+                    % self.newpath.article.current_revision.title,
+                )
+                print("NEW PATH: ", self.newpath.path)
+                
+                self.newpath = models.URLPath._create_urlpath_from_request(
+                    self.request,
+                    self.newpath.article,
+                    self.newpath,
+                    form.cleaned_data["media"],
+                    form.cleaned_data["title"] + " Wiki (" + form.cleaned_data["media"] + ")",
+                    "",
+                    form.cleaned_data["summary"],
+                )
+                messages.success(
+                    self.request,
+                    _("New article '%s' created.")
+                    % self.newpath.article.current_revision.title,
+                )
+                print("NEW PATH: ", self.newpath.path)
+                print("ARTICLE: ", self.article)
+                print("Created")
+            else:
+                print("REQUEST: ", self.request)
+                print("ARTICLE: ", self.article)
+                print("URLPATH: ", self.urlpath)
+                print("SLUG: ", form.cleaned_data["slug"])
+                print("TYPE: ", type(self.article))
+                self.newpath = models.URLPath._create_urlpath_from_request(
+                    self.request,
+                    self.article,
+                    self.urlpath,
+                    form.cleaned_data["slug"],
+                    form.cleaned_data["title"],
+                    form.cleaned_data["content"],
+                    form.cleaned_data["summary"],
+                )
+
+                messages.success(
+                    self.request,
+                    _("New article '%s' created.")
+                    % self.newpath.article.current_revision.title,
+                )
         # TODO: Handle individual exceptions better and give good feedback.
         except Exception as e:
             log.exception("Exception creating article.")
