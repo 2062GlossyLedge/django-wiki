@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Wiki Page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Function to handle page selection
+            $(".page-link").click(function() {
+                var selectedPageId = $(this).data('page-id');
+                var selectedPageTitle = $(this).text();
+
+                // You can perform actions with the selected page here (e.g., AJAX request)
+                console.log("Selected Page ID:", selectedPageId);
+                console.log("Selected Page Title:", selectedPageTitle);
+
+                // Close the popup (optional)
+                // $('#popup').hide();
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="popup">
+        <h2>Select a Wiki Page:</h2>
+        <ul>
+            {% for page in wiki_pages %}
+                <li><a href="#" class="page-link" data-page-id="{{ page.id }}">{{ page.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

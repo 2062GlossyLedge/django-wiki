@@ -51,6 +51,9 @@ class WikiURLPatterns:
     # deleted list view
     deleted_list_view_class = deleted_list.DeletedListView
 
+    # progress view
+    progress_view_class = article.
+
     def get_urls(self):
         urlpatterns = self.get_root_urls()
         urlpatterns += self.get_accounts_urls()

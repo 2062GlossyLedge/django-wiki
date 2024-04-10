@@ -154,3 +154,4 @@ class Update(UpdateView):
         if django_settings.LOGIN_REDIRECT_URL:
             return redirect(django_settings.LOGIN_REDIRECT_URL)
         return redirect("wiki:root")
+
