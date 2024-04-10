@@ -93,20 +93,20 @@ LOGIN_REDIRECT_URL = reverse_lazy("wiki:get", kwargs={"path": ""})
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': env("DB_NAME"),
-        'USER': env("DB_USER"),
-        'PASSWORD': env("DB_PASSWORD"),
-        'HOST': env("DB_HOST"),
-        'PORT': env("DB_PORT"),                    
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': env("DB_NAME"),
+    #     'USER': env("DB_USER"),
+    #     'PASSWORD': env("DB_PASSWORD"),
+    #     'HOST': env("DB_HOST"),
+    #     'PORT': env("DB_PORT"),                    
+    # }
     #Uncomment this and comment other default to use sql lite 
-    #   "default": {
-    #     "ENGINE": "django.db.backends.sqlite3",
-    #     "NAME": os.path.join(PROJECT_DIR, "db.sqlite3"),
+      "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(PROJECT_DIR, "db.sqlite3"),
 
-    #   }
+      }
 }
 
 # Internationalization

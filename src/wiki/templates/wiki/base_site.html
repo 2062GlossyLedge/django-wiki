@@ -26,7 +26,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
       {% block wiki_header_branding %}
-      <a class="navbar-brand" href="{% url 'wiki:root' %}"> WikiWard </a>
+      <a class="navbar-brand" href="{% url 'wiki:homepage' %}"> WikiWard </a>
       {% endblock %}
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02"
         aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,7 +37,7 @@
         {% block wiki_header_navlinks %}
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="/">{% trans "Home" %}</a>
+            <a class="nav-link" href="{% url 'wiki:homepage' %}">{% trans "Home" %}</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="https://github.com/django-wiki/django-wiki" target="_blank">About</a>
