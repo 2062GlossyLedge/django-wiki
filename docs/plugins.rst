@@ -10,6 +10,7 @@ enable/disable the core plugins:
 -  ``'wiki.plugins.help.apps.HelpConfig'``
 -  ``'wiki.plugins.images.apps.ImagesConfig'``
 -  ``'wiki.plugins.links.apps.LinksConfig'``
+-  ``'wiki.plugins.citations.apps.CitationsConfig'``
 -  ``'wiki.plugins.macros.apps.MacrosConfig'``
 -  ``'wiki.plugins.notifications.apps.NotificationsConfig'``
 

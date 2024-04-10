@@ -4,12 +4,15 @@ from django.urls import reverse_lazy
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
+import environ
+env = environ.Env()
+environ.Env.read_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "b^fv_)t39h%9p40)fnkfblo##jkr!$0)lkp6bpy!fi*f$4*92!"
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -33,6 +36,7 @@ INSTALLED_APPS = [
     "wiki.apps.WikiConfig",
     "wiki.plugins.images.apps.ImagesConfig",
     "wiki.plugins.links.apps.LinksConfig",
+    "wiki.plugins.citations.apps.CitationsConfig",
     "wiki.plugins.macros.apps.MacrosConfig",
     "wiki.plugins.attachments.apps.AttachmentsConfig",
     "wiki.plugins.notifications.apps.NotificationsConfig",
@@ -89,18 +93,20 @@ LOGIN_REDIRECT_URL = reverse_lazy("wiki:get", kwargs={"path": ""})
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(PROJECT_DIR, "db.sqlite3"),
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env("DB_NAME"),
+        'USER': env("DB_USER"),
+        'PASSWORD': env("DB_PASSWORD"),
+        'HOST': env("DB_HOST"),
+        'PORT': env("DB_PORT"),                    
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'test',   # Name of your MySQL database
-    #     'USER': 'root',        # Your MySQL username
-    #     'PASSWORD': 'password',    # Your MySQL password
-    #     'HOST': 'localhost',                  # MySQL host (usually 'localhost')
-    #     'PORT': '3306',                       # MySQL port (usually 3306)
-    # }
+    #Uncomment this and comment other default to use sql lite 
+    #   "default": {
+    #     "ENGINE": "django.db.backends.sqlite3",
+    #     "NAME": os.path.join(PROJECT_DIR, "db.sqlite3"),
+
+    #   }
 }
 
 # Internationalization

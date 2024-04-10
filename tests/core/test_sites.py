@@ -62,6 +62,7 @@ urlpatterns = [
         "wiki.plugins.attachments.apps.AttachmentsConfig",
         "wiki.plugins.notifications.apps.NotificationsConfig",
         "wiki.plugins.images.apps.ImagesConfig",
+        "wiki.plugins.citations.apps.CitationsConfig",
         "wiki.plugins.macros.apps.MacrosConfig",
         "wiki.plugins.globalhistory.apps.GlobalHistoryConfig",
     ],

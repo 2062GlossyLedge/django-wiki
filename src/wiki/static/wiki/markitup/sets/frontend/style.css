@@ -52,11 +52,12 @@ textarea.markItUp {font-size: 16px; padding: 10px; float: none; display: block; 
 }*/
 
 .markItUp .markItUpButton11 a	{
-	background-image:url(images/quotes.png);
+	background-image:url(images/citationIcon.png);
 }
 .markItUp .markItUpButton12 a	{
-	background-image:url(images/code.png);
+	background-image:url(images/codeIcon.png);
 }
+
 
 .markItUp .preview a {
 	background-image:url(images/preview.png);

@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "wiki.plugins.editsection.apps.EditSectionConfig",
     "wiki.plugins.notifications.apps.NotificationsConfig",
     "wiki.plugins.images.apps.ImagesConfig",
+    "wiki.plugins.citations.apps.CitationsConfig",
     "wiki.plugins.macros.apps.MacrosConfig",
     "wiki.plugins.pymdown.apps.PyMdownConfig",
     "wiki.plugins.globalhistory.apps.GlobalHistoryConfig",

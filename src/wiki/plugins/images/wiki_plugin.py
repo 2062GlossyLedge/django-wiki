@@ -78,5 +78,4 @@ class ImagePlugin(BasePlugin):
 
     markdown_extensions = [ImageExtension()]
 
-
 registry.register(ImagePlugin)
