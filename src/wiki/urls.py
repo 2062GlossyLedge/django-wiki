@@ -5,11 +5,16 @@ from wiki import sites
 from wiki.conf import settings
 from wiki.core.plugins import registry
 from wiki.views import accounts
-from wiki.views import article
+from wiki.views import article, home
 from wiki.views import deleted_list
 
 urlpatterns = [
     re_path(r"^", sites.site.urls),
+    #  re_path(
+    #             "homepage/",
+    #             home.homepage,
+    #             name="homepage"
+    #         ),
 ]
 
 
@@ -66,6 +71,13 @@ class WikiURLPatterns:
 
     def get_root_urls(self):
         urlpatterns = [
+            #Only need to create url route in sites.py
+            
+            # re_path(
+            #     r"^homepage/$",
+            #     home.Homepage.as_view(),
+            #     name="homepage"
+            # ),
             re_path(
                 r"^$",
                 self.article_view_class.as_view(),
