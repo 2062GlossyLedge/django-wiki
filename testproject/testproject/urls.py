@@ -11,6 +11,8 @@ admin.autodiscover()
 urlpatterns = [
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^robots.txt", lambda _: HttpResponse("User-agent: *\nDisallow: /")),
+    re_path("__reload__/", include("django_browser_reload.urls"))
+
 ]
 
 if settings.DEBUG:
