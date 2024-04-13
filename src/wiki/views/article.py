@@ -1060,3 +1060,15 @@ class CreateRootView(FormView):
 
 class MissingRootView(TemplateView):
     template_name = "wiki/root_missing.html"
+
+
+class ProgressSelectView(FormView):
+    form_class = forms.ProgressSelectForm
+    template_name = "wiki/progress_popup.html"
+
+    def form_valid(self, form):
+        self.handle_progress_selection(form.cleaned_data)
+        return super(ProgressSelectView, self).form_valid(form)
+
+    def handle_progress_selection(self, valid_data):
+        print(valid_data)

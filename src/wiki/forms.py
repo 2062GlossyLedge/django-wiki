@@ -34,6 +34,7 @@ from wiki.core import permissions
 from wiki.core.diff import simple_merge
 from wiki.core.plugins.base import PluginSettingsFormMixin
 from wiki.editors import getEditor
+from wiki.models import Article
 
 from .forms_account_handling import UserCreationForm, UserUpdateForm
 
@@ -648,3 +649,14 @@ class SearchForm(forms.Form):
         ),
         required=False,
     )
+
+
+class ProgressSelectForm(forms.Form):
+    parent_page_id = forms.IntegerField(widget=forms.HiddenInput)
+    selected_chapter = forms.ModelChoiceField(queryset=None)
+
+    def __init__(self, *args, **kwargs):
+        parent_page_id = kwargs.pop('parent_page_id')
+        super(ProgressSelectForm, self).__init__(*args, **kwargs)
+        self.fields['parent_page_id'].initial = parent_page_id
+        self.fields['selected_subpage'].queryset = Article.objects.filter(parent_id=parent_page_id)
