@@ -151,16 +151,27 @@ class EditSection(EditView):
 
         return self._redirect_to_article()
 
+        """Returns true if all of the text of the section excluding header has a citation, false if not
+        """
     def allTextHasCitation(self, section):
-        # Get the content of the section
-        section_content = section
+        headerLinePattern = r"\r\n=+\r\n" # Format of header
         
-        linePattern =  r">>.*?\[\*\]\(wiki:[^\)]+\)"
+        section_content = re.split(headerLinePattern, section)[1]
+        section_content = section_content.replace("\r\n","") # Remove lines for easier deciphering
+        section_content = section_content.replace(" ","") # Remove spaces for easier deciphering
+        print(repr(section_content))
+        # Define the regex pattern
+        linePattern = r">>.*?\[\*\]\(wiki:[^\)]+\)"
         regex = re.compile(linePattern)
 
-        # Check if every line in the section content starts with ">>" and ends with "[*]"
-        matches = regex.findall(section_content)
-        if (2*len(matches) >= (section_content.count('\n') - 3)): # 2*matches as each citation can have two lines for a full newline. 3 as ends with two new lines and then theres one for the header.
-            return True
+        # Search for the first match
+        allmatches = regex.findall(section_content)
+        sumMatchChars = 0
+        # Iterate over all matches and sum the characters
+        for match in allmatches:
+            sumMatchChars += len(match)
+        
 
-        return False
+        # If all matches cover the entire section content, return True
+        return sumMatchChars == len(section_content)
+        
