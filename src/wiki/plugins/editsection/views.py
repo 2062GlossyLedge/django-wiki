@@ -121,11 +121,23 @@ class EditSection(EditView):
                 content[0:start] + section + content[end:]
             )
             self.article.current_revision.save()
-            if not self.allTextHasCitation(section):
+            if self.allTextHasCitation(section):
+                # Include the edited section into the complete previous article
+                self.article.current_revision.content = (
+                    content[0:start] + section + content[end:]
+                )
+                self.article.current_revision.save()
+            else:
                 messages.error(
                     self.request,
-                    "Not all text in edited section has citations. Please ensure all text is properly cited."
+                    "Not all text in edited section has citations. Please ensure all text is properly cited for changes to take effect."
                 )   
+                # Revert to old wiki
+                self.article.current_revision = (
+                    self.article.current_revision.previous_revision
+                )
+                self.article.save()
+                
         else:
             # Back to the version before replacing the article with the section
             self.article.current_revision = (
