@@ -7,6 +7,7 @@ from wiki import models
 from wiki.core.markdown import article_markdown
 from wiki.decorators import get_article
 from wiki.views.article import Edit as EditView
+import re
 
 
 ERROR_SECTION_CHANGED = gettext_lazy(
@@ -94,7 +95,6 @@ class EditSection(EditView):
 
     def form_valid(self, form):
         super().form_valid(form)
-
         section = self.article.current_revision.content
         if not section.endswith("\n"):
             section += "\r\n\r\n"
@@ -116,6 +116,13 @@ class EditSection(EditView):
                         ERROR_TRY_AGAIN,
                     ),
                 )
+                
+            if not self.allTextHasCitation(self.article, section, start, end):
+                messages.error(
+                    self.request,
+                    "Not all text has citations. Please ensure all text is properly cited."
+                )   
+            
             # Include the edited section into the complete previous article
             self.article.current_revision.content = (
                 content[0:start] + section + content[end:]
@@ -133,3 +140,20 @@ class EditSection(EditView):
             )
 
         return self._redirect_to_article()
+
+    def allTextHasCitation(self, article, section, start, end):
+        # Get the content of the section
+        section_content = section[start:end]
+        
+        linePattern =  r">>.*?\[\*\]\(wiki:[^\)]+\)"
+        regex = re.compile(linePattern)
+
+        # Check if every line in the section content starts with ">>" and ends with "[*]"
+        matches = regex.findall(section_content)
+        print(matches)
+        print(section_content.count('\n') - 3)
+        print(len(matches))
+        if len(matches) < section_content.count('\n') - 3: # 3 as ends with two new lines and then theres one for the header.
+            return False
+
+        return True
