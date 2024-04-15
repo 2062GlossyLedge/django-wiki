@@ -115,19 +115,17 @@ class EditSection(EditView):
                         ERROR_SECTION_UNSAVED,
                         ERROR_TRY_AGAIN,
                     ),
-                )
-                
-            if not self.allTextHasCitation(self.article, section, start, end):
-                messages.error(
-                    self.request,
-                    "Not all text has citations. Please ensure all text is properly cited."
-                )   
-            
+                )       
             # Include the edited section into the complete previous article
             self.article.current_revision.content = (
                 content[0:start] + section + content[end:]
             )
             self.article.current_revision.save()
+            if not self.allTextHasCitation(section):
+                messages.error(
+                    self.request,
+                    "Not all text in edited section has citations. Please ensure all text is properly cited."
+                )   
         else:
             # Back to the version before replacing the article with the section
             self.article.current_revision = (
@@ -141,19 +139,16 @@ class EditSection(EditView):
 
         return self._redirect_to_article()
 
-    def allTextHasCitation(self, article, section, start, end):
+    def allTextHasCitation(self, section):
         # Get the content of the section
-        section_content = section[start:end]
+        section_content = section
         
         linePattern =  r">>.*?\[\*\]\(wiki:[^\)]+\)"
         regex = re.compile(linePattern)
 
         # Check if every line in the section content starts with ">>" and ends with "[*]"
         matches = regex.findall(section_content)
-        print(matches)
-        print(section_content.count('\n') - 3)
-        print(len(matches))
-        if len(matches) < section_content.count('\n') - 3: # 3 as ends with two new lines and then theres one for the header.
-            return False
+        if (2*len(matches) >= (section_content.count('\n') - 3)): # 2*matches as each citation can have two lines for a full newline. 3 as ends with two new lines and then theres one for the header.
+            return True
 
-        return True
+        return False
