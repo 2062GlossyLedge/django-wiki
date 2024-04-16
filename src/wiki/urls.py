@@ -10,11 +10,6 @@ from wiki.views import deleted_list
 
 urlpatterns = [
     re_path(r"^", sites.site.urls),
-    #  re_path(
-    #             "homepage/",
-    #             home.homepage,
-    #             name="homepage"
-    #         ),
 ]
 
 
