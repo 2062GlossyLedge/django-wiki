@@ -57,6 +57,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+#npm path
 NPM_BIN_PATH = env("NPM_Path")
 
 
