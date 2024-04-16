@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -21,6 +22,7 @@ from django.views.generic import ListView
 from django.views.generic import RedirectView
 from django.views.generic import TemplateView
 from django.views.generic import View
+from django.urls import reverse_lazy
 from wiki import editors
 from wiki import forms
 from wiki import models
@@ -1062,13 +1064,23 @@ class MissingRootView(TemplateView):
     template_name = "wiki/root_missing.html"
 
 
-class ProgressSelectView(FormView):
+class SubpageSelectionPopupView(FormView):
+    template_name = 'progress_popup.html'
     form_class = forms.ProgressSelectForm
-    template_name = "wiki/progress_popup.html"
+
+    def get_success_url(self):
+        # Redirect back to the current page after form submission
+        return self.request.path
+
+    def get_form_kwargs(self):
+        # Determine the chapter page ID based on the current page or book
+        chapter_page_id = self.kwargs['chapter_page_id']  # Assuming chapter_page_id is passed in URL
+        kwargs = super().get_form_kwargs()
+        kwargs['chapter_page_id'] = chapter_page_id
+        return kwargs
 
     def form_valid(self, form):
-        self.handle_progress_selection(form.cleaned_data)
-        return super(ProgressSelectView, self).form_valid(form)
-
-    def handle_progress_selection(self, valid_data):
-        print(valid_data)
+        # Process the form data
+        selected_subpage = form.cleaned_data['subpage']
+        # Redirect back to the current page after form submission
+        return redirect(self.get_success_url())

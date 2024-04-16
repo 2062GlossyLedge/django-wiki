@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from wiki.models import Article
 
-def page_selection_popup(request):
-    # Fetch all wiki pages
-    wiki_pages = Article.objects.all()
+def select_progress_popup(request, article_id):
+    try:
+        parent_article = Article.objects.get(id=article_id)
+        chapters = parent_article.children.all()
+    except Article.DoesNotExist:
+        chapters = []
 
-    return render(request, 'popup.html', {'wiki_pages': wiki_pages})
+    return render(request, 'select_subarticle_popup.html', {'sub_articles': chapters})

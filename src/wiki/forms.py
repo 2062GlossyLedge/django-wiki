@@ -659,4 +659,4 @@ class ProgressSelectForm(forms.Form):
         parent_page_id = kwargs.pop('parent_page_id')
         super(ProgressSelectForm, self).__init__(*args, **kwargs)
         self.fields['parent_page_id'].initial = parent_page_id
-        self.fields['selected_subpage'].queryset = Article.objects.filter(parent_id=parent_page_id)
+        self.fields['selected_chapter'].queryset = Article.objects.filter(parent_id=parent_page_id)
