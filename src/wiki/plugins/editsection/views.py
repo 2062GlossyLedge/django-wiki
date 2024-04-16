@@ -154,9 +154,17 @@ class EditSection(EditView):
         """Returns true if all of the text of the section excluding header has a citation, false if not
         """
     def allTextHasCitation(self, section):
-        headerLinePattern = r"\r\n=+\r\n" # Format of header
+        bigHeaderLinePattern = r"\r\n[=-]+\r\n" # Normal Header Line Pattern
+        smallHeaderLinePattern = r"#{3,}.*\r\n"
         
-        section_content = re.split(headerLinePattern, section)[1]
+        bigHeaderMatch = re.search(bigHeaderLinePattern, section)
+        smallHeaderMatch = re.search(smallHeaderLinePattern, section)
+        
+        if bigHeaderMatch:
+            section_content = re.split(bigHeaderLinePattern, section)[1]
+        elif smallHeaderMatch:
+            section_content = re.split(smallHeaderLinePattern, section)[1]
+            
         section_content = section_content.replace("\r\n","") # Remove lines for easier deciphering
         section_content = section_content.replace(" ","") # Remove spaces for easier deciphering
         print(repr(section_content))
