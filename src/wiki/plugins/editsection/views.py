@@ -154,26 +154,30 @@ class EditSection(EditView):
         """Returns true if all of the text of the section excluding header has a citation, false if not
         """
     def allTextHasCitation(self, section):
-        bigHeaderLinePattern = r"\r\n[=-]+\r\n" # Normal Header Line Pattern
-        smallHeaderLinePattern = r"#{3,}.*\r\n"
         
-        bigHeaderMatch = re.search(bigHeaderLinePattern, section)
-        smallHeaderMatch = re.search(smallHeaderLinePattern, section)
+        section_content = section
+        # Remove big subheadings for section_content.
+        subHeaderLinePattern = r".*?\r\n[=-]+\r\n"
+        subheaderLineRegex = re.compile(subHeaderLinePattern)
         
-        if bigHeaderMatch:
-            section_content = re.split(bigHeaderLinePattern, section)[1]
-        elif smallHeaderMatch:
-            section_content = re.split(smallHeaderLinePattern, section)[1]
-            
-        section_content = section_content.replace("\r\n","") # Remove lines for easier deciphering
+        allmatches = subheaderLineRegex.findall(section_content)
+        
+        section_content = re.sub(subHeaderLinePattern, '', section_content)
+        
+        smallHeaderLinePattern = r"#{3,}.*?\r\n"
+
+        
+        section_content = re.sub(smallHeaderLinePattern, '', section_content)
+        section_content = section_content.replace("\r","") # Remove lines for easier deciphering
+        section_content = section_content.replace("\n","") # Remove lines for easier deciphering
         section_content = section_content.replace(" ","") # Remove spaces for easier deciphering
-        print(repr(section_content))
+        
         # Define the regex pattern
         linePattern = r">>.*?\[\*\]\(wiki:[^\)]+\)"
-        regex = re.compile(linePattern)
+        citationRegex = re.compile(linePattern)
 
         # Search for the first match
-        allmatches = regex.findall(section_content)
+        allmatches = citationRegex.findall(section_content)
         sumMatchChars = 0
         # Iterate over all matches and sum the characters
         for match in allmatches:
