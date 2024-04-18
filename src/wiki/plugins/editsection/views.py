@@ -151,10 +151,11 @@ class EditSection(EditView):
 
         return self._redirect_to_article()
 
-        """Returns true if all of the text of the section excluding header has a citation, false if not
-        """
+
     def allTextHasCitation(self, section):
-        
+        """
+        Returns true if all of the text of the section excluding header has a citation, false if not
+        """
         section_content = section
         # Remove big subheadings for section_content.
         subHeaderLinePattern = r".*?\r\n[=-]+\r\n"
