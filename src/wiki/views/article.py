@@ -110,7 +110,7 @@ class Create(FormView, ArticleMixin):
                     self.newpath,
                     form.cleaned_data["media"],
                     form.cleaned_data["title"] + " Wiki (" + form.cleaned_data["media"] + ")",
-                    "",
+                    "Change " + form.cleaned_data["media"] + " wikis to include title if applicable",
                     form.cleaned_data["summary"],
                 )
                 messages.success(
@@ -118,6 +118,34 @@ class Create(FormView, ArticleMixin):
                     _("New article '%s' created.")
                     % self.newpath.article.current_revision.title,
                 )
+
+                path = self.newpath
+                article = self.newpath.article
+                media_type = form.cleaned_data["media"]
+                num_media = int(form.cleaned_data["chapters"])
+                for i in range(1, num_media + 1):
+                    if media_type == "tv":
+                        self.newpath = models.URLPath._create_urlpath_from_request(
+                            self.request,
+                            article,
+                            path,
+                            "season" + str(i),
+                            "season " + str(i),
+                            "",
+                            form.cleaned_data["summary"],
+                        )
+                    else:
+                        self.newpath = models.URLPath._create_urlpath_from_request(
+                            self.request,
+                            article,
+                            path,
+                            media_type + str(i),
+                            media_type + " " + str(i),
+                            "",
+                            form.cleaned_data["summary"],
+                        )
+                        
+                
             else:
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
