@@ -17,7 +17,7 @@ def allTextHasCitations(section):
     """
     Returns true if all of the text of the section excluding header has a citation, false if not
     """
-    section_content = section
+    section_content = section + "\r\n"
     # Remove big subheadings for section_content.
     subHeaderLinePattern = r".*?\r\n[=-]+\r\n"
     subheaderLineRegex = re.compile(subHeaderLinePattern)
@@ -26,7 +26,7 @@ def allTextHasCitations(section):
     
     section_content = re.sub(subHeaderLinePattern, '', section_content)
     
-    smallHeaderLinePattern = r"#{3,}.*?\r\n"
+    smallHeaderLinePattern = r"#{3,6}.*?\r\n"
 
     
     section_content = re.sub(smallHeaderLinePattern, '', section_content)
