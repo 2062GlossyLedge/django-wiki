@@ -34,9 +34,9 @@ from wiki.core import permissions
 from wiki.core.diff import simple_merge
 from wiki.core.plugins.base import PluginSettingsFormMixin
 from wiki.editors import getEditor
+from wiki.core.utils import allTextHasCitations
 
 from .forms_account_handling import UserCreationForm, UserUpdateForm
-import re
 
 validate_slug_numbers = RegexValidator(
     r"^[0-9]+$",
@@ -340,52 +340,12 @@ class EditForm(forms.Form, SpamProtectionMixin):
             raise forms.ValidationError(
                 gettext("No changes made. Nothing to save.")
             )
-        if not self.allTextHasCitation(self.cleaned_data["content"]):
+        if not allTextHasCitations(self.cleaned_data["content"]):
             raise forms.ValidationError(
                 gettext("Not all text in edited section has citations. Please ensure all text is properly cited for changes to take effect.")
             )
         self.check_spam()
         return self.cleaned_data
-    
-    def allTextHasCitation(self, section):
-        """
-        Returns true if all of the text of the section excluding header has a citation, false if not
-        """
-        section_content = section
-        # Remove big subheadings for section_content.
-        subHeaderLinePattern = r".*?\r\n[=-]+\r\n"
-        subheaderLineRegex = re.compile(subHeaderLinePattern)
-        
-        allmatches = subheaderLineRegex.findall(section_content)
-        
-        section_content = re.sub(subHeaderLinePattern, '', section_content)
-        
-        smallHeaderLinePattern = r"#{3,}.*?\r\n"
-
-        
-        section_content = re.sub(smallHeaderLinePattern, '', section_content)
-        section_content = section_content.replace("\r","") # Remove lines for easier deciphering
-        section_content = section_content.replace("\n","") # Remove lines for easier deciphering
-        section_content = section_content.replace(" ","") # Remove spaces for easier deciphering
-        
-        # Define the regex pattern
-        linePattern = r">>.*?\[\*\]\(wiki:[^\)]+\)"
-        citationRegex = re.compile(linePattern)
-
-        # Search for the first match
-        allmatches = citationRegex.findall(section_content)
-        sumMatchChars = 0
-        # Iterate over all matches and sum the characters
-        for match in allmatches:
-            sumMatchChars += len(match)
-        
-        print(section_content)
-        
-        print(sumMatchChars)
-        print(len(section_content))
-        
-        # If all matches cover the entire section content, return True
-        return sumMatchChars == len(section_content)
 
 
 class SelectWidgetBootstrap(forms.Select):

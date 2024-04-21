@@ -7,6 +7,7 @@ from wiki import models
 from wiki.core.markdown import article_markdown
 from wiki.decorators import get_article
 from wiki.views.article import Edit as EditView
+from wiki.core.utils import allTextHasCitations
 import re
 
 
@@ -121,7 +122,7 @@ class EditSection(EditView):
                 content[0:start] + section + content[end:]
             )
             self.article.current_revision.save()
-            if self.allTextHasCitation(section):
+            if allTextHasCitations(section):
                 # Include the edited section into the complete previous article
                 self.article.current_revision.content = (
                     content[0:start] + section + content[end:]
@@ -150,41 +151,3 @@ class EditSection(EditView):
             )
 
         return self._redirect_to_article()
-
-
-    def allTextHasCitation(self, section):
-        """
-        Returns true if all of the text of the section excluding header has a citation, false if not
-        """
-        section_content = section
-        # Remove big subheadings for section_content.
-        subHeaderLinePattern = r".*?\r\n[=-]+\r\n"
-        subheaderLineRegex = re.compile(subHeaderLinePattern)
-        
-        allmatches = subheaderLineRegex.findall(section_content)
-        
-        section_content = re.sub(subHeaderLinePattern, '', section_content)
-        
-        smallHeaderLinePattern = r"#{3,}.*?\r\n"
-
-        
-        section_content = re.sub(smallHeaderLinePattern, '', section_content)
-        section_content = section_content.replace("\r","") # Remove lines for easier deciphering
-        section_content = section_content.replace("\n","") # Remove lines for easier deciphering
-        section_content = section_content.replace(" ","") # Remove spaces for easier deciphering
-        
-        # Define the regex pattern
-        linePattern = r">>.*?\[\*\]\(wiki:[^\)]+\)"
-        citationRegex = re.compile(linePattern)
-
-        # Search for the first match
-        allmatches = citationRegex.findall(section_content)
-        sumMatchChars = 0
-        # Iterate over all matches and sum the characters
-        for match in allmatches:
-            sumMatchChars += len(match)
-        
-
-        # If all matches cover the entire section content, return True
-        return sumMatchChars == len(section_content)
-        
