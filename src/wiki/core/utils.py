@@ -20,9 +20,6 @@ def allTextHasCitations(section):
     section_content = section + "\r\n"
     # Remove big subheadings for section_content.
     subHeaderLinePattern = r".*?\r\n[=-]+\r\n"
-    subheaderLineRegex = re.compile(subHeaderLinePattern)
-    
-    allmatches = subheaderLineRegex.findall(section_content)
     
     section_content = re.sub(subHeaderLinePattern, '', section_content)
     
@@ -44,11 +41,6 @@ def allTextHasCitations(section):
     # Iterate over all matches and sum the characters
     for match in allmatches:
         sumMatchChars += len(match)
-    
-    print(section_content)
-    
-    print(sumMatchChars)
-    print(len(section_content))
     
     # If all matches cover the entire section content, return True
     return sumMatchChars == len(section_content)
