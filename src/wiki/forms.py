@@ -347,6 +347,118 @@ class EditForm(forms.Form, SpamProtectionMixin):
         self.check_spam()
         return self.cleaned_data
 
+class NoCitationRequirementEditForm(forms.Form, SpamProtectionMixin):
+    title = forms.CharField(
+        label=_("Title"),
+    )
+    content = forms.CharField(
+        label=_("Contents"), required=False
+    )  # @UndefinedVariable
+
+    summary = forms.CharField(
+        label=pgettext_lazy("Revision comment", "Summary"),
+        help_text=_(
+            "Give a short reason for your edit, which will be stated in the revision log."
+        ),
+        required=False,
+    )
+
+    current_revision = forms.IntegerField(
+        required=False, widget=forms.HiddenInput()
+    )
+
+    def __init__(self, request, current_revision, *args, **kwargs):
+        self.request = request
+        self.no_clean = kwargs.pop("no_clean", False)
+        self.preview = kwargs.pop("preview", False)
+        self.initial_revision = current_revision
+        self.presumed_revision = None
+        if current_revision:
+            # For e.g. editing a section of the text: The content provided by the caller is used.
+            #      Otherwise use the content of the revision.
+            provided_content = True
+            content = kwargs.pop("content", None)
+            if content is None:
+                provided_content = False
+                content = current_revision.content
+            initial = {
+                "content": content,
+                "title": current_revision.title,
+                "current_revision": current_revision.id,
+            }
+            initial.update(kwargs.get("initial", {}))
+
+            # Manipulate any data put in args[0] such that the current_revision
+            # is reset to match the actual current revision.
+            data = None
+            if len(args) > 0:
+                data = args[0]
+                args = args[1:]
+            if data is None:
+                data = kwargs.get("data", None)
+            if data:
+                self.presumed_revision = data.get("current_revision", None)
+                if not str(self.presumed_revision) == str(
+                    self.initial_revision.id
+                ):
+                    newdata = {}
+                    for k, v in data.items():
+                        newdata[k] = v
+                    newdata["current_revision"] = self.initial_revision.id
+                    # Don't merge if content comes from the caller
+                    if provided_content:
+                        self.presumed_revision = self.initial_revision.id
+                    else:
+                        newdata["content"] = simple_merge(
+                            content, data.get("content", "")
+                        )
+                    newdata["title"] = current_revision.title
+                    kwargs["data"] = newdata
+                else:
+                    # Always pass as kwarg
+                    kwargs["data"] = data
+
+            kwargs["initial"] = initial
+
+        super().__init__(*args, **kwargs)
+        self.fields["content"].widget = getEditor().get_widget(
+            current_revision
+        )
+
+    def clean_title(self):
+        title = self.cleaned_data.get("title", None)
+        title = (title or "").strip()
+        if not title:
+            raise forms.ValidationError(
+                gettext("Article is missing title or has an invalid title")
+            )
+        return title
+
+    def clean(self):
+        """Validates form data by checking for the following
+        No new revisions have been created since user attempted to edit
+        Revision title or content has changed
+        Wiki content includes text that is not cited.
+        """
+        if self.no_clean or self.preview:
+            return self.cleaned_data
+        if not str(self.initial_revision.id) == str(self.presumed_revision):
+            raise forms.ValidationError(
+                gettext(
+                    "While you were editing, someone else changed the revision. Your contents have been automatically merged with the new contents. Please review the text below."
+                )
+            )
+        if (
+            "title" in self.cleaned_data
+            and self.cleaned_data["title"] == self.initial_revision.title
+            and self.cleaned_data["content"] == self.initial_revision.content
+        ):
+            raise forms.ValidationError(
+                gettext("No changes made. Nothing to save.")
+            )
+        self.check_spam()
+        return self.cleaned_data
+
 
 class SelectWidgetBootstrap(forms.Select):
     """

@@ -318,6 +318,8 @@ class Edit(ArticleMixin, FormView):
         """
         if form_class is None:
             form_class = self.get_form_class()
+        if self.urlpath.path == "":
+            form_class = forms.NoCitationRequirementEditForm
         kwargs = self.get_form_kwargs()
         if (
             self.request.POST.get("save", "") != "1"
