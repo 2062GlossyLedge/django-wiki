@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     "wiki.plugins.images.apps.ImagesConfig",
     "wiki.plugins.citations.apps.CitationsConfig",
     "wiki.plugins.macros.apps.MacrosConfig",
-    "wiki.plugins.pymdown.apps.PyMdownConfig",
     "wiki.plugins.globalhistory.apps.GlobalHistoryConfig",
     "wiki.plugins.redlinks.apps.RedlinksConfig",
 ]
