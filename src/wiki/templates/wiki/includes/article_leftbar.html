@@ -29,6 +29,23 @@ type = "text/javascript" >
         },
       },
     });
+
+    $('#chapter-select').select2({
+      dropdownAutoWidth: true,
+      placeholder: "Type to search...",
+      ajax: {
+        url: function (params) {
+          return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
+        },
+        processResults: function (data) {
+          let ret = [];
+          data.forEach(function (val) {
+            ret.push({"id": val, "text": val})
+          });
+          return {results: ret};
+        },
+      },
+    });
     // Store the value to be displayed
     let addedValue = "";
 
