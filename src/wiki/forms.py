@@ -429,16 +429,21 @@ class CreateWikiForm(forms.Form, SpamProtectionMixin):
         label=_("Media"),
         choices=(
             ("", "Select Media"),
-            ("book", "Book"),
-            ("tv", "TV Series")
+            ("Book", "Book"),
+            ("Tv", "TV Series")
         )
     )
 
-    chapters = forms.CharField(
+    num_media = forms.IntegerField(
         label=_("Books"),
         required=False
     )
 
+    chapter_1 = forms.IntegerField(
+        label=_("Number of Chapters For Each Book"),
+        required=False
+    )
+    
     summary = forms.CharField(
         label=pgettext_lazy("Revision comment", "Summary"),
         help_text=_("Write a brief message for the article's history log."),
