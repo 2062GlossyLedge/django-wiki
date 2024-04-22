@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from wiki.core.markdown import add_to_registry
 from wiki.plugins.images import models
 from wiki.plugins.images import settings
+from ast import literal_eval
 
 IMAGE_RE = (
     r"(?:"
@@ -83,11 +84,16 @@ class ImagePattern(markdown.inlinepatterns.Pattern):
             )
         except models.Image.DoesNotExist:
             pass
-
+        
+        # Remove links due to bad format by here
         caption = m.group("caption")
+        regex_pattern =  r"\\x02klzzwxh:\d+\\x03"
+        caption = literal_eval(re.sub(regex_pattern, "", repr(caption)))
+        
         trailer = m.group("trailer")
 
         caption_placeholder = "{{{IMAGECAPTION}}}"
+        
         width = size.split("x")[0] if size else None
         html = render_to_string(
             "wiki/plugins/images/render.html",
@@ -99,10 +105,16 @@ class ImagePattern(markdown.inlinepatterns.Pattern):
                 "width": width,
             },
         )
+        caption = caption.replace("\n    ", "\n")
+        caption_html = markdown.markdown(caption)
+        
         html_before, html_after = html.split(caption_placeholder)
         placeholder_before = self.md.htmlStash.store(html_before)
         placeholder_after = self.md.htmlStash.store(html_after)
-        return placeholder_before + caption + placeholder_after + trailer
+        placeholder_caption = self.md.htmlStash.store(caption_html)
+        
+        return placeholder_before + placeholder_caption + placeholder_after + trailer
+        
 
 
 class ImagePostprocessor(markdown.postprocessors.Postprocessor):

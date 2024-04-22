@@ -7,6 +7,8 @@ from wiki import models
 from wiki.core.markdown import article_markdown
 from wiki.decorators import get_article
 from wiki.views.article import Edit as EditView
+from wiki.core.utils import allTextHasCitations
+import re
 
 
 ERROR_SECTION_CHANGED = gettext_lazy(
@@ -94,7 +96,6 @@ class EditSection(EditView):
 
     def form_valid(self, form):
         super().form_valid(form)
-
         section = self.article.current_revision.content
         if not section.endswith("\n"):
             section += "\r\n\r\n"
@@ -115,12 +116,19 @@ class EditSection(EditView):
                         ERROR_SECTION_UNSAVED,
                         ERROR_TRY_AGAIN,
                     ),
-                )
+                )       
             # Include the edited section into the complete previous article
             self.article.current_revision.content = (
                 content[0:start] + section + content[end:]
             )
             self.article.current_revision.save()
+            # if allTextHasCitations(section):
+                # Include the edited section into the complete previous article
+            self.article.current_revision.content = (
+                content[0:start] + section + content[end:]
+            )
+            self.article.current_revision.save()
+                
         else:
             # Back to the version before replacing the article with the section
             self.article.current_revision = (

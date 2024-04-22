@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "wiki.plugins.notifications.apps.NotificationsConfig",
     "wiki.plugins.editsection.apps.EditSectionConfig",
     "wiki.plugins.globalhistory.apps.GlobalHistoryConfig",
-    "wiki.plugins.pymdown.apps.PyMdownConfig",
     "wiki.plugins.help.apps.HelpConfig",
     "mptt",
     "tailwind",
