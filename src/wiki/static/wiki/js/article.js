@@ -4,4 +4,14 @@ $(document).ready(function() {
     $(this).addClass('list-group');
   });
 
-});
+
+
+  $('.wiki-article').find('p').on('click', function(event) {
+      $(this).css("background-color", $(this).css("background-color") === "rgb(255, 0, 0)" ? "" : "red");
+      
+  });
+
+  
+  });
+ 
+

@@ -56,7 +56,9 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+#npm path
+NPM_BIN_PATH = env("NPM_Path")
+
 
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
 
