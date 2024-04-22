@@ -7,9 +7,8 @@ $(document).ready(function() {
 
 
   $('.wiki-article').find('p').on('click', function(event) {
-      if(isHighlighted){
       $(this).css("background-color", $(this).css("background-color") === "rgb(255, 0, 0)" ? "" : "red");
-      }
+      
   });
 
   
