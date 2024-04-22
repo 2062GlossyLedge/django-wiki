@@ -110,9 +110,9 @@ class Create(FormView, ArticleMixin):
                     self.request,
                     self.newpath.article,
                     self.newpath,
-                    form.cleaned_data["media"],
+                    form.cleaned_data["media"].lower(),
                     form.cleaned_data["title"] + " Wiki (" + form.cleaned_data["media"] + ")",
-                    "",
+                    "Change " + form.cleaned_data["media"] + " wikis to include title if applicable",
                     form.cleaned_data["summary"],
                 )
                 messages.success(
@@ -120,6 +120,60 @@ class Create(FormView, ArticleMixin):
                     _("New article '%s' created.")
                     % self.newpath.article.current_revision.title,
                 )
+
+                path = self.newpath
+                article = self.newpath.article
+                media_type = form.cleaned_data["media"]
+                num_media = int(form.cleaned_data["num_media"])
+                for i in range(1, num_media + 1):
+                    if media_type == "Tv":
+                        self.newpath = models.URLPath._create_urlpath_from_request(
+                            self.request,
+                            article,
+                            path,
+                            "season" + str(i),
+                            "Season " + str(i),
+                            "",
+                            form.cleaned_data["summary"],
+                        )
+                        num_episodes = int(self.request.POST.get("chapter_" + str(i)))
+                        episode_path = self.newpath
+                        episode_article = self.newpath.article
+                        for j in range(1, num_episodes + 1):
+                            self.newpath = models.URLPath._create_urlpath_from_request(
+                                self.request,
+                                episode_article,
+                                episode_path,
+                                "episode" + str(j),
+                                "Episode " + str(j),
+                                "",
+                                form.cleaned_data["summary"],
+                            )
+                    else:
+                        self.newpath = models.URLPath._create_urlpath_from_request(
+                            self.request,
+                            article,
+                            path,
+                            media_type.lower() + str(i),
+                            media_type + " " + str(i),
+                            "",
+                            form.cleaned_data["summary"],
+                        )
+                        num_chapters = int(self.request.POST.get("chapter_" + str(i)))
+                        chapter_path = self.newpath
+                        chapter_article = self.newpath.article
+                        for j in range(1, num_chapters + 1):
+                            self.newpath = models.URLPath._create_urlpath_from_request(
+                                self.request,
+                                chapter_article,
+                                chapter_path,
+                                "chapter" + str(j),
+                                "Chapter " + str(j),
+                                "",
+                                form.cleaned_data["summary"],
+                            )
+                        
+                
             else:
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
@@ -320,6 +374,8 @@ class Edit(ArticleMixin, FormView):
         """
         if form_class is None:
             form_class = self.get_form_class()
+        if self.urlpath.path == "":
+            form_class = forms.NoCitationRequirementEditForm
         kwargs = self.get_form_kwargs()
         if (
             self.request.POST.get("save", "") != "1"

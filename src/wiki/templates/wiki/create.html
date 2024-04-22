@@ -11,9 +11,19 @@
   <script type="text/javascript">
   {% if not create_form.slug.value %}
   //<![CDATA[
+
+  //Deletes the duplicateds fields made from creating chapters
+  function removeDuplicatedFields() {
+    $("#id_chapter_1").val('');
+    $('[id^="chapter_"]').each(function() {
+        $(this).remove(); // Remove the parent element of the duplicated field
+    });
+
+  }
   (function($) {
 	  $(document).ready(function (){
-      $("#id_chapters, label[for='id_chapters']").hide();
+      $("#id_num_media, label[for='id_num_media']").hide();
+      $("#id_chapter_1, label[for='id_chapter_1']").hide();
 		  $("#id_title").keyup(function () {
 			  var e = $("#id_slug")[0];
 			  if(!e._changed) {
@@ -23,22 +33,50 @@
 	      });
       $("#id_media").change(function () {
         if ($(this).val()) {
-          if ($(this).val() == "book") {
-            $("#id_chapters").attr("required", "required");
-            $("label[for='id_chapters").text("Number of Books");
-            $("#id_chapters, label[for='id_chapters'], #id_chapters_help_text").show();
+          if ($(this).val() == "Book") {
+            $("#id_num_media").attr("required", "required");
+            $("label[for='id_num_media").text("Number of Books");
+            $("label[for='id_chapter_1").text("Number of Chapters For Each Book");
+            $("#id_num_media, label[for='id_num_media'], #id_num_media_help_text").show();
           }
           else {
-            $("#id_chapters").attr("required", "required");
-            $("label[for='id_chapters").text("Number of Seasons");
-            $("#id_chapters, label[for='id_chapters'], #id_chapters_help_text").show();
+            $("#id_num_media").attr("required", "required");
+            $("label[for='id_num_media").text("Number of Seasons");
+            $("label[for='id_chapter_1").text("Number of Chapters For Each Season");
+            $("#id_num_media, label[for='id_num_media'], #id_num_media_help_text").show();
           }
         }
         else {
-          $("#id_chapters").removeAttr("required");
-          $("#id_chapters, label[for='id_chapters'], #id_chapters_help_text").hide();
+          $("#id_num_media").removeAttr("required");
+          $("#id_num_media, label[for='id_num_media'], #id_num_media_help_text").hide();
+          $("#id_num_media").val('');
+          removeDuplicatedFields();
+          $("#id_chapter_1, label[for='id_chapter_1']").hide();
         }
       });
+      $("#id_num_media").change(function () {
+        var numChapters = parseInt($(this).val());
+        if (numChapters > 0) {
+          $("#id_chapter_1, label[for='id_chapter_1']").show();
+          $("#id_chapter_1").attr("required", "required")
+          removeDuplicatedFields();
+          $("#additional_fields_container").empty();
+          for (var i = 2; i <= numChapters; i++) {
+            var numChaptersField = $('#id_chapter_1').clone();
+            numChaptersField.attr('id', 'chapter_' + i); // Remove ID to avoid duplication
+            numChaptersField.attr('name', 'chapter_' + i);
+            numChaptersField.find('input').val(''); // Clear input value
+            var container = $("<div></div>").appendTo($('#id_chapter_1').parent());
+            numChaptersField.appendTo(container);
+          }
+          $("#additional_fields_container").show();
+        } else {
+          $("#id_chapter_1, label[for='id_chapter_1']").hide();
+          removeDuplicatedFields();
+          $("#additional_fields_container").empty().hide();
+        }
+      });
+      
 	  });
   })(jQuery);
   //]]>
@@ -52,6 +90,7 @@
 
   <form method="POST" class="form-horizontal">
     {% wiki_form create_form %}
+    
     <div class="form-group form-actions">
       <div class="col-lg-2"></div>
       <div class="col-lg-10">
