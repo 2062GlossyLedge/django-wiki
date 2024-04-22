@@ -13,9 +13,9 @@
 {% block wiki_contents %}
 
 <div class="left-sidebar">
-
+  {% if urlpath.parent.parent %}
   {% include "wiki/includes/article_leftbar.html" %}
-
+  {% endif %}
 </div>
 
   <div id="article-container">
