@@ -18,17 +18,26 @@ def allTextHasCitations(section):
     Returns true if all of the text of the section excluding header has a citation, false if not
     """
     section_content = section + "\r\n"
+    
+    # Remove pipe seperators for section content. In effect, this makes table headers deciphered as regular headers (and thus ignored) 
+    # Additionally, it makes the contents of a table still require citations.
+    section_content = section_content.replace(" | ","") 
+    
     # Remove big subheadings for section_content.
     subHeaderLinePattern = r".*?\r\n[=-]+\r\n"
-    
     section_content = re.sub(subHeaderLinePattern, '', section_content)
     
+    # Remove small subheadings for section_content
     smallHeaderLinePattern = r"#{3,6}.*?\r\n"
     section_content = re.sub(smallHeaderLinePattern, '', section_content)
     
-    # Remove automatic sub-articles list from generation.
+    # Remove automatic sub-articles list from citation requirement.
     articleListPattern = r'\[article_list depth:\d+\]'
     section_content = re.sub(articleListPattern, '', section_content)
+    
+    # Remove automatic Table of Contents from citation requirement.
+    TOCPattern = r'\[TOC(?:\s+(?:title|baselevel|separator|anchorlink|anchorlink_class|permalink|permalink_class|permalink_title|toc_depth):(?:\S+|"[^"]*"))*\]'
+    section_content = re.sub(TOCPattern, '', section_content)
     
     section_content = section_content.replace("\r","") # Remove lines for easier deciphering
     section_content = section_content.replace("\n","") # Remove lines for easier deciphering
