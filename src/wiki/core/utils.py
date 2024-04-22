@@ -24,9 +24,12 @@ def allTextHasCitations(section):
     section_content = re.sub(subHeaderLinePattern, '', section_content)
     
     smallHeaderLinePattern = r"#{3,6}.*?\r\n"
-
-    
     section_content = re.sub(smallHeaderLinePattern, '', section_content)
+    
+    # Remove automatic sub-articles list from generation.
+    articleListPattern = r'\[article_list depth:\d+\]'
+    section_content = re.sub(articleListPattern, '', section_content)
+    
     section_content = section_content.replace("\r","") # Remove lines for easier deciphering
     section_content = section_content.replace("\n","") # Remove lines for easier deciphering
     section_content = section_content.replace(" ","") # Remove spaces for easier deciphering
