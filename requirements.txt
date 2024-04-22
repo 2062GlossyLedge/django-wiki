@@ -9,7 +9,7 @@ django-nyt==1.4
 django-sekizai==4.1.0
 Markdown==3.6
 pillow==10.2.0
-pymdown-extensions==10.5
+pymdown-extensions==10.8
 PyYAML==6.0.1
 six==1.16.0
 sorl-thumbnail==12.10.0
