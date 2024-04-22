@@ -91,13 +91,15 @@ class Create(FormView, ArticleMixin):
     def form_valid(self, form):
         try:
             if self.urlpath.path == "":
+
+                #Creates Homepage for wiki
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
                     self.article,
                     self.urlpath,
                     form.cleaned_data["slug"],
                     form.cleaned_data["title"],
-                    "",
+                    "[article_list depth:1]",
                     form.cleaned_data["summary"],
                 )
                 messages.success(
@@ -106,13 +108,14 @@ class Create(FormView, ArticleMixin):
                     % self.newpath.article.current_revision.title,
                 )
                 
+                #Creates Media type wiki
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
                     self.newpath.article,
                     self.newpath,
                     form.cleaned_data["media"].lower(),
                     form.cleaned_data["title"] + " Wiki (" + form.cleaned_data["media"] + ")",
-                    "Change " + form.cleaned_data["media"] + " wikis to include title if applicable",
+                    "Change " + form.cleaned_data["media"] + " wikis to include title if applicable\n[article_list depth:2]",
                     form.cleaned_data["summary"],
                 )
                 messages.success(
@@ -121,11 +124,13 @@ class Create(FormView, ArticleMixin):
                     % self.newpath.article.current_revision.title,
                 )
 
+                #Creates Wikis For Books/Seasons
                 path = self.newpath
                 article = self.newpath.article
                 media_type = form.cleaned_data["media"]
                 num_media = int(form.cleaned_data["num_media"])
                 for i in range(1, num_media + 1):
+                    #Seasons
                     if media_type == "Tv":
                         self.newpath = models.URLPath._create_urlpath_from_request(
                             self.request,
@@ -133,9 +138,11 @@ class Create(FormView, ArticleMixin):
                             path,
                             "season" + str(i),
                             "Season " + str(i),
-                            "",
+                            "[article_list depth:3]",
                             form.cleaned_data["summary"],
                         )
+
+                        #Creates wikis for how many episodes are in a season
                         num_episodes = int(self.request.POST.get("chapter_" + str(i)))
                         episode_path = self.newpath
                         episode_article = self.newpath.article
@@ -149,6 +156,7 @@ class Create(FormView, ArticleMixin):
                                 "",
                                 form.cleaned_data["summary"],
                             )
+                    #Other types of media
                     else:
                         self.newpath = models.URLPath._create_urlpath_from_request(
                             self.request,
@@ -156,9 +164,11 @@ class Create(FormView, ArticleMixin):
                             path,
                             media_type.lower() + str(i),
                             media_type + " " + str(i),
-                            "",
+                            "[article_list depth:3]",
                             form.cleaned_data["summary"],
                         )
+
+                        #Creates wikis for chapters in a book
                         num_chapters = int(self.request.POST.get("chapter_" + str(i)))
                         chapter_path = self.newpath
                         chapter_article = self.newpath.article
