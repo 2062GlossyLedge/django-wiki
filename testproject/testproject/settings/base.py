@@ -45,7 +45,19 @@ INSTALLED_APPS = [
     "wiki.plugins.pymdown.apps.PyMdownConfig",
     "wiki.plugins.help.apps.HelpConfig",
     "mptt",
+    "tailwind",
+    "theme",
+     'django_browser_reload'
+
 ]
+
+TAILWIND_APP_NAME = 'theme'
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
 
@@ -57,6 +69,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 
@@ -99,14 +112,14 @@ DATABASES = {
     #     'USER': env("DB_USER"),
     #     'PASSWORD': env("DB_PASSWORD"),
     #     'HOST': env("DB_HOST"),
-    #     'PORT': env("DB_PORT"),
+    #     'PORT': env("DB_PORT"),                    
     # }
-    #Uncomment this and comment other default to use sql lite
-       "default": {
-         "ENGINE": "django.db.backends.sqlite3",
-         "NAME": os.path.join(PROJECT_DIR, "db.sqlite3"),
+    #Uncomment this and comment other default to use sql lite 
+      "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(PROJECT_DIR, "db.sqlite3"),
 
-       }
+      }
 }
 
 # Internationalization

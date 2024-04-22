@@ -18,11 +18,14 @@ class WikiSite:
     """
 
     def __init__(self, name="wiki"):
-        from wiki.views import accounts, article, deleted_list
+        from wiki.views import accounts, article, deleted_list, home
 
         self.name = name
 
         # root view
+        self.homepage_view = getattr(
+            self, "homepage_view", home.Homepage.as_view()
+        )
         self.root_view = getattr(
             self, "root_view", article.CreateRootView.as_view()
         )
@@ -122,6 +125,11 @@ class WikiSite:
 
     def get_root_urls(self):
         urlpatterns = [
+             re_path(
+                r"^homepage/$",
+                self.homepage_view,
+                name="homepage"
+            ),
             re_path(
                 r"^$", self.article_view, name="root", kwargs={"path": ""}
             ),
