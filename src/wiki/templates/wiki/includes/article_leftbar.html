@@ -1,0 +1,66 @@
+{% load i18n sekizai_tags static %}
+
+<div id="progress-select">
+  <h4>{% trans "Select Book/Movie" %}</h4>
+  <select id="book-select" style="width: 200px;"></select>
+
+  <h4>{% trans "Select Chapter/Episode" %}</h4>
+  <select id="chapter-select" style="width: 200px;"></select>
+</div>
+
+{% addtoblock "js" %}<script type="text/javascript" src="{% static "wiki/select2/js/select2.min.js" %}"></script>{% endaddtoblock %}
+{% addtoblock "js" %}
+<script
+type = "text/javascript" >
+  $(document).ready(function () {
+    $('#book-select').select2({
+      dropdownAutoWidth: true,
+      placeholder: "Type to search...",
+      ajax: {
+        url: function (params) {
+          return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
+        },
+        processResults: function (data) {
+          let ret = [];
+          data.forEach(function (val) {
+            ret.push({"id": val, "text": val})
+          });
+          return {results: ret};
+        },
+      },
+    });
+
+    $('#chapter-select').select2({
+      dropdownAutoWidth: true,
+      placeholder: "Type to search...",
+      ajax: {
+        url: function (params) {
+          return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
+        },
+        processResults: function (data) {
+          let ret = [];
+          data.forEach(function (val) {
+            ret.push({"id": val, "text": val})
+          });
+          return {results: ret};
+        },
+      },
+    });
+    // Store the value to be displayed
+    let addedValue = "";
+
+    // Update the value to add to the page on click of citation_add_citation_button
+    // $('#citations_page_title_query').on('select2:select', function (e) {
+    //     addedValue = ">> ADD YOUR CONTRIBUTION HERE [*](wiki:" + e.params.data.id.split("wiki:")[1] + ")";
+    // });
+
+    // $("#citation_add_citation_button").on("click", function () {
+    //   $('#id_content').insertAtCaret(addedValue);
+    // });
+  });
+
+</script>
+{% endaddtoblock %}
+{% addtoblock "css" %}
+<link rel="stylesheet" href="{% static "wiki/select2/css/select2.min.css" %}" type="text/css" />
+{% endaddtoblock %}

@@ -34,6 +34,7 @@ from wiki.core import permissions
 from wiki.core.diff import simple_merge
 from wiki.core.plugins.base import PluginSettingsFormMixin
 from wiki.editors import getEditor
+from wiki.models import Article
 from wiki.core.utils import allTextHasCitations
 
 from .forms_account_handling import UserCreationForm, UserUpdateForm
