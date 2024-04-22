@@ -43,16 +43,28 @@ def allTextHasCitations(section):
     section_content = section_content.replace("\n","") # Remove lines for easier deciphering
     section_content = section_content.replace(" ","") # Remove spaces for easier deciphering
     
-    # Define the regex pattern
-    linePattern = r">>.*?\[\*\]\(wiki:[^\)]+\)"
-    citationRegex = re.compile(linePattern)
+    # Add newline between each citation section to seperate
+    eitherCitationPattern = r">>.*?\(wiki(.*?)\)"
+    section_content = re.sub(eitherCitationPattern, r"\g<0>\n", section_content)
+    
+    # Define the regex pattern of citations, and count
+    citationPattern = r">>.*?\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
+    citationRegex = re.compile(citationPattern)
 
-    # Search for the first match
     allmatches = citationRegex.findall(section_content)
     sumMatchChars = 0
     # Iterate over all matches and sum the characters
     for match in allmatches:
         sumMatchChars += len(match)
+        
+    metaCitationPattern = r">>.*?\[\]\(wiki:\/[^\s()]+?\/(?:book\b|tv\b)(?=\s|\))\)"
+    metaCitationRegex = re.compile(metaCitationPattern)
+    sumMatchCharsMeta = 0
+    allmatchesMeta = metaCitationRegex.findall(section_content)
+    for match in allmatchesMeta:
+        sumMatchCharsMeta += len(match)
+        
+    section_content = section_content.replace("\n","") # Remove lines for math
     
     # If all matches cover the entire section content, return True
-    return sumMatchChars == len(section_content)
+    return (sumMatchChars + sumMatchCharsMeta) == len(section_content)
