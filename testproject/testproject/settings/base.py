@@ -58,7 +58,7 @@ INTERNAL_IPS = [
 ]
 
 #npm path
-NPM_BIN_PATH = env("NPM_Path")
+# NPM_BIN_PATH = env("NPM_Path")
 
 
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
