@@ -18,7 +18,7 @@ $(document).ready(function() {
 
   //to enable flagging 
   $('#flag-spoilers-button').on('click', () =>{
-    flagging = true;
+    flagging = !flagging;
        })
 
 
