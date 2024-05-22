@@ -18,11 +18,11 @@ class WikiSite:
     """
 
     def __init__(self, name="wiki"):
-        from wiki.views import accounts, article, deleted_list, home
+        from wiki.views import accounts, article, deleted_list, home, sidebar
 
         self.name = name
 
-        # root view
+        #  view of homepage
         self.homepage_view = getattr(
             self, "homepage_view", home.Homepage.as_view()
         )
@@ -31,6 +31,11 @@ class WikiSite:
         )
         self.root_missing_view = getattr(
             self, "root_missing_view", article.MissingRootView.as_view()
+        )
+
+        # chatbot view
+        self.chatbot_view = getattr(
+            self, "chatbot_view", sidebar.Chatbot.as_view()
         )
 
         # basic views
@@ -125,6 +130,7 @@ class WikiSite:
 
     def get_root_urls(self):
         urlpatterns = [
+            
              re_path(
                 r"^homepage/$",
                 self.homepage_view,
@@ -201,6 +207,11 @@ class WikiSite:
     def get_article_urls(self):
         urlpatterns = [
             # Paths decided by article_ids
+            re_path(
+                r"^chatbot/$",
+                self.chatbot_view,
+                name="chatbot"
+            ),
             re_path(r"^$", self.article_view, name="get"),
             re_path(r"^delete/$", self.article_delete_view, name="delete"),
             re_path(r"^deleted/$", self.article_deleted_view, name="deleted"),

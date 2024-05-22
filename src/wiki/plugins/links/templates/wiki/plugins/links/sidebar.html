@@ -3,7 +3,8 @@
 <h4>{% trans "Link to another wiki page" %}</h4>
 
 <p>
-  {% trans "Type in something from another wiki page's title and auto-complete will help you create a tag for your wiki link. Tags for links look like this:" %}<br />
+  {% trans "Type in something from another wiki page's title and auto-complete will help you create a tag for your wiki
+  link. Tags for links look like this:" %}<br />
 </p>
 
 <pre>[Title of link](wiki:ArticleSlug)</pre>
@@ -20,14 +21,15 @@
 <h4>{% trans "An external link" %}</h4>
 
 <p>
-  {% trans "You can link to another website simply by inserting an address example.com or http://example.com or by using the markdown syntax:" %}<br />
+  {% trans "You can link to another website simply by inserting an address example.com or http://example.com or by using
+  the markdown syntax:" %}<br />
 </p>
 <pre>[Clickable text](http://example.com)</pre>
 
-{% addtoblock "js" %}<script type="text/javascript" src="{% static "wiki/select2/js/select2.min.js" %}"></script>{% endaddtoblock %}
 {% addtoblock "js" %}
-<script
-type = "text/javascript" >
+<script type="text/javascript" src="{% static 'wiki/select2/js/select2.min.js' %}"></script>{% endaddtoblock %}
+{% addtoblock "js" %}
+<script type="text/javascript">
   $(document).ready(function () {
     $('#links_page_title_query').select2({
       dropdownAutoWidth: true,
@@ -39,9 +41,9 @@ type = "text/javascript" >
         processResults: function (data) {
           let ret = [];
           data.forEach(function (val) {
-            ret.push({"id": val, "text": val})
+            ret.push({ "id": val, "text": val })
           });
-          return {results: ret};
+          return { results: ret };
         },
       },
     });
@@ -54,5 +56,5 @@ type = "text/javascript" >
 </script>
 {% endaddtoblock %}
 {% addtoblock "css" %}
-<link rel="stylesheet" href="{% static "wiki/select2/css/select2.min.css" %}" type="text/css" />
+<link rel="stylesheet" href="{% static 'wiki/select2/css/select2.min.css' %}" type="text/css" />
 {% endaddtoblock %}

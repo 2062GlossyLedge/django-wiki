@@ -3,17 +3,20 @@
 <h4>{% trans "Add citation" %}</h4>
 
 <p>
-  {% trans "Select in the location where the information added can be found. Keep your contribution between the >> and the [*]:" %}<br />
+  {% trans "Select in the location where the information added can be found. Keep your contribution between the >> and
+  the [*]:" %}<br />
 </p>
 
 <pre> &gt&gt TEXT [*](wiki:/BaseWiki/chapters/Chapter#)</pre>
 
 <p>
-{% trans "Note that citations are required for all test in the wiki for allow for filtering based on spoilers" %}<br />
+  {% trans "Note that citations are required for all test in the wiki for allow for filtering based on spoilers"
+  %}<br />
 </p>
 
 <p>
-    {% trans "If addition is spoiler-free meta series information, such as author information, remove * and refer to base wiki:" %}<br />
+  {% trans "If addition is spoiler-free meta series information, such as author information, remove * and refer to base
+  wiki:" %}<br />
 </p>
 
 <pre> &gt&gt Meta Information [](wiki:/BaseWiki/MediaType)</pre>
@@ -30,10 +33,10 @@
 <hr />
 
 
-{% addtoblock "js" %}<script type="text/javascript" src="{% static "wiki/select2/js/select2.min.js" %}"></script>{% endaddtoblock %}
 {% addtoblock "js" %}
-<script
-type = "text/javascript" >
+<script type="text/javascript" src="{% static 'wiki/select2/js/select2.min.js' %}"></script>{% endaddtoblock %}
+{% addtoblock "js" %}
+<script type="text/javascript">
   $(document).ready(function () {
     $('#citations_page_title_query').select2({
       dropdownAutoWidth: true,
@@ -45,9 +48,9 @@ type = "text/javascript" >
         processResults: function (data) {
           let ret = [];
           data.forEach(function (val) {
-            ret.push({"id": val, "text": val})
+            ret.push({ "id": val, "text": val })
           });
-          return {results: ret};
+          return { results: ret };
         },
       },
     });
@@ -56,7 +59,7 @@ type = "text/javascript" >
 
     // Update the value to add to the page on click of citation_add_citation_button
     $('#citations_page_title_query').on('select2:select', function (e) {
-        addedValue = ">> ADD YOUR CONTRIBUTION HERE [*](wiki:" + e.params.data.id.split("wiki:")[1] + ")";
+      addedValue = ">> ADD YOUR CONTRIBUTION HERE [*](wiki:" + e.params.data.id.split("wiki:")[1] + ")";
     });
 
     $("#citation_add_citation_button").on("click", function () {
@@ -67,5 +70,5 @@ type = "text/javascript" >
 </script>
 {% endaddtoblock %}
 {% addtoblock "css" %}
-<link rel="stylesheet" href="{% static "wiki/select2/css/select2.min.css" %}" type="text/css" />
+<link rel="stylesheet" href="{% static 'wiki/select2/css/select2.min.css' %}" type="text/css" />
 {% endaddtoblock %}

@@ -8,10 +8,12 @@
   <select id="chapter-select" style="width: 200px;"></select>
 </div>
 
-{% addtoblock "js" %}<script type="text/javascript" src="{% static "wiki/select2/js/select2.min.js" %}"></script>{% endaddtoblock %}
+
+
 {% addtoblock "js" %}
-<script
-type = "text/javascript" >
+<script type="text/javascript" src="{% static 'wiki/select2/js/select2.min.js' %}"></script>{% endaddtoblock %}
+{% addtoblock "js" %}
+<script type="text/javascript">
   $(document).ready(function () {
     $('#book-select').select2({
       dropdownAutoWidth: true,
@@ -23,9 +25,9 @@ type = "text/javascript" >
         processResults: function (data) {
           let ret = [];
           data.forEach(function (val) {
-            ret.push({"id": val, "text": val})
+            ret.push({ "id": val, "text": val })
           });
-          return {results: ret};
+          return { results: ret };
         },
       },
     });
@@ -40,9 +42,9 @@ type = "text/javascript" >
         processResults: function (data) {
           let ret = [];
           data.forEach(function (val) {
-            ret.push({"id": val, "text": val})
+            ret.push({ "id": val, "text": val })
           });
-          return {results: ret};
+          return { results: ret };
         },
       },
     });
@@ -62,5 +64,5 @@ type = "text/javascript" >
 </script>
 {% endaddtoblock %}
 {% addtoblock "css" %}
-<link rel="stylesheet" href="{% static "wiki/select2/css/select2.min.css" %}" type="text/css" />
+<link rel="stylesheet" href="{% static 'wiki/select2/css/select2.min.css' %}" type="text/css" />
 {% endaddtoblock %}

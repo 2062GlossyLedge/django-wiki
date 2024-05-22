@@ -11,34 +11,29 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import getpass
 import os, sys
+import environ
+env = environ.Env()
+environ.Env.read_env()
 
-os.environ["OPENAI_API_KEY"] = getpass.getpass()
+#langsmith 
 
-# import dotenv
+os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
 
-# dotenv.load_dotenv()
-
-# query = sys.argv[0]
-
-# loader = TextLoader('data.txt')
-# index = VectorstoreIndexCreator().fron_loaders([loader])
-
-# print(index.query(query))
 
 from langchain_openai import ChatOpenAI
 
 llm = ChatOpenAI(model="gpt-3.5-turbo-0125")
 
-# Load, chunk and index the contents of the blog.
-# loader = WebBaseLoader(
-#     web_paths=("https://lilianweng.github.io/posts/2023-06-23-agent/",),
-#     bs_kwargs=dict(
-#         parse_only=bs4.SoupStrainer(
-#             class_=("post-content", "post-title", "post-header")
-#         )
-#     ),
-# )
-loader = TextLoader('data.txt')
+#Load, chunk and index the contents of the blog.
+loader = WebBaseLoader(
+    web_paths=("http://localhost:8000/dune/characters/paul-atriedes/",),
+    bs_kwargs=dict(
+        parse_only=bs4.SoupStrainer(
+            class_=("wiki-article")
+        )
+    ),
+ )
+# loader = TextLoader('data.txt')
 docs = loader.load()
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
@@ -68,6 +63,6 @@ rag_chain = (
 # # cleanup
 # vectorstore.delete_collection()
 
-for chunk in rag_chain.stream("When is my birthday"):
+for chunk in rag_chain.stream("Who is paul"):
     print(chunk, end="", flush=True)
     
