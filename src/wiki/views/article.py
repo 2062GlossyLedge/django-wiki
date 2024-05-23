@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -42,16 +42,48 @@ log = logging.getLogger(__name__)
 
 class ArticleView(ArticleMixin, TemplateView):
     template_name = "wiki/view.html"
+    url = ""
 
-    @method_decorator(get_article(can_read=True))
+    @method_decorator(get_article(can_read=True, can_write=True))
     def dispatch(self, request, article, *args, **kwargs):
         return super().dispatch(request, article, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         kwargs["selected_tab"] = "view"
+        # get chatbot's response
         kwargs["response"] = "Hi"
+
+        # Access current wiki page content
+
+        # Assume article_name is the variable containing the name of the article you want to fetch
+        article_name = ArticleMixin.get_context_data(self, **kwargs)[
+            "urlpath"
+        ]  # Replace this with the actual variable or value
+
+        # Fetch articles with the specified name and their current revision's content
+        articles_with_content = Article.objects.select_related(
+            "current_revision"
+        ).filter(urlpath=article_name)
+
+        # Iterate through the articles and access their content
+        for article in articles_with_content:
+            if article.current_revision:
+                print(article.current_revision.content)
+
         return ArticleMixin.get_context_data(self, **kwargs)
-    
+
+    # # get prompt
+    def post(self, request, *args, **kwargs):
+        # Handle the POST request
+        prompt = request.POST.get("prompt", "")
+        # Here you would typically process the prompt and get a response from the chatbot
+        response = "This is a response to your prompt: " + prompt
+        print(response)
+        context = self.get_context_data(**kwargs)
+        context["response"] = response
+        return self.render_to_response(context)
+
+    # # get reponse
 
 
 class Create(FormView, ArticleMixin):
@@ -80,12 +112,16 @@ class Create(FormView, ArticleMixin):
             attrs={
                 # Make patterns force lowercase if we are case insensitive to bless the user with a
                 # bit of strictness, anyways
-                "pattern": "[a-z0-9_-]+"
-                if not settings.URL_CASE_SENSITIVE
-                else "[a-zA-Z0-9_-]+",
-                "title": "Lowercase letters, numbers, hyphens and underscores"
-                if not settings.URL_CASE_SENSITIVE
-                else "Letters, numbers, hyphens and underscores",
+                "pattern": (
+                    "[a-z0-9_-]+"
+                    if not settings.URL_CASE_SENSITIVE
+                    else "[a-zA-Z0-9_-]+"
+                ),
+                "title": (
+                    "Lowercase letters, numbers, hyphens and underscores"
+                    if not settings.URL_CASE_SENSITIVE
+                    else "Letters, numbers, hyphens and underscores"
+                ),
             },
         )
         return form
@@ -94,7 +130,7 @@ class Create(FormView, ArticleMixin):
         try:
             if self.urlpath.path == "":
 
-                #Creates Homepage for wiki
+                # Creates Homepage for wiki
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
                     self.article,
@@ -109,15 +145,20 @@ class Create(FormView, ArticleMixin):
                     _("New article '%s' created.")
                     % self.newpath.article.current_revision.title,
                 )
-                
-                #Creates Media type wiki
+
+                # Creates Media type wiki
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
                     self.newpath.article,
                     self.newpath,
                     form.cleaned_data["media"].lower(),
-                    form.cleaned_data["title"] + " Wiki (" + form.cleaned_data["media"] + ")",
-                    "Change " + form.cleaned_data["media"] + " wikis to include title if applicable\n[article_list depth:2]",
+                    form.cleaned_data["title"]
+                    + " Wiki ("
+                    + form.cleaned_data["media"]
+                    + ")",
+                    "Change "
+                    + form.cleaned_data["media"]
+                    + " wikis to include title if applicable\n[article_list depth:2]",
                     form.cleaned_data["summary"],
                 )
                 messages.success(
@@ -126,13 +167,13 @@ class Create(FormView, ArticleMixin):
                     % self.newpath.article.current_revision.title,
                 )
 
-                #Creates Wikis For Books/Seasons
+                # Creates Wikis For Books/Seasons
                 path = self.newpath
                 article = self.newpath.article
                 media_type = form.cleaned_data["media"]
                 num_media = int(form.cleaned_data["num_media"])
                 for i in range(1, num_media + 1):
-                    #Seasons
+                    # Seasons
                     if media_type == "Tv":
                         self.newpath = models.URLPath._create_urlpath_from_request(
                             self.request,
@@ -144,7 +185,7 @@ class Create(FormView, ArticleMixin):
                             form.cleaned_data["summary"],
                         )
 
-                        #Creates wikis for how many episodes are in a season
+                        # Creates wikis for how many episodes are in a season
                         num_episodes = int(self.request.POST.get("chapter_" + str(i)))
                         episode_path = self.newpath
                         episode_article = self.newpath.article
@@ -158,7 +199,7 @@ class Create(FormView, ArticleMixin):
                                 "",
                                 form.cleaned_data["summary"],
                             )
-                    #Other types of media
+                    # Other types of media
                     else:
                         self.newpath = models.URLPath._create_urlpath_from_request(
                             self.request,
@@ -170,7 +211,7 @@ class Create(FormView, ArticleMixin):
                             form.cleaned_data["summary"],
                         )
 
-                        #Creates wikis for chapters in a book
+                        # Creates wikis for chapters in a book
                         num_chapters = int(self.request.POST.get("chapter_" + str(i)))
                         chapter_path = self.newpath
                         chapter_article = self.newpath.article
@@ -184,8 +225,7 @@ class Create(FormView, ArticleMixin):
                                 "",
                                 form.cleaned_data["summary"],
                             )
-                        
-                
+
             else:
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
@@ -236,9 +276,7 @@ class Delete(FormView, ArticleMixin):
     form_class = forms.DeleteForm
     template_name = "wiki/delete.html"
 
-    @method_decorator(
-        get_article(can_write=True, not_locked=True, can_delete=True)
-    )
+    @method_decorator(get_article(can_write=True, not_locked=True, can_delete=True))
     def dispatch(self, request, article, *args, **kwargs):
         return self.dispatch1(request, article, *args, **kwargs)
 
@@ -250,9 +288,7 @@ class Delete(FormView, ArticleMixin):
         self.next = ""
         self.cannot_delete_root = False
         if urlpath and urlpath.parent:
-            self.next = reverse(
-                "wiki:get", kwargs={"path": urlpath.parent.path}
-            )
+            self.next = reverse("wiki:get", kwargs={"path": urlpath.parent.path})
         elif urlpath:
             # We are a urlpath with no parent. This is the root
             self.cannot_delete_root = True
@@ -262,9 +298,7 @@ class Delete(FormView, ArticleMixin):
                 if art_obj.content_object.parent:
                     self.next = reverse(
                         "wiki:get",
-                        kwargs={
-                            "article_id": art_obj.content_object.parent.article.id
-                        },
+                        kwargs={"article_id": art_obj.content_object.parent.article.id},
                     )
                 else:
                     self.cannot_delete_root = True
@@ -337,9 +371,7 @@ class Delete(FormView, ArticleMixin):
 
     def get_context_data(self, **kwargs):
         cannot_delete_children = False
-        if self.children_slice and not self.article.can_moderate(
-            self.request.user
-        ):
+        if self.children_slice and not self.article.can_moderate(self.request.user):
             cannot_delete_children = True
 
         kwargs["delete_form"] = self.get_form()
@@ -352,7 +384,6 @@ class Delete(FormView, ArticleMixin):
 
 
 class Edit(ArticleMixin, FormView):
-
     """Edit an article and process sidebar plugins."""
 
     form_class = forms.EditForm
@@ -397,9 +428,7 @@ class Edit(ArticleMixin, FormView):
             kwargs["files"] = None
             kwargs["no_clean"] = True
             kwargs["content"] = self.orig_content
-        return form_class(
-            self.request, self.article.current_revision, **kwargs
-        )
+        return form_class(self.request, self.article.current_revision, **kwargs)
 
     def get_sidebar_form_classes(self):
         """Returns dictionary of form classes for the sidebar. If no form class is
@@ -451,9 +480,7 @@ class Edit(ArticleMixin, FormView):
                         content = form.cleaned_data["unsaved_article_content"]
                         orig_content = self.orig_content
                         if not orig_content:
-                            orig_content = (
-                                self.article.current_revision.content
-                            )
+                            orig_content = self.article.current_revision.content
                         if (
                             title != self.article.current_revision.title
                             or content != orig_content
@@ -472,12 +499,8 @@ class Edit(ArticleMixin, FormView):
                             )
 
                         if self.urlpath:
-                            return redirect(
-                                "wiki:edit", path=self.urlpath.path
-                            )
-                        return redirect(
-                            "wiki:edit", article_id=self.article.id
-                        )
+                            return redirect("wiki:edit", path=self.urlpath.path)
+                        return redirect("wiki:edit", article_id=self.article.id)
 
                 else:
                     form = Form(self.article, self.request)
@@ -544,9 +567,7 @@ class Move(ArticleMixin, FormView):
         if not self.urlpath.parent:
             messages.error(
                 self.request,
-                _(
-                    "This article cannot be moved because it is a root article."
-                ),
+                _("This article cannot be moved because it is a root article."),
             )
             return redirect("wiki:get", article_id=self.article.id)
 
@@ -591,9 +612,7 @@ class Move(ArticleMixin, FormView):
         if form.cleaned_data["redirect"]:
             # NB! Includes self!
             descendants = list(
-                self.urlpath.get_descendants(include_self=True).order_by(
-                    "level"
-                )
+                self.urlpath.get_descendants(include_self=True).order_by("level")
             )
 
             root_len = len(descendants[0].path)
@@ -608,9 +627,7 @@ class Move(ArticleMixin, FormView):
                 src_len = len(src_path)
                 pos = src_path.rfind("/", 0, src_len - 1)
                 slug = src_path[pos + 1 : src_len - 1]
-                parent_urlpath = models.URLPath.get_by_path(
-                    src_path[0 : max(pos, 0)]
-                )
+                parent_urlpath = models.URLPath.get_by_path(src_path[0 : max(pos, 0)])
 
                 link = "[wiki:/{path}](wiki:/{path})".format(path=dst_path)
                 urlpath_new = models.URLPath._create_urlpath_from_request(
@@ -640,7 +657,6 @@ class Move(ArticleMixin, FormView):
 
 
 class Deleted(Delete):
-
     """Tell a user that an article has been deleted. If user has permissions,
     let user restore and possibly purge the deleted article and children."""
 
@@ -667,9 +683,8 @@ class Deleted(Delete):
 
         # Restore
         if request.GET.get("restore", False):
-            can_restore = (
-                not article.current_revision.locked
-                and article.can_delete(request.user)
+            can_restore = not article.current_revision.locked and article.can_delete(
+                request.user
             )
             can_restore = can_restore or article.can_moderate(request.user)
 
@@ -813,9 +828,7 @@ class SearchView(ListView):
 
     def get_queryset(self):
         if not self.query:
-            return models.Article.objects.none().order_by(
-                "-current_revision__created"
-            )
+            return models.Article.objects.none().order_by("-current_revision__created")
         articles = models.Article.objects
         path = self.kwargs.get("path", None)
         if path:
@@ -885,21 +898,15 @@ class Settings(ArticleMixin, TemplateView):
         self.forms = []
         for form_class in self.get_form_classes():
             if form_class.action == self.request.GET.get("f", None):
-                form = form_class(
-                    self.article, self.request, self.request.POST
-                )
+                form = form_class(self.article, self.request, self.request.POST)
                 if form.is_valid():
                     form.save()
                     usermessage = form.get_usermessage()
                     if usermessage:
                         messages.success(self.request, usermessage)
                     if self.urlpath:
-                        return redirect(
-                            "wiki:settings", path=self.urlpath.path
-                        )
-                    return redirect(
-                        "wiki:settings", article_id=self.article.id
-                    )
+                        return redirect("wiki:settings", path=self.urlpath.path)
+                    return redirect("wiki:settings", article_id=self.article.id)
             else:
                 form = form_class(self.article, self.request)
             self.forms.append(form)
@@ -943,9 +950,7 @@ class ChangeRevisionView(RedirectView):
         if self.urlpath:
             return reverse("wiki:history", kwargs={"path": self.urlpath.path})
         else:
-            return reverse(
-                "wiki:history", kwargs={"article_id": self.article.id}
-            )
+            return reverse("wiki:history", kwargs={"article_id": self.article.id})
 
     def change_revision(self):
         revision = get_object_or_404(
@@ -1059,9 +1064,7 @@ class MergeView(View):
         )
 
         current_text = (
-            article.current_revision.content
-            if article.current_revision
-            else ""
+            article.current_revision.content if article.current_revision else ""
         )
         new_text = revision.content
 
@@ -1093,12 +1096,8 @@ class MergeView(View):
             }
             article.add_revision(new_revision, save=True)
 
-            old_revision.simpleplugin_set.all().update(
-                article_revision=new_revision
-            )
-            revision.simpleplugin_set.all().update(
-                article_revision=new_revision
-            )
+            old_revision.simpleplugin_set.all().update(article_revision=new_revision)
+            revision.simpleplugin_set.all().update(article_revision=new_revision)
 
             messages.success(
                 request,
@@ -1166,6 +1165,7 @@ class CreateRootView(FormView):
 class MissingRootView(TemplateView):
     template_name = "wiki/root_missing.html"
 
+
 class ProgressPathSearch(View):
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
@@ -1193,29 +1193,3 @@ class ProgressPathSearch(View):
             ]
 
         return object_to_json_response(matches)
-
-# class Chatbot(TemplateView):
-#     template_name = 'wiki/includes/article_rightbar.html'
-#     # pass in url of current wiki page and query. Return chabot response 
-#     def getResponse(request):
-#         response= "Hi, I'm your friendly chatbot"
-#         context = {'response': response}
-#         return render(request, template_name, context)    # pass response to template 
-    # def responseContext(self):
-    #     # get prompt
-    #     if request.method == "POST":
-    #         prompt = request.POST.get("prompt")
-
-# class Chatbot(TemplateView):
-#     template_name = 'wiki/includes/article_rightbar.html'
-
-#     def get(self, request, *args, **kwargs):
-#         response = "Hi, I'm your friendly chatbot"
-#         context = self.get_context_data(**kwargs)
-#         context['response'] = response
-#         return self.render_to_response(context)
-    
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         print(context)  # Print the context to the console for debugging
-#         return context

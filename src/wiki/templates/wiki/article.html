@@ -14,15 +14,16 @@
 
 
 <div class="left-sidebar">
+  <!-- only shows article left sidebar for slugs past Wikis/<media source>/ -->
   {% if urlpath.parent.parent %}
   {% include "wiki/includes/article_leftbar.html" %}
   {% endif %}
 </div>
 
 <div class="right-sidebar">
-
-  {% include "wiki/includes/article_rightbar.html" with response=response %}
-
+  {% if urlpath.parent.parent %}
+  {% include "wiki/includes/article_rightbar.html" with response=response content=content %}
+  {% endif %}
 </div>
 
 <div id="article-container">
