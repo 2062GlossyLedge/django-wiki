@@ -22,16 +22,16 @@ class Chatbot(TemplateView):
     #     kwargs["URL"] = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
     #     return ArticleMixin.get_context_data(self, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        response = "Hi, I'm your friendly chatbot"
-        context = self.get_context_data(**kwargs)
-        context["response"] = response
-        return self.render_to_response(context)
+    # def get(self, request, *args, **kwargs):
+    #     response = "Hi, I'm your friendly chatbot"
+    #     context = self.get_context_data(**kwargs)
+    #     context["response"] = response
+    #     return self.render_to_response(context)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        print(context)  # Print the context to the console for debugging
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     print(context)  # Print the context to the console for debugging
+    #     return context
 
 
 #     # pass in url of current wiki page and query. Return chabot response
