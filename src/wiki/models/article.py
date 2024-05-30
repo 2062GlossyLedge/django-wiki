@@ -75,15 +75,11 @@ class Article(models.Model):
         on_delete=models.SET_NULL,
     )
 
-    group_read = models.BooleanField(
-        default=True, verbose_name=_("group read access")
-    )
+    group_read = models.BooleanField(default=True, verbose_name=_("group read access"))
     group_write = models.BooleanField(
         default=True, verbose_name=_("group write access")
     )
-    other_read = models.BooleanField(
-        default=True, verbose_name=_("others read access")
-    )
+    other_read = models.BooleanField(default=True, verbose_name=_("others read access"))
     other_write = models.BooleanField(
         default=True, verbose_name=_("others write access")
     )
@@ -126,9 +122,7 @@ class Article(models.Model):
                 )
             else:
                 objects = obj.content_object.get_children().filter(**kwargs)
-            for child in objects.order_by(
-                "articles__article__current_revision__title"
-            ):
+            for child in objects.order_by("articles__article__current_revision__title"):
                 cnt += 1
                 if max_num and cnt > max_num:
                     return
@@ -172,9 +166,7 @@ class Article(models.Model):
             self.save()
         revisions = self.articlerevision_set.all()
         try:
-            new_revision.revision_number = (
-                revisions.latest().revision_number + 1
-            )
+            new_revision.revision_number = revisions.latest().revision_number + 1
         except ArticleRevision.DoesNotExist:
             new_revision.revision_number = 0
         new_revision.article = self
@@ -317,7 +309,6 @@ class ArticleForObject(models.Model):
 
 
 class BaseRevisionMixin(models.Model):
-
     """This is an abstract model used as a mixin: Do not override any of the
     core model methods but respect the inheritor's freedom to do so itself."""
 
@@ -333,9 +324,7 @@ class BaseRevisionMixin(models.Model):
         editable=False,
     )
 
-    ip_address = IPAddressField(
-        _("IP address"), blank=True, null=True, editable=False
-    )
+    ip_address = IPAddressField(_("IP address"), blank=True, null=True, editable=False)
     user = models.ForeignKey(
         django_settings.AUTH_USER_MODEL,
         verbose_name=_("user"),
@@ -390,7 +379,6 @@ class BaseRevisionMixin(models.Model):
 
 
 class ArticleRevision(BaseRevisionMixin, models.Model):
-
     """This is where main revision data is stored. To make it easier to
     copy, do NEVER create m2m relationships."""
 
@@ -508,3 +496,27 @@ pre_save.connect(on_article_revision_pre_save, ArticleRevision)
 post_save.connect(on_article_revision_post_save, ArticleRevision)
 post_save.connect(on_article_save_clear_cache, Article)
 pre_delete.connect(on_article_delete_clear_cache, Article)
+
+from django.db import models
+from django.utils import timezone
+
+
+# class ChatHistory(models.Model):
+#     article_revision = models.ForeignKey(
+#         "ArticleRevision",
+#         on_delete=models.CASCADE,
+#         related_name="chat_histories",
+#         verbose_name=_("article revision"),
+#     )
+#     session_id = models.CharField(max_length=255, verbose_name=_("session ID"))
+#     user_message = models.TextField(verbose_name=_("user message"))
+#     bot_response = models.TextField(verbose_name=_("bot response"))
+#     timestamp = models.DateTimeField(default=timezone.now, verbose_name=_("timestamp"))
+
+#     class Meta:
+#         verbose_name = _("Chat History")
+#         verbose_name_plural = _("Chat Histories")
+#         ordering = ["-timestamp"]
+
+#     def __str__(self):
+#         return f"Chat history for {self.article_revision} at {self.timestamp}"

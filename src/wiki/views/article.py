@@ -36,41 +36,95 @@ from wiki.core.utils import object_to_json_response
 from wiki.decorators import get_article
 from wiki.models.article import Article, ArticleRevision
 from wiki.views.mixins import ArticleMixin
+from wiki.views.chatbot import Chatbot
 
 log = logging.getLogger(__name__)
 
-from langchain_community.document_loaders import TextLoader
-from langchain.indexes import VectorstoreIndexCreator
-import bs4
-from langchain import hub
-from langchain_community.document_loaders import WebBaseLoader
-from langchain_chroma import Chroma
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
-from langchain_openai import OpenAIEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+# from langchain_community.document_loaders import TextLoader
+# from langchain.indexes import VectorstoreIndexCreator
+# from langchain.chains import create_history_aware_retriever, create_retrieval_chain
+# from langchain.chains.combine_documents import create_stuff_documents_chain
+# from langchain_chroma import Chroma
+# from langchain_community.chat_message_histories import ChatMessageHistory
+# from langchain_community.document_loaders import WebBaseLoader
+# from langchain_core.chat_history import BaseChatMessageHistory
+# from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+# from langchain_core.runnables.history import RunnableWithMessageHistory
+# from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+# from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
-import getpass
-import os, sys
-import environ
+# import getpass
+# import os, sys
+# import environ
 
-env = environ.Env()
-environ.Env.read_env()
+# env = environ.Env()
+# environ.Env.read_env()
 
-os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
-from langchain_openai import ChatOpenAI
+# os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
+# from langchain_openai import ChatOpenAI
 
-llm = ChatOpenAI(model="gpt-3.5-turbo-0125")
+# llm = ChatOpenAI(model="gpt-3.5-turbo-0125")
+
+# store = {}
+
+# Class based views
+# https://docs.djangoproject.com/en/5.0/topics/class-based-views/intro/
 
 
 class ArticleView(ArticleMixin, TemplateView):
     template_name = "wiki/view.html"
-    url = ""
 
-    @method_decorator(get_article(can_read=True, can_write=True))
+    @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
         return super().dispatch(request, article, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        kwargs["selected_tab"] = "view"
+
+        return ArticleMixin.get_context_data(self, **kwargs)
+
+    def get_article_revision(self, **kwargs):
+        # Fetch the url path of the article you want to fetch
+        article_path = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
+
+        # Fetch the article with the specified path and its current revision's content
+        article = get_object_or_404(
+            Article.objects.select_related("current_revision"), urlpath=article_path
+        )
+
+        # Check if the article has a current revision
+        if article.current_revision:
+            print(article.current_revision.content)
+            # Append the content of the current revision to the context file (optional)
+            self.append_to_file("context.txt", article.current_revision.content)
+
+            # Return the current revision of the article
+            return article.current_revision
+        else:
+            # Handle the case where there is no current revision
+            raise ValueError("The article does not have a current revision.")
+
+    # prompt chatbot
+    def post(self, request, *args, **kwargs):
+        article_revision = self.get_article_revision(**kwargs)
+
+        session_id = (
+            request.session.session_key
+        )  # Use Django session key as the session ID
+        user_message = request.POST.get("prompt", "")
+
+        chatbot = Chatbot()
+        bot_response = chatbot.handle_message(
+            article_revision, session_id, user_message
+        )
+
+        # change to increase speed
+        # self.clear_file("context.txt")
+
+        context = self.get_context_data(**kwargs)
+        context["response"] = bot_response
+        return self.render_to_response(context)
 
     # Function to append strings to a text file
 
@@ -82,80 +136,6 @@ class ArticleView(ArticleMixin, TemplateView):
     def clear_file(self, file_path):
         with open(file_path, "w") as file:
             pass  # Opening the file in 'w' mode and doing nothing clears the file
-
-    def get_context_data(self, **kwargs):
-        kwargs["selected_tab"] = "view"
-
-        return ArticleMixin.get_context_data(self, **kwargs)
-
-    # prompt chatbot
-    def post(self, request, *args, **kwargs):
-
-        # give chatbot context
-
-        # get url path of the article you want to fetch
-        article_path = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
-
-        # Fetch articles with the specified name and their current revision's content based on the urls path
-        articles = Article.objects.select_related("current_revision").filter(
-            urlpath=article_path
-        )
-        for article in articles:
-            if article.current_revision:
-                self.append_to_file("context.txt", article.current_revision.content)
-
-        # get user's prompt
-        userPrompt = request.POST.get("prompt", "")
-
-        # https://python.langchain.com/v0.1/docs/use_cases/question_answering/quickstart/
-        # gives chatbot the content of the wiki page and the users prompt to generate a response
-        loader = TextLoader("context.txt")
-        docs = loader.load()
-
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=200
-        )
-        splits = text_splitter.split_documents(docs)
-        vectorstore = Chroma.from_documents(
-            documents=splits, embedding=OpenAIEmbeddings()
-        )
-
-        # Retrieve and generate using the relevant snippets of the wiki page.
-        retriever = vectorstore.as_retriever(
-            search_type="similarity", search_kwargs={"k": 6}
-        )
-
-        prompt = hub.pull("rlm/rag-prompt")
-
-        def format_docs(docs):
-            return "\n\n".join(doc.page_content for doc in docs)
-
-        rag_chain = (
-            {"context": retriever | format_docs, "question": RunnablePassthrough()}
-            | prompt
-            | llm
-            | StrOutputParser()
-        )
-
-        # rag_chain.invoke("What is Task Decomposition?")
-
-        # # cleanup??
-        # vectorstore.delete_collection()
-
-        self.clear_file("context.txt")
-
-        # get chatbots response
-        response = ""
-        for chunk in rag_chain.stream(userPrompt):
-            print(chunk, end="", flush=True)
-            response += chunk
-
-        # send prompt and response to template
-        response = userPrompt + ": " + response
-        print(response)
-        context = self.get_context_data(**kwargs)
-        context["response"] = response
-        return self.render_to_response(context)
 
 
 class Create(FormView, ArticleMixin):
