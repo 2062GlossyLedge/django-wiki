@@ -73,6 +73,7 @@ log = logging.getLogger(__name__)
 
 
 class ArticleView(ArticleMixin, TemplateView):
+
     template_name = "wiki/view.html"
 
     @method_decorator(get_article(can_read=True))
@@ -84,40 +85,42 @@ class ArticleView(ArticleMixin, TemplateView):
 
         return ArticleMixin.get_context_data(self, **kwargs)
 
-    def get_article_revision(self, **kwargs):
-        # Fetch the url path of the article you want to fetch
-        article_path = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
+    # def get_article_revision(self, **kwargs):
+    #     # Fetch the url path of the article you want to fetch
+    #     article_path = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
 
-        # Fetch the article with the specified path and its current revision's content
-        article = get_object_or_404(
-            Article.objects.select_related("current_revision"), urlpath=article_path
-        )
+    #     # Fetch the article with the specified path and its current revision's content
+    #     article = get_object_or_404(
+    #         Article.objects.select_related("current_revision"), urlpath=article_path
+    #     )
 
-        # Check if the article has a current revision
-        if article.current_revision:
-            print(article.current_revision.content)
-            # Append the content of the current revision to the context file (optional)
-            self.append_to_file("context.txt", article.current_revision.content)
+    #     # Check if the article has a current revision
+    #     if article.current_revision:
+    #         # print(article.current_revision.content)
+    #         # Append the content of the current revision to the context file (optional)
+    #         self.append_to_file("context.txt", article.current_revision.content)
 
-            # Return the current revision of the article
-            return article.current_revision
-        else:
-            # Handle the case where there is no current revision
-            raise ValueError("The article does not have a current revision.")
+    #         # Return the current revision of the article
+    #         return article.current_revision
+    #     else:
+    #         # Handle the case where there is no current revision
+    #         raise ValueError("The article does not have a current revision.")
 
     # prompt chatbot
     def post(self, request, *args, **kwargs):
-        article_revision = self.get_article_revision(**kwargs)
 
-        session_id = (
-            request.session.session_key
-        )  # Use Django session key as the session ID
+        # article_revision = self.get_article_revision(**kwargs)
+        # Fetch the article with the specified path
+        urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
+        # print(str(urlPath))
+
+        # session_id = (
+        #     request.session.session_key
+        # )  # Use Django session key as the session ID
+        session_id = str(urlPath)
         user_message = request.POST.get("prompt", "")
-
         chatbot = Chatbot()
-        bot_response = chatbot.handle_message(
-            article_revision, session_id, user_message
-        )
+        bot_response = chatbot.handle_message(session_id, user_message, str(urlPath))
 
         # change to increase speed
         # self.clear_file("context.txt")
