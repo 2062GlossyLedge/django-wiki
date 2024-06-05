@@ -32,75 +32,58 @@ os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
 
 llm = ChatOpenAI(model="gpt-3.5-turbo-0125")
 
-url_set = dict()
+# create vectorstore
+vectorstore = None
+
+# have each wiki page have its own vectorstore
+vectorstoreDict = dict()
 
 
 class Chatbot:
 
-    # def save_chat_history(
-    #     self, article_revision, session_id, user_message, bot_response
-    # ):
-    #     ChatHistory.objects.create(
-    #         article_revision=article_revision,
-    #         session_id=session_id,
-    #         user_message=user_message,
-    #         bot_response=bot_response,
-    #     )
+    def handle_message(self, userPrompt, urlPath):
+        """chatbot response to user input
 
-    def handle_message(self, session_id, userPrompt, urlPath):
+        Args:
+            userPrompt (str): user prompt
+
+        Returns:
+            str: chatbot response
+        """
         # https://python.langchain.com/v0.1/docs/use_cases/question_answering/quickstart/
-        # gives chatbot the content of the wiki page and the users prompt to generate a response
         # loader = TextLoader("context.txt")
         # docs = loader.load()
-        # Load, chunk and index the contents of the current page
-        # # Initialize url_set as a dictionary
-        global url_set
 
-        if urlPath in url_set:
-            # If the URL has already been scraped, load its content from the dictionary
-            docs = url_set[urlPath]
+        global vectorstoreDict
+
+        # find if vectore already exists for current wiki page, else  scrape and create a new vectorstore if the URL hasn't been scraped yet
+        if urlPath in vectorstoreDict:
+
+            vectorstore = vectorstoreDict[urlPath]
+
         else:
-            # If the URL hasn't been scraped, scrape it and store its content in the dictionary
+            # Scrape the wiki page
             loader = WebBaseLoader(
                 web_paths=("http://localhost:8000/" + urlPath,),
                 bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
             )
             docs = loader.load()
-            url_set[urlPath] = docs
 
-        # ... rest of your code ...
+            text_splitter = RecursiveCharacterTextSplitter(
+                chunk_size=1000, chunk_overlap=200
+            )
+            splits = text_splitter.split_documents(docs)
 
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=200
-        )
-        splits = text_splitter.split_documents(docs)
-        vectorstore = Chroma.from_documents(
-            documents=splits,
-            embedding=OpenAIEmbeddings(),
-            persist_directory="./chroma_db",
-            # makes it so each stored db collection only holds document  containing the contents of the single wiki page
-            collection_name=urlPath.replace("/", ""),
-        )
-        # ids = [str(i) for i in range(1, len(docs) + 1)]
-        # print("ids", ids)
-        # # delete the last document
-        print(vectorstore._collection.peek())
-        # print("count before", vectorstore._collection.delete)
-        # vectorstore._collection.delete(["716fb005-088b-4913-8dec-d6b875059c3c"])
-        # print("count after", vectorstore._collection.count())
+            # create new vectore store
 
-        # load from disk
-        # db3 = Chroma(
-        #     persist_directory="./chroma_db", embedding_function=OpenAIEmbeddings()
-        # )
-        # docs = db3.similarity_search(userPrompt)
-        # print(docs[0].page_content)
-
-        # Assuming `db3` is your Chroma instance
-        embedding_store = vectorstore._collection
-
-        # Get the IDs of the documents
-        print(embedding_store)
+            vectorstore = Chroma.from_documents(
+                documents=splits,
+                embedding=OpenAIEmbeddings(),
+                persist_directory="./chroma_db",
+                # makes it so each stored db collection only holds document containing the contents of the single wiki page
+                collection_name=urlPath.replace("/", ""),
+            )
+            vectorstoreDict[urlPath] = vectorstore
 
         # Retrieve and generate using the relevant snippets of the wiki page.
         retriever = vectorstore.as_retriever(
@@ -165,8 +148,5 @@ class Chatbot:
         ]
         # send prompt and response to template
         response = userPrompt + ": " + response
-
-        # Save chat history
-        # self.save_chat_history(article_revision, session_id, userPrompt, response)
 
         return response

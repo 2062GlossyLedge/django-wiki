@@ -85,60 +85,18 @@ class ArticleView(ArticleMixin, TemplateView):
 
         return ArticleMixin.get_context_data(self, **kwargs)
 
-    # def get_article_revision(self, **kwargs):
-    #     # Fetch the url path of the article you want to fetch
-    #     article_path = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
-
-    #     # Fetch the article with the specified path and its current revision's content
-    #     article = get_object_or_404(
-    #         Article.objects.select_related("current_revision"), urlpath=article_path
-    #     )
-
-    #     # Check if the article has a current revision
-    #     if article.current_revision:
-    #         # print(article.current_revision.content)
-    #         # Append the content of the current revision to the context file (optional)
-    #         self.append_to_file("context.txt", article.current_revision.content)
-
-    #         # Return the current revision of the article
-    #         return article.current_revision
-    #     else:
-    #         # Handle the case where there is no current revision
-    #         raise ValueError("The article does not have a current revision.")
-
     # prompt chatbot
     def post(self, request, *args, **kwargs):
 
-        # article_revision = self.get_article_revision(**kwargs)
-        # Fetch the article with the specified path
         urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
-        # print(str(urlPath))
 
-        # session_id = (
-        #     request.session.session_key
-        # )  # Use Django session key as the session ID
-        session_id = str(urlPath)
         user_message = request.POST.get("prompt", "")
         chatbot = Chatbot()
-        bot_response = chatbot.handle_message(session_id, user_message, str(urlPath))
-
-        # change to increase speed
-        # self.clear_file("context.txt")
+        bot_response = chatbot.handle_message(user_message, str(urlPath))
 
         context = self.get_context_data(**kwargs)
         context["response"] = bot_response
         return self.render_to_response(context)
-
-    # Function to append strings to a text file
-
-    def append_to_file(self, file_path, text):
-        with open(file_path, "a") as file:
-            file.write(text + "\n")  # Adds the text followed by a newline character
-
-    # Function to clear the contents of a text file
-    def clear_file(self, file_path):
-        with open(file_path, "w") as file:
-            pass  # Opening the file in 'w' mode and doing nothing clears the file
 
 
 class Create(FormView, ArticleMixin):
