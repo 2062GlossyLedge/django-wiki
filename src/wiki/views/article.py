@@ -39,63 +39,52 @@ from wiki.views.mixins import ArticleMixin
 from wiki.views.chatbot import Chatbot
 
 log = logging.getLogger(__name__)
+import pdb
 
-# from langchain_community.document_loaders import TextLoader
-# from langchain.indexes import VectorstoreIndexCreator
-# from langchain.chains import create_history_aware_retriever, create_retrieval_chain
-# from langchain.chains.combine_documents import create_stuff_documents_chain
-# from langchain_chroma import Chroma
-# from langchain_community.chat_message_histories import ChatMessageHistory
-# from langchain_community.document_loaders import WebBaseLoader
-# from langchain_core.chat_history import BaseChatMessageHistory
-# from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-# from langchain_core.runnables.history import RunnableWithMessageHistory
-# from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-# from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-
-# import getpass
-# import os, sys
-# import environ
-
-# env = environ.Env()
-# environ.Env.read_env()
-
-# os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
-# from langchain_openai import ChatOpenAI
-
-# llm = ChatOpenAI(model="gpt-3.5-turbo-0125")
-
-# store = {}
 
 # Class based views
 # https://docs.djangoproject.com/en/5.0/topics/class-based-views/intro/
 
 
-class ArticleView(ArticleMixin, TemplateView):
-
+class ArticleView(TemplateView, ArticleMixin):
     template_name = "wiki/view.html"
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
+
         return super().dispatch(request, article, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        kwargs["selected_tab"] = "view"
-
+        context = super().get_context_data(**kwargs)
+        # print("dfd", self.request.session["button_state"])
+        # if not self.request.session.exists("button_state"):
+        #     self.request.session["button_state"] = "off"
+        # kwargs["button_state"] = self.request.session["button_state"]
         return ArticleMixin.get_context_data(self, **kwargs)
 
-    # prompt chatbot
     def post(self, request, *args, **kwargs):
-
-        urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
-
-        user_message = request.POST.get("prompt", "")
-        chatbot = Chatbot()
-        bot_response = chatbot.handle_message(user_message, str(urlPath))
-
+        # breakpoint()
         context = self.get_context_data(**kwargs)
-        context["response"] = bot_response
+
+        # prompt chatbot
+        if "prompt" in request.POST:
+            urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
+
+            user_message = request.POST.get("prompt", "")
+            chatbot = Chatbot()
+            bot_response = chatbot.handle_message(user_message, str(urlPath))
+
+            context["response"] = bot_response
+            context["button_state"] = self.request.session["button_state"]
+
+        # toggle chatbot view
+        elif "chatbot-view-button" in request.POST:
+            current_state = self.request.session.get("button_state", "off")
+            print(current_state)
+            new_state = "on" if current_state == "off" else "off"
+            self.request.session["button_state"] = new_state  # Update the session state
+            context["button_state"] = new_state
+
         return self.render_to_response(context)
 
 

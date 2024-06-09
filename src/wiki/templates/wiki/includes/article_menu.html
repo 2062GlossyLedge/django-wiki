@@ -56,6 +56,7 @@
     <span class="hidden-xs">{{ plugin.article_tab.0 }}</span>
   </a>
 </li>
+
 {% endfor %}
 
 {% if not user.is_anonymous %}
@@ -72,5 +73,16 @@
   </a>
 </li>
 {% endif %}
+
+<li class="nav-item">
+  <form method="post">
+    {% csrf_token %}
+    <label id="chatbot-toggle-label" for="chatbot-view-button" class="px-3 nav-link"
+      style="color:#0c9c8c">Chatbot</label>
+    <button id='chatbot-view-button' name="chatbot-view-button">
+    </button>
+  </form>
+
+</li>
 
 {% endwith %}

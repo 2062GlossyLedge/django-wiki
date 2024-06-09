@@ -1,5 +1,5 @@
 {% extends "wiki/base.html" %}
-{% load wiki_tags i18n sekizai_tags %}
+{% load wiki_tags i18n sekizai_tags static %}
 
 
 {% block wiki_pagetitle %}{{ article.current_revision.title }}{% endblock %}
@@ -12,19 +12,29 @@
 
 {% block wiki_contents %}
 
+{% addtoblock "js" %}
+<script type="text/javascript" src="{% static 'wiki/js/article.js' %}">
 
-<div class="left-sidebar">
-  <!-- only shows article left sidebar for slugs past Wikis/<media source>/ -->
+</script>
+{% endaddtoblock %}
+
+
+{% comment %}
+<!-- <div class="left-sidebar"> -->
+<!-- only shows article left sidebar for slugs past Wikis/<media source>/ -->
+{% if urlpath.parent.parent %}
+{% include "wiki/includes/article_leftbar.html" %}
+{% endif %}
+<!-- </div> -->
+{% endcomment %}
+
+{% if button_state == 'on' %}
+<div class="chatbot-view">
   {% if urlpath.parent.parent %}
-  {% include "wiki/includes/article_leftbar.html" %}
+  {% include "wiki/includes/chatbot.html" with response=response content=content %}
   {% endif %}
 </div>
-
-<div class="right-sidebar">
-  {% if urlpath.parent.parent %}
-  {% include "wiki/includes/article_rightbar.html" with response=response content=content %}
-  {% endif %}
-</div>
+{% endif %}
 
 <div id="article-container">
   <nav id="article-menu" class="navbar navbar-expand-md nav-pills">

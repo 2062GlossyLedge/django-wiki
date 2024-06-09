@@ -1,0 +1,34 @@
+{% load wiki_tags i18n sekizai_tags static %}
+
+
+<!-- https://www.geeksforgeeks.org/how-to-implement-chatgpt-in-django/# -->
+<!-- box to hold chatting interface with chatbot -->
+<h1 style="color: black; margin-top: 15px">AI Assistant</h1>
+<div id="chatbox">
+    <div class="content AI-Assistant">
+
+        <div class="container p-3">
+            <div class="mb-3">
+
+                <form method="post" name="query-chatbot">
+                    {% csrf_token %}
+                    <label for="prompt" class="form-label"><strong>Prompt: </strong></label>
+                    <textarea class="form-control" type="textarea" id="prompt" name="prompt" rows="3"></textarea>
+                    <br>
+                    <button class="btn btn-primary" type="submit" id="message-to-AI">Submit</button>
+                </form>
+            </div>
+            <br>
+            <div class="mb-3">
+                <h6>Response:</h6>
+
+                <div class="container border overflow-auto h-50" id="response">
+                    <p>{{ response }}</p>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>

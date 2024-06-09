@@ -27,8 +27,8 @@ environ.Env.read_env()
 os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
 from langchain_openai import ChatOpenAI
 
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
+# os.environ["LANGCHAIN_TRACING_V2"] = "true"
+# os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
 
 llm = ChatOpenAI(model="gpt-3.5-turbo-0125")
 
@@ -55,6 +55,7 @@ class Chatbot:
         # docs = loader.load()
 
         global vectorstoreDict
+        # breakpoint()
 
         # find if vectore already exists for current wiki page, else  scrape and create a new vectorstore if the URL hasn't been scraped yet
         if urlPath in vectorstoreDict:
