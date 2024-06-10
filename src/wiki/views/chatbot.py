@@ -27,16 +27,17 @@ environ.Env.read_env()
 os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
 from langchain_openai import ChatOpenAI
 
-# os.environ["LANGCHAIN_TRACING_V2"] = "true"
-# os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
 
-llm = ChatOpenAI(model="gpt-3.5-turbo-0125")
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0.1)
 
 # create vectorstore
 vectorstore = None
 
 # have each wiki page have its own vectorstore
 vectorstoreDict = dict()
+docsDict = dict()
 
 
 class Chatbot:
@@ -61,6 +62,7 @@ class Chatbot:
         if urlPath in vectorstoreDict:
 
             vectorstore = vectorstoreDict[urlPath]
+            docs = docsDict[urlPath]
 
         else:
             # Scrape the wiki page
@@ -69,6 +71,8 @@ class Chatbot:
                 bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
             )
             docs = loader.load()
+
+            docsDict[urlPath] = docs
 
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=1000, chunk_overlap=200
@@ -85,6 +89,7 @@ class Chatbot:
                 collection_name=urlPath.replace("/", ""),
             )
             vectorstoreDict[urlPath] = vectorstore
+            # print(vectorstoreDict[urlPath]._collection)
 
         # Retrieve and generate using the relevant snippets of the wiki page.
         retriever = vectorstore.as_retriever(
@@ -108,12 +113,15 @@ class Chatbot:
         )
 
         ### Answer question ###
-        qa_system_prompt = """You are an assistant for question-answering tasks. \
+        qa_system_prompt = (
+            """You are an assistant for question-answering tasks. \
         Use the following pieces of retrieved context to answer the question. \
-        If you don't know the answer, just say that you don't know. \
+        If the retrieved context does not answer the question, just say you don't know. \
         Use three sentences maximum and keep the answer concise.\
-
-        {context}"""
+        Context: {context}\n\nQuestion: {input}
+        """
+            # + docsDict[urlPath][0].page_content
+        )
         qa_prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", qa_system_prompt),
@@ -126,6 +134,14 @@ class Chatbot:
         rag_chain = create_retrieval_chain(
             history_aware_retriever, question_answer_chain
         )
+
+        # clear chat history
+        session_id0 = SQLChatMessageHistory(
+            session_id=urlPath,
+            connection_string="sqlite:///sqlite.db",
+        )
+
+        session_id0.clear()
 
         # https://python.langchain.com/v0.1/docs/integrations/memory/sqlite/
         chain_with_history = RunnableWithMessageHistory(

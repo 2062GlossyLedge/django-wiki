@@ -30,9 +30,9 @@
 
 {% if button_state == 'on' %}
 <div class="chatbot-view">
-  {% if urlpath.parent.parent %}
+
   {% include "wiki/includes/chatbot.html" with response=response content=content %}
-  {% endif %}
+
 </div>
 {% endif %}
 

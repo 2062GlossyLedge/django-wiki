@@ -56,10 +56,7 @@ class ArticleView(TemplateView, ArticleMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # print("dfd", self.request.session["button_state"])
-        # if not self.request.session.exists("button_state"):
-        #     self.request.session["button_state"] = "off"
-        # kwargs["button_state"] = self.request.session["button_state"]
+        kwargs["selected_tab"] = "view"
         return ArticleMixin.get_context_data(self, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -79,8 +76,7 @@ class ArticleView(TemplateView, ArticleMixin):
 
         # toggle chatbot view
         elif "chatbot-view-button" in request.POST:
-            current_state = self.request.session.get("button_state", "off")
-            print(current_state)
+            current_state = self.request.session.get("button_state", "on")
             new_state = "on" if current_state == "off" else "off"
             self.request.session["button_state"] = new_state  # Update the session state
             context["button_state"] = new_state

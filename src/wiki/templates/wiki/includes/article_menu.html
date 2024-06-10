@@ -67,12 +67,16 @@
     <span class="hidden-xs">{% trans "Settings" %}</span>
   </a>
 </li>
+
+
+{% endif %}
+
+{% if selected == 'view' %}
 <li class="nav-item">
   <a id='flag-spoilers-button' class="px-3 nav-link" style="color:#0c9c8c">
     <span class="hidden-xs">{% trans "Flag Spoilers" %}</span>
   </a>
 </li>
-{% endif %}
 
 <li class="nav-item">
   <form method="post">
@@ -84,5 +88,6 @@
   </form>
 
 </li>
+{% endif %}
 
 {% endwith %}

@@ -1,5 +1,13 @@
 {% load wiki_tags i18n sekizai_tags static %}
 
+{% addtoblock "js" %}
+<script type="text/javascript" src="{% static 'wiki/js/chatbot.js' %}">
+
+</script>
+{% endaddtoblock %}
+
+
+
 
 <!-- https://www.geeksforgeeks.org/how-to-implement-chatgpt-in-django/# -->
 <!-- box to hold chatting interface with chatbot -->
@@ -10,7 +18,7 @@
         <div class="container p-3">
             <div class="mb-3">
 
-                <form method="post" name="query-chatbot">
+                <form method="post" id="query-chatbot">
                     {% csrf_token %}
                     <label for="prompt" class="form-label"><strong>Prompt: </strong></label>
                     <textarea class="form-control" type="textarea" id="prompt" name="prompt" rows="3"></textarea>
