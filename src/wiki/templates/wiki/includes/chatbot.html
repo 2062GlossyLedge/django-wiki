@@ -6,37 +6,98 @@
 </script>
 {% endaddtoblock %}
 
+<div class="chatbot-container">
+    <nav id="chatbot-menu" class="navbar navbar-expand-md nav-pills">
+        <ul class="navbar-nav w-75">
 
+            <h1 class="text-3xl font-bold">AI Assistant</h1>
+        </ul>
 
-
-<!-- https://www.geeksforgeeks.org/how-to-implement-chatgpt-in-django/# -->
-<!-- box to hold chatting interface with chatbot -->
-<h1 style="color: black; margin-top: 15px">AI Assistant</h1>
-<div id="chatbox">
-    <div class="content AI-Assistant">
-
-        <div class="container p-3">
-            <div class="mb-3">
-
-                <form method="post" id="query-chatbot">
+        <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
+            <li class="nav-item">
+                <form method="post">
                     {% csrf_token %}
-                    <label for="prompt" class="form-label"><strong>Prompt: </strong></label>
-                    <textarea class="form-control" type="textarea" id="prompt" name="prompt" rows="3"></textarea>
-                    <br>
-                    <button class="btn btn-primary" type="submit" id="message-to-AI">Submit</button>
+                    <label id="spoiler-free-toggle-label" for="spoiler-free-button" class="px-3 nav-link"
+                        style="color:#0c9c8c">Spoiler Free</label>
+                    <button id='spoiler-free-button' name="spoiler-free-button">
+                    </button>
                 </form>
-            </div>
-            <br>
-            <div class="mb-3">
-                <h6>Response:</h6>
 
-                <div class="container border overflow-auto h-50" id="response">
-                    <p>{{ response }}</p>
-                </div>
+            </li>
+            <li class="nav-item">
+                <form method="post">
+                    {% csrf_token %}
+                    <label id="all-context-toggle-label" for="all-context-button" class="px-3 nav-link"
+                        style="color:#0c9c8c">All Context</label>
+                    <button id='all-context-button' name="all-context-button">
+                    </button>
+                </form>
+            </li>
+            <li class="nav-item px-3">
+                <form method="post">
 
+                    <select id="recommend" name="recommend-prompts" style="color:#0c9c8c"
+                        class="px-4 py-2 border rounded">
+                        <option value="" disabled selected>Recommend</option>
+                        <option value="option1">Option 1</option>
+                        <option value="option2">Option 2</option>
+                    </select>
+                </form>
+            </li>
+            <li class="nav-item px-3">
+                <form method="post">
 
+                    <select id="recommend" name="recommend-prompts" style="color:#0c9c8c"
+                        class="px-4 py-2 border rounded">
+                        <option value="" disabled selected>Personalities</option>
+                        <option value="option1">Option 1</option>
+                        <option value="option2">Option 2</option>
+                    </select>
+                </form>
+            </li>
+        </ul>
 
-            </div>
+    </nav>
+
+    <div>
+        <div class="border p-4 chat-history">
+            <!-- Chat history messages will be appended here -->
         </div>
+        <form method="post" id="query-chatbot" class="mt-4 flex">
+            {% csrf_token %}
+            <textarea class="form-control" type="textarea" id="prompt" name="prompt" rows="3"></textarea>
+            <br>
+            <button class="btn btn-primary" type="submit" id="message-to-AI">Submit</button>
+        </form>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        // Toggle button active state
+        $('#spoiler-free').click(function () {
+            $(this).addClass('active').removeClass('inactive');
+            $('#all-context').removeClass('active').addClass('inactive');
+        });
+
+        $('#all-context').click(function () {
+            $(this).addClass('active').removeClass('inactive');
+            $('#spoiler-free').removeClass('active').addClass('inactive');
+        });
+
+        // Handle chat form submission
+        $('#chat-form').submit(function (event) {
+            event.preventDefault();
+            var userInput = $('#chat-input').val().trim();
+            if (userInput) {
+                $('.chat-history').append('<div class="mb-4 text-right"><div class="bg-gray-200 p-2 rounded w-1/2 ml-auto">' + userInput + '</div></div>');
+                $('#chat-input').val('');
+                // Here you can add the AJAX call to send the message to the chatbot and get a response
+                // For example:
+                // $.post('/your-chatbot-endpoint/', { message: userInput }, function(data) {
+                //     $('.chat-history').append('<div class="mb-4"><div class="bg-gray-200 p-2 rounded w-1/2">' + data.response + '</div></div>');
+                // });
+            }
+        });
+    });
+</script>
