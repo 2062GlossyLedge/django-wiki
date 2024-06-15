@@ -141,7 +141,8 @@ class Chatbot:
             connection_string="sqlite:///sqlite.db",
         )
 
-        session_id0.clear()
+        # session_id0.clear()
+        print(session_id0)
 
         # https://python.langchain.com/v0.1/docs/integrations/memory/sqlite/
         chain_with_history = RunnableWithMessageHistory(

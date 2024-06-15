@@ -6,12 +6,16 @@
 </script>
 {% endaddtoblock %}
 
-<div class="chatbot-container">
-    <nav id="chatbot-menu" class="navbar navbar-expand-md nav-pills">
+<link href="{% static 'wiki/css/chatbot.css' %}" rel="stylesheet">
+
+
+<div id="chatbot-container">
+    <nav id="chatbot-menu" class="navbar navbar-expand-md nav-pills ">
         <ul class="navbar-nav w-75">
 
             <h1 class="text-3xl font-bold">AI Assistant</h1>
         </ul>
+
 
         <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
             <li class="nav-item">
@@ -33,22 +37,22 @@
                     </button>
                 </form>
             </li>
-            <li class="nav-item px-3">
+            <!-- <li class="nav-item px-3">
                 <form method="post">
 
                     <select id="recommend" name="recommend-prompts" style="color:#0c9c8c"
-                        class="px-4 py-2 border rounded">
+                        class="px-6 py-2 border rounded">
                         <option value="" disabled selected>Recommend</option>
                         <option value="option1">Option 1</option>
                         <option value="option2">Option 2</option>
                     </select>
                 </form>
-            </li>
+            </li> -->
             <li class="nav-item px-3">
                 <form method="post">
 
                     <select id="recommend" name="recommend-prompts" style="color:#0c9c8c"
-                        class="px-4 py-2 border rounded">
+                        class="px-6 py-2 border rounded">
                         <option value="" disabled selected>Personalities</option>
                         <option value="option1">Option 1</option>
                         <option value="option2">Option 2</option>
@@ -60,44 +64,30 @@
     </nav>
 
     <div>
-        <div class="border p-4 chat-history">
-            <!-- Chat history messages will be appended here -->
+        <div id="chatbot-history" class="border p-4 flex flex-col h-40 overflow-y-auto">
+            <p>Human: hwllo</p>
+            <p>AI: Hello! How can I help you today?</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam doloremque eaque quod dolorem!
+                Consequuntur reiciendis ipsa facere adipisci corrupti obcaecati repudiandae cum, ab voluptatem minima,
+
+                et quos nesciunt. Error, architecto.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores, maxime aperiam! Enim pariatur
+                doloremque perspiciatis animi labore dolores, id et odit dolorem nobis delectus explicabo rerum quia
+                iusto fugit obcaecati!</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam doloremque eaque quod dolorem!
+                Consequuntur reiciendis ipsa facere adipisci corrupti obcaecati repudiandae cum, ab voluptatem minima,
+
+                et quos nesciunt. Error, architecto.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores, maxime aperiam! Enim pariatur
+                doloremque perspiciatis animi labore dolores, id et odit dolorem nobis delectus explicabo rerum quia
+                iusto fugit obcaecati!</p>
         </div>
         <form method="post" id="query-chatbot" class="mt-4 flex">
             {% csrf_token %}
-            <textarea class="form-control" type="textarea" id="prompt" name="prompt" rows="3"></textarea>
+            <textarea class="form-control" type="textarea" id="prompt" name="prompt" rows="3"
+                placeholder="Query Chatbot"></textarea>
             <br>
             <button class="btn btn-primary" type="submit" id="message-to-AI">Submit</button>
         </form>
     </div>
 </div>
-
-<script>
-    $(document).ready(function () {
-        // Toggle button active state
-        $('#spoiler-free').click(function () {
-            $(this).addClass('active').removeClass('inactive');
-            $('#all-context').removeClass('active').addClass('inactive');
-        });
-
-        $('#all-context').click(function () {
-            $(this).addClass('active').removeClass('inactive');
-            $('#spoiler-free').removeClass('active').addClass('inactive');
-        });
-
-        // Handle chat form submission
-        $('#chat-form').submit(function (event) {
-            event.preventDefault();
-            var userInput = $('#chat-input').val().trim();
-            if (userInput) {
-                $('.chat-history').append('<div class="mb-4 text-right"><div class="bg-gray-200 p-2 rounded w-1/2 ml-auto">' + userInput + '</div></div>');
-                $('#chat-input').val('');
-                // Here you can add the AJAX call to send the message to the chatbot and get a response
-                // For example:
-                // $.post('/your-chatbot-endpoint/', { message: userInput }, function(data) {
-                //     $('.chat-history').append('<div class="mb-4"><div class="bg-gray-200 p-2 rounded w-1/2">' + data.response + '</div></div>');
-                // });
-            }
-        });
-    });
-</script>
