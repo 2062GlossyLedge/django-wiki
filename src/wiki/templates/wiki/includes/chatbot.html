@@ -64,23 +64,11 @@
     </nav>
 
     <div>
-        <div id="chatbot-history" class="border p-4 flex flex-col h-40 overflow-y-auto">
-            <p>Human: hwllo</p>
-            <p>AI: Hello! How can I help you today?</p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam doloremque eaque quod dolorem!
-                Consequuntur reiciendis ipsa facere adipisci corrupti obcaecati repudiandae cum, ab voluptatem minima,
+        <div id="chatbot-history">
 
-                et quos nesciunt. Error, architecto.</p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores, maxime aperiam! Enim pariatur
-                doloremque perspiciatis animi labore dolores, id et odit dolorem nobis delectus explicabo rerum quia
-                iusto fugit obcaecati!</p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam doloremque eaque quod dolorem!
-                Consequuntur reiciendis ipsa facere adipisci corrupti obcaecati repudiandae cum, ab voluptatem minima,
-
-                et quos nesciunt. Error, architecto.</p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores, maxime aperiam! Enim pariatur
-                doloremque perspiciatis animi labore dolores, id et odit dolorem nobis delectus explicabo rerum quia
-                iusto fugit obcaecati!</p>
+            {% for message in chat_history %}
+            <p> {{message}}</p>
+            {% endfor %}
         </div>
         <form method="post" id="query-chatbot" class="mt-4 flex">
             {% csrf_token %}

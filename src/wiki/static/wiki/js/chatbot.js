@@ -41,6 +41,8 @@ $(document).ready(function () {
         $(this).css("color", "#0c9c8c");
     });
 
+    // Scrolls to the bottom of the chatbot history
+    $('#chatbot-history').scrollTop($('#chatbot-history')[0].scrollHeight);
 
 
 

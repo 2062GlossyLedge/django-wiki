@@ -57,21 +57,22 @@ class ArticleView(TemplateView, ArticleMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         kwargs["selected_tab"] = "view"
+
         return ArticleMixin.get_context_data(self, **kwargs)
 
     def post(self, request, *args, **kwargs):
         # breakpoint()
         context = self.get_context_data(**kwargs)
+        chatbot = Chatbot()
+        urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
 
         # prompt chatbot
         if "prompt" in request.POST:
-            urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
 
             user_message = request.POST.get("prompt", "")
-            chatbot = Chatbot()
-            bot_response = chatbot.handle_message(user_message, str(urlPath))
 
-            context["response"] = bot_response
+            chatbot.handle_message(user_message, str(urlPath))
+
             context["button_state"] = self.request.session["button_state"]
 
         # toggle chatbot view
@@ -81,6 +82,8 @@ class ArticleView(TemplateView, ArticleMixin):
             self.request.session["button_state"] = new_state  # Update the session state
             context["button_state"] = new_state
 
+        # update chat history
+        context["chat_history"] = chatbot.get_chat_history(str(urlPath))
         return self.render_to_response(context)
 
 

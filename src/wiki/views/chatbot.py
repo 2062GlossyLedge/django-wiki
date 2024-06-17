@@ -113,15 +113,12 @@ class Chatbot:
         )
 
         ### Answer question ###
-        qa_system_prompt = (
-            """You are an assistant for question-answering tasks. \
+        qa_system_prompt = """You are an assistant for question-answering tasks. \
         Use the following pieces of retrieved context to answer the question. \
         If the retrieved context does not answer the question, just say you don't know. \
         Use three sentences maximum and keep the answer concise.\
         Context: {context}\n\nQuestion: {input}
         """
-            # + docsDict[urlPath][0].page_content
-        )
         qa_prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", qa_system_prompt),
@@ -136,13 +133,13 @@ class Chatbot:
         )
 
         # clear chat history
-        session_id0 = SQLChatMessageHistory(
-            session_id=urlPath,
-            connection_string="sqlite:///sqlite.db",
-        )
+        # session_id0 = SQLChatMessageHistory(
+        #     session_id=urlPath,
+        #     connection_string="sqlite:///sqlite.db",
+        # )
 
-        # session_id0.clear()
-        print(session_id0)
+        # # session_id0.clear()
+        # print(session_id0)
 
         # https://python.langchain.com/v0.1/docs/integrations/memory/sqlite/
         chain_with_history = RunnableWithMessageHistory(
@@ -158,13 +155,29 @@ class Chatbot:
         )
 
         # This is where we configure the session id
-        #
         config = {"configurable": {"session_id": urlPath}}
 
         response = chain_with_history.invoke({"input": userPrompt}, config=config)[
             "answer"
         ]
-        # send prompt and response to template
-        response = userPrompt + ": " + response
 
-        return response
+    def get_chat_history(self, urlPath):
+        """get chat history for a specific wiki page
+
+        Args:
+            urlPath (str): wiki page url
+
+        Returns:
+            list: chat history
+        """
+        session_id0 = SQLChatMessageHistory(
+            session_id=urlPath,
+            connection_string="sqlite:///sqlite.db",
+        )
+        chat_history = str(session_id0)
+
+        # chat_history[0:5].replace("AI:", "")
+        # chat_history[0:5].replace("Human:", "")
+
+        chat_history = chat_history.split("\n")
+        return chat_history
