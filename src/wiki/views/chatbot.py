@@ -27,10 +27,29 @@ environ.Env.read_env()
 os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
 from langchain_openai import ChatOpenAI
 
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
+os.environ["GOOGLE_API_KEY"] = env("GOOGLE_API_KEY")
 
-llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0.1)
+# os.environ["LANGCHAIN_TRACING_V2"] = "true"
+# os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
+
+# llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0.1)
+# from langchain_google_vertexai import ChatVertexAI
+# import vertexai
+# from vertexai.preview import reasoning_engines
+
+# vertexai.init(
+#     project=env("GOOGLE_CLOUD_PROJECT_ID"),
+#     location="us-central1",
+#     staging_bucket=env("BUCKET_NAME"),
+# )
+
+# llm = ChatVertexAI(model="gemini-pro", temperature=0.1)
+
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro-latest")
+
+# llm = reasoning_engines.LangchainAgent(model="gemini-pro")
 
 # create vectorstore
 vectorstore = None
@@ -52,8 +71,6 @@ class Chatbot:
             str: chatbot response
         """
         # https://python.langchain.com/v0.1/docs/use_cases/question_answering/quickstart/
-        # loader = TextLoader("context.txt")
-        # docs = loader.load()
 
         global vectorstoreDict
         # breakpoint()
@@ -179,5 +196,13 @@ class Chatbot:
         # chat_history[0:5].replace("AI:", "")
         # chat_history[0:5].replace("Human:", "")
 
-        chat_history = chat_history.split("\n")
-        return chat_history
+        # Split the chat history into lines
+        chat_history_lines = chat_history.split("\n")
+
+        # Loop through the lines and replace the unwanted strings
+        for i in range(len(chat_history_lines)):
+            chat_history_lines[i] = (
+                chat_history_lines[i].replace("AI:", "").replace("Human:", "")
+            )
+
+        return chat_history_lines
