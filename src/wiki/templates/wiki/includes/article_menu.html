@@ -81,8 +81,13 @@
 <li class="nav-item">
   <form method="post">
     {% csrf_token %}
+    {% if button_state == "off" %}
     <label id="chatbot-toggle-label" for="chatbot-view-button" class="px-3 nav-link"
       style="color:#0c9c8c">Chatbot</label>
+    {% else %}
+    <label id="chatbot-toggle-label" for="chatbot-view-button" class="px-3 nav-link "
+      style="color:#0c9c8c"><u>Chatbot</u></label>
+    {% endif %}
     <button id='chatbot-view-button' name="chatbot-view-button">
     </button>
   </form>

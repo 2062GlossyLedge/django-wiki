@@ -10,6 +10,10 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain import hub
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.chat_history import HumanMessage, AIMessage, BaseMessage
 
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 
@@ -61,7 +65,7 @@ docsDict = dict()
 
 class Chatbot:
 
-    def handle_message(self, userPrompt, urlPath):
+    def handle_message_with_llm_knowledge(self, userPrompt, urlPath):
         """chatbot response to user input
 
         Args:
@@ -130,7 +134,7 @@ class Chatbot:
         )
 
         ### Answer question ###
-        qa_system_prompt = """You are an assistant for question-answering tasks. \
+        qa_system_prompt = """You are an assistant for question-answering tasks for WikiWard - a spoiler free Wikipedia site. \
         Use the following pieces of retrieved context to answer the question. \
         If the retrieved context does not answer the question, just say you don't know. \
         Use three sentences maximum and keep the answer concise.\
@@ -143,6 +147,7 @@ class Chatbot:
                 ("human", "{input}"),
             ]
         )
+        # this is where llm uses its model to answer the question
         question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
 
         rag_chain = create_retrieval_chain(
@@ -178,6 +183,83 @@ class Chatbot:
             "answer"
         ]
 
+    def handle_message_without_llm_knowledge(self, userPrompt, urlPath):
+        """chatbot response to user input
+
+        Args:
+            userPrompt (str): user prompt
+
+        Returns:
+            str: chatbot response
+        """
+        global vectorstoreDict
+        # breakpoint()
+
+        # find if vectorstroe already holds contents of wiki page, else  scrape and create a new vectorstore if the URL hasn't been scraped yet
+        if urlPath in vectorstoreDict:
+
+            vectorstore = vectorstoreDict[urlPath]
+            docs = docsDict[urlPath]
+
+        else:
+            # Scrape the wiki page
+            loader = WebBaseLoader(
+                web_paths=("http://localhost:8000/" + urlPath,),
+                bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
+            )
+            docs = loader.load()
+
+            docsDict[urlPath] = docs
+
+            text_splitter = RecursiveCharacterTextSplitter(
+                chunk_size=1000, chunk_overlap=200
+            )
+            splits = text_splitter.split_documents(docs)
+
+            # create new vectore store
+
+            vectorstore = Chroma.from_documents(
+                documents=splits,
+                embedding=OpenAIEmbeddings(),
+                persist_directory="./chroma_db",
+                # makes it so each stored db collection only holds document containing the contents of the single wiki page
+                collection_name=urlPath.replace("/", ""),
+            )
+            vectorstoreDict[urlPath] = vectorstore
+            # print(vectorstoreDict[urlPath]._collection)
+
+        # Retrieve and generate using the relevant snippets of the wiki page.
+        retriever = vectorstore.as_retriever(
+            search_type="similarity", search_kwargs={"k": 6}
+        )
+
+        prompt = hub.pull("rlm/rag-prompt")
+
+        def format_docs(docs):
+            return "\n\n".join(doc.page_content for doc in docs)
+
+        rag_chain = (
+            {"context": retriever | format_docs, "question": RunnablePassthrough()}
+            | prompt
+            | llm
+            | StrOutputParser()
+        )
+
+        session_id1 = SQLChatMessageHistory(
+            session_id=urlPath,
+            connection_string="sqlite:///sqlite.db",
+        )
+
+        userPromptMessage = HumanMessage(content=userPrompt)
+
+        session_id1.add_user_message(userPromptMessage)
+
+        response = rag_chain.invoke(userPrompt)
+
+        responseMessage = AIMessage(content=response)
+        session_id1.add_ai_message(responseMessage)
+        return response
+
     def get_chat_history(self, urlPath):
         """get chat history for a specific wiki page
 
@@ -193,14 +275,18 @@ class Chatbot:
         )
         chat_history = str(session_id0)
 
-        # chat_history[0:5].replace("AI:", "")
-        # chat_history[0:5].replace("Human:", "")
-
         # Split the chat history into lines
         chat_history_lines = chat_history.split("\n")
 
+        # Filter out empty strings from the list
+        chat_history_lines = [
+            line for line in chat_history_lines if line and line != "\r"
+        ]
+
+        print(chat_history_lines)
         # Loop through the lines and replace the unwanted strings
         for i in range(len(chat_history_lines)):
+
             chat_history_lines[i] = (
                 chat_history_lines[i].replace("AI:", "").replace("Human:", "")
             )

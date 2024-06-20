@@ -71,16 +71,30 @@ class ArticleView(TemplateView, ArticleMixin):
 
             user_message = request.POST.get("prompt", "")
 
-            chatbot.handle_message(user_message, str(urlPath))
+            # check if spoiler free button is toggled, if so, use the chatbot without LLM knowledge
+            if request.session.get("spoiler_free_button_state", "off") == "on":
+                chatbot.handle_message_without_llm_knowledge(user_message, str(urlPath))
+            else:
+                chatbot.handle_message_with_llm_knowledge(user_message, str(urlPath))
 
             context["button_state"] = self.request.session["button_state"]
+            context["spoiler_free_button_state"] = self.request.session[
+                "spoiler_free_button_state"
+            ]
 
         # toggle chatbot view
         elif "chatbot-view-button" in request.POST:
-            current_state = self.request.session.get("button_state", "on")
+            current_state = self.request.session.get("button_state", "off")
             new_state = "on" if current_state == "off" else "off"
             self.request.session["button_state"] = new_state  # Update the session state
             context["button_state"] = new_state
+
+        elif "spoiler-free-button-toggled" or "spoiler-free-button" in request.POST:
+            current_state = self.request.session.get("spoiler_free_button_state", "off")
+            new_state = "on" if current_state == "off" else "off"
+            self.request.session["spoiler_free_button_state"] = new_state
+            context["spoiler_free_button_state"] = new_state
+            context["button_state"] = self.request.session["button_state"]
 
         # update chat history
         context["chat_history"] = chatbot.get_chat_history(str(urlPath))

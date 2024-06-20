@@ -32,12 +32,12 @@ $(document).ready(function () {
     });
 
     // Change color on hover
-    $("#chatbot-container label").mouseenter(function () {
+    $("#spoiler-free-toggle-label").mouseenter(function () {
 
         $(this).css("color", "black");
     });
 
-    $("#chatbot-container label").mouseleave(function () {
+    $("#spoiler-free-toggle-label").mouseleave(function () {
         $(this).css("color", "#0c9c8c");
     });
 
