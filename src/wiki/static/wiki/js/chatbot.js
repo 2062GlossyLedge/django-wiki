@@ -44,6 +44,11 @@ $(document).ready(function () {
     // Scrolls to the bottom of the chatbot history
     $('#chatbot-history').scrollTop($('#chatbot-history')[0].scrollHeight);
 
+    // $('#dropdown-button').click(function () {
+    //     $('#dropdown-menu').toggle();
+    //     $(this).toggleClass('open');
+    // });
+
 
 
 });

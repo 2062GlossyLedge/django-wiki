@@ -73,14 +73,17 @@ class ArticleView(TemplateView, ArticleMixin):
 
             # check if spoiler free button is toggled, if so, use the chatbot without LLM knowledge
             if request.session.get("spoiler_free_button_state", "off") == "on":
-                chatbot.handle_message_without_llm_knowledge(user_message, str(urlPath))
+                chatbot.handle_message_without_llm_knowledge(
+                    user_message,
+                    str(urlPath),
+                    self.request.session.get("personality", "default"),
+                )
             else:
-                chatbot.handle_message_with_llm_knowledge(user_message, str(urlPath))
-
-            context["button_state"] = self.request.session["button_state"]
-            context["spoiler_free_button_state"] = self.request.session[
-                "spoiler_free_button_state"
-            ]
+                chatbot.handle_message_with_llm_knowledge(
+                    user_message,
+                    str(urlPath),
+                    self.request.session.get("personality", "default"),
+                )
 
         # toggle chatbot view
         elif "chatbot-view-button" in request.POST:
@@ -89,13 +92,38 @@ class ArticleView(TemplateView, ArticleMixin):
             self.request.session["button_state"] = new_state  # Update the session state
             context["button_state"] = new_state
 
-        elif "spoiler-free-button-toggled" or "spoiler-free-button" in request.POST:
+        elif "spoiler-free-button" in request.POST:
             current_state = self.request.session.get("spoiler_free_button_state", "off")
             new_state = "on" if current_state == "off" else "off"
+            # only allow personality to be default if spoiler free is on
+            if new_state == "on":
+                self.request.session["personality"] = "default"
             self.request.session["spoiler_free_button_state"] = new_state
             context["spoiler_free_button_state"] = new_state
-            context["button_state"] = self.request.session["button_state"]
 
+        elif "dropdown-button" in request.POST:
+            current_state = self.request.session.get("dropdown_button_state", "off")
+            new_state = "on" if current_state == "off" else "off"
+            self.request.session["dropdown_button_state"] = new_state
+            context["dropdown_button_state"] = new_state
+
+        elif "user-selected-personality" in request.POST:
+            user_selected_personality = request.POST.get(
+                "user-selected-personality", "default"
+            )
+            self.request.session["personality"] = user_selected_personality
+
+        elif "default-personality" in request.POST:
+            self.request.session["personality"] = "default"
+
+        # elif "chatbot-chooses-personality" in request.POST:
+        #     context["personality"] = "chatbot-chooses"
+        context["personality"] = self.request.session.get("personality", "default")
+        context["dropdown_button_state"] = self.request.session["dropdown_button_state"]
+        context["button_state"] = self.request.session["button_state"]
+        context["spoiler_free_button_state"] = self.request.session[
+            "spoiler_free_button_state"
+        ]
         # update chat history
         context["chat_history"] = chatbot.get_chat_history(str(urlPath))
         return self.render_to_response(context)

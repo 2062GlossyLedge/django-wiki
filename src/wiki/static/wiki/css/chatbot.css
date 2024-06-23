@@ -42,8 +42,96 @@
     margin-bottom: 1rem;
 }
 
-/* 
-#spoiler-free-button-toggled {
-    background-color: #3b82f6;
-    color: white;
+/* Container for dropdown */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+    width: 200px;
+}
+
+/* Button for dropdown */
+/* .dropdown-button {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    color: #0c9c8c;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 } */
+
+/* Dropdown menu */
+.personality-dropdown-menu {
+
+    display: flex;
+    position: absolute;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    margin-top: 5px;
+}
+
+/* Input fields inside dropdown */
+.personality-dropdown-menu .input-container {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.personality-dropdown-menu input {
+    width: 100%;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.personality-dropdown-menu button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    color: #0c9c8c;
+    cursor: pointer;
+}
+
+/* Arrow icon */
+.arrow {
+    border: solid black;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 3px;
+    margin-left: 10px;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+
+/* Rotate arrow icon when dropdown is open */
+#dropdown-button.open .arrow {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+}
+
+/* Additional buttons */
+.additional-buttons {
+    margin: 10px;
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.additional-buttons button {
+    padding: 10px;
+    width: 48%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    color: #0c9c8c;
+    cursor: pointer;
+}

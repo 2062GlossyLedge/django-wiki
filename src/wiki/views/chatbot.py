@@ -65,7 +65,14 @@ docsDict = dict()
 
 class Chatbot:
 
-    def handle_message_with_llm_knowledge(self, userPrompt, urlPath):
+    def setPersonality(self, personality):
+        if personality == "default":
+            return "You are helpful and friendly assistant for question-answering tasks for WikiWard - a Wikipedia site"
+        else:
+
+            return f"You are {personality}. Act like this person or thing in your responses. State who you are at the beginning of your response."
+
+    def handle_message_with_llm_knowledge(self, userPrompt, urlPath, personality):
         """chatbot response to user input
 
         Args:
@@ -132,14 +139,19 @@ class Chatbot:
         history_aware_retriever = create_history_aware_retriever(
             llm, retriever, contextualize_q_prompt
         )
-
+        # helpful and friendly assistant for question-answering tasks for WikiWard - a spoiler free Wikipedia site.
         ### Answer question ###
-        qa_system_prompt = """You are an assistant for question-answering tasks for WikiWard - a spoiler free Wikipedia site. \
+        qa_system_prompt = (
+            self.setPersonality(personality)
+            + """\
         Use the following pieces of retrieved context to answer the question. \
         If the retrieved context does not answer the question, just say you don't know. \
         Use three sentences maximum and keep the answer concise.\
         Context: {context}\n\nQuestion: {input}
         """
+        )
+
+        print(qa_system_prompt)
         qa_prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", qa_system_prompt),
@@ -160,7 +172,7 @@ class Chatbot:
         #     connection_string="sqlite:///sqlite.db",
         # )
 
-        # # session_id0.clear()
+        # session_id0.clear()
         # print(session_id0)
 
         # https://python.langchain.com/v0.1/docs/integrations/memory/sqlite/
@@ -183,7 +195,7 @@ class Chatbot:
             "answer"
         ]
 
-    def handle_message_without_llm_knowledge(self, userPrompt, urlPath):
+    def handle_message_without_llm_knowledge(self, userPrompt, urlPath, personality):
         """chatbot response to user input
 
         Args:
@@ -233,7 +245,12 @@ class Chatbot:
             search_type="similarity", search_kwargs={"k": 6}
         )
 
-        prompt = hub.pull("rlm/rag-prompt")
+        # prompt = hub.pull("rlm/rag-prompt")
+        prompt = """You are an assistant for question-answering tasks for WikiWard - a spoiler free Wikipedia site. \
+        Use the following pieces of retrieved context to answer the question. \
+        If the retrieved context does not answer the question, just say you don't know. \
+        Use three sentences maximum and keep the answer concise.\
+        """
 
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
@@ -283,7 +300,7 @@ class Chatbot:
             line for line in chat_history_lines if line and line != "\r"
         ]
 
-        print(chat_history_lines)
+        # print(chat_history_lines)
         # Loop through the lines and replace the unwanted strings
         for i in range(len(chat_history_lines)):
 

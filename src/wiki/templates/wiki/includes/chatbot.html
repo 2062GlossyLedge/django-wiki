@@ -17,53 +17,69 @@
         </ul>
 
         <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
-            {% if spoiler_free_button_state == "off" %}
+
             <li class="nav-item">
                 <form method="post">
                     {% csrf_token %}
+                    <!-- If the spoiler free button is off, display the button as off with no green background-->
+                    {% if spoiler_free_button_state == "off" %}
                     <label id="spoiler-free-toggle-label" for="spoiler-free-button" class="px-3 nav-link"
                         style="color:#0c9c8c">Spoiler Free</label>
+                    {% else %}
+                    <label id="spoiler-free-toggle-label2" for="spoiler-free-button-toggled" class="px-3 nav-link "
+                        style="background-color:#0c9c8c; color:white;">Spoiler Free</label>
+                    {% endif %}
+
                     <button id='spoiler-free-button' name="spoiler-free-button">
                     </button>
                 </form>
 
             </li>
-            {% else %}
-            <li class="nav-item">
+
+
+            {% if spoiler_free_button_state == "off" %}
+            <li class="nav-item px-3">
+
+                <!-- Button to trigger dropdown -->
                 <form method="post">
                     {% csrf_token %}
-                    <label id="spoiler-free-toggle-label2" for="spoiler-free-button-toggled" class="px-3 nav-link "
-                        style="background-color:#0c9c8c; color:white;">Spoiler Free</label>
-                    <button id='spoiler-free-button-toggled' name="spoiler-free-button-toggled">
+                    <label for="dropdown-button" class="px-3 nav-link" style="color:#0c9c8c">Personalities</label>
+                    <button id="dropdown-button" name="dropdown-button">
+
+
+                        <!-- <i class="arrow"></i> -->
+
                     </button>
                 </form>
+                {% if dropdown_button_state == "on" %}
+                <div id="personality-dropdown-menu" class="personality-dropdown-menu">
+                    <div class="input-container">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="text" id="user-selected-personality" name="user-selected-personality"
+                                placeholder="Enter personality or persona" name="personality">
+                            <button type="submit">Enter</button>
+                        </form>
+                    </div>
+                    <div class="additional-buttons">
+                        <form method="post">
+                            {% csrf_token %}
+                            <label for="default-personality" class="px-3 nav-link" style="color:#0c9c8c">Default</label>
+                            <button id="default-personality" name="default-personality"></button>
+                        </form>
+                        <!-- <form method="post">
+                            {% csrf_token %}
+                            <button id="chatbot-chooses-personality">Chatbot Chooses</button>
+                        </form> -->
+
+                    </div>
+                </div>
+
+
+                {% endif %}
 
             </li>
             {% endif %}
-
-
-            <!-- <li class="nav-item px-3">
-                <form method="post">
-
-                    <select id="recommend" name="recommend-prompts" style="color:#0c9c8c"
-                        class="px-6 py-2 border rounded">
-                        <option value="" disabled selected>Recommend</option>
-                        <option value="option1">Option 1</option>
-                        <option value="option2">Option 2</option>
-                    </select>
-                </form>
-            </li> -->
-            <li class="nav-item px-3">
-                <form method="post">
-
-                    <select id="recommend" name="recommend-prompts" style="color:#0c9c8c"
-                        class="px-6 py-2 border rounded">
-                        <option value="" disabled selected>Personalities</option>
-                        <option value="option1">Option 1</option>
-                        <option value="option2">Option 2</option>
-                    </select>
-                </form>
-            </li>
         </ul>
 
     </nav>
@@ -78,7 +94,7 @@
         <form method="post" id="query-chatbot" class="mt-4 flex">
             {% csrf_token %}
             <textarea class="form-control" type="textarea" id="prompt" name="prompt" rows="3"
-                placeholder="Query Chatbot"></textarea>
+                placeholder="Message Chatbot"></textarea>
             <br>
             <button class="btn btn-primary" type="submit" id="message-to-AI">Submit</button>
         </form>
