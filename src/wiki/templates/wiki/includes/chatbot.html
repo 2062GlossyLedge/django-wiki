@@ -24,10 +24,10 @@
                     <!-- If the spoiler free button is off, display the button as off with no green background-->
                     {% if spoiler_free_button_state == "off" %}
                     <label id="spoiler-free-toggle-label" for="spoiler-free-button" class="px-3 nav-link"
-                        style="color:#0c9c8c">Spoiler Free</label>
+                        style="color:#5c1b1b">Spoiler Free</label>
                     {% else %}
-                    <label id="spoiler-free-toggle-label2" for="spoiler-free-button-toggled" class="px-3 nav-link "
-                        style="background-color:#0c9c8c; color:white;">Spoiler Free</label>
+                    <label id="spoiler-free-toggle-label2" for="spoiler-free-button" class="px-3 nav-link "
+                        style="background-color:#5c1b1b; color:white;">Spoiler Free</label>
                     {% endif %}
 
                     <button id='spoiler-free-button' name="spoiler-free-button">
@@ -43,7 +43,7 @@
                 <!-- Button to trigger dropdown -->
                 <form method="post">
                     {% csrf_token %}
-                    <label for="dropdown-button" class="px-3 nav-link" style="color:#0c9c8c">Personalities</label>
+                    <label for="dropdown-button" class="px-3 nav-link" style="color:#5c1b1b">Personalities</label>
                     <button id="dropdown-button" name="dropdown-button">
 
 
@@ -64,7 +64,7 @@
                     <div class="additional-buttons">
                         <form method="post">
                             {% csrf_token %}
-                            <label for="default-personality" class="px-3 nav-link" style="color:#0c9c8c">Default</label>
+                            <label for="default-personality" class="px-3 nav-link" style="color:#5c1b1b">Default</label>
                             <button id="default-personality" name="default-personality"></button>
                         </form>
                         <!-- <form method="post">

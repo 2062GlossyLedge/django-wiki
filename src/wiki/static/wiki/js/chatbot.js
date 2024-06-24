@@ -38,7 +38,7 @@ $(document).ready(function () {
     });
 
     $("#spoiler-free-toggle-label").mouseleave(function () {
-        $(this).css("color", "#0c9c8c");
+        $(this).css("color", "#5c1b1b");
     });
 
     // Scrolls to the bottom of the chatbot history

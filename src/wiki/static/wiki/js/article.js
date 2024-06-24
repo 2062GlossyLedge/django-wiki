@@ -11,7 +11,7 @@ $(document).ready(function () {
   });
 
   $("#flag-spoilers-button").mouseleave(function () {
-    $(this).css("color", "#0c9c8c");
+    $(this).css("color", "#5c1b1b");
   });
 
   let flagging = false
@@ -37,7 +37,7 @@ $(document).ready(function () {
   });
 
   $("#chatbot-toggle-label").mouseleave(function () {
-    $(this).css("color", "#0c9c8c");
+    $(this).css("color", "#5c1b1b");
   });
 
 

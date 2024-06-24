@@ -73,7 +73,7 @@
 
 {% if selected == 'view' %}
 <li class="nav-item">
-  <a id='flag-spoilers-button' class="px-3 nav-link" style="color:#0c9c8c">
+  <a id='flag-spoilers-button' class="px-3 nav-link" style="color:#5c1b1b">
     <span class="hidden-xs">{% trans "Flag Spoilers" %}</span>
   </a>
 </li>
@@ -83,10 +83,10 @@
     {% csrf_token %}
     {% if button_state == "off" %}
     <label id="chatbot-toggle-label" for="chatbot-view-button" class="px-3 nav-link"
-      style="color:#0c9c8c">Chatbot</label>
+      style="color:#5c1b1b">Chatbot</label>
     {% else %}
     <label id="chatbot-toggle-label" for="chatbot-view-button" class="px-3 nav-link "
-      style="color:#0c9c8c"><u>Chatbot</u></label>
+      style="color:#5c1b1b"><u>Chatbot</u></label>
     {% endif %}
     <button id='chatbot-view-button' name="chatbot-view-button">
     </button>

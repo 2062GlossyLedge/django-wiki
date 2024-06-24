@@ -1,7 +1,7 @@
 .chatbot-message {
-    background-color: gainsboro;
+    background-color: #e9ecef;
     /* Blue */
-    color: 3b82f6;
+    color: black;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     margin: 0.5rem 0;
@@ -11,7 +11,7 @@
 }
 
 .human-message {
-    background-color: #3b82f6;
+    background-color: black;
     /* Grey */
     color: white;
     padding: 0.5rem 1rem;
@@ -56,7 +56,7 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: white;
-    color: #0c9c8c;
+    color: #5c1b1b;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
@@ -97,7 +97,7 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: white;
-    color: #0c9c8c;
+    color: #5c1b1b;
     cursor: pointer;
 }
 
@@ -132,6 +132,6 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: white;
-    color: #0c9c8c;
+    color: #5c1b1b;
     cursor: pointer;
 }
