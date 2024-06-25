@@ -57,6 +57,10 @@ class ArticleView(TemplateView, ArticleMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         kwargs["selected_tab"] = "view"
+        kwargs["button_state"] = self.request.session.get("button_state", "on")
+        chatbot = Chatbot()
+        urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
+        kwargs["chat_history"] = chatbot.get_chat_history(str(urlPath))
 
         return ArticleMixin.get_context_data(self, **kwargs)
 

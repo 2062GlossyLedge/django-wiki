@@ -91,6 +91,8 @@ class Chatbot:
 
             vectorstore = vectorstoreDict[urlPath]
             docs = docsDict[urlPath]
+            if docs[0].page_content == "\n":
+                docs[0].page_content = "No content found"
 
         else:
             # Scrape the wiki page
@@ -99,6 +101,11 @@ class Chatbot:
                 bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
             )
             docs = loader.load()
+
+            if docs[0].page_content == "\n":
+                docs[0].page_content = "No content found"
+
+            print(docs)
 
             docsDict[urlPath] = docs
 
@@ -292,20 +299,23 @@ class Chatbot:
         )
         chat_history = str(session_id0)
 
-        # Split the chat history into lines
-        chat_history_lines = chat_history.split("\n")
+        # Split the string by new lines
+        lines = chat_history.split("\n")
+        messages = []
 
-        # Filter out empty strings from the list
-        chat_history_lines = [
-            line for line in chat_history_lines if line and line != "\r"
-        ]
+        # Process each line
+        for line in lines:
+            if line.startswith("Human:"):
+                # Remove the "Human:" label and strip leading/trailing whitespace
+                messages.append(line.replace("Human:", "").strip())
+            elif line.startswith("AI:"):
+                # Remove the "AI:" label and strip leading/trailing whitespace
+                messages.append(line.replace("AI:", "").strip())
+            else:
+                # If the line does not start with "Human:" or "AI:", it might be a continuation of the previous message
+                if messages and not messages:
+                    messages[-1] += " " + line.strip()
+                elif messages and not messages:
+                    messages[-1] += " " + line.strip()
 
-        # print(chat_history_lines)
-        # Loop through the lines and replace the unwanted strings
-        for i in range(len(chat_history_lines)):
-
-            chat_history_lines[i] = (
-                chat_history_lines[i].replace("AI:", "").replace("Human:", "")
-            )
-
-        return chat_history_lines
+        return messages
