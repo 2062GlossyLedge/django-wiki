@@ -42,33 +42,15 @@
     margin-bottom: 1rem;
 }
 
-/* Container for dropdown */
-.dropdown-container {
-    position: relative;
-    display: inline-block;
-    width: 200px;
-}
-
-/* Button for dropdown */
-/* .dropdown-button {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-    color: #5c1b1b;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-} */
 
 /* Dropdown menu */
 .personality-dropdown-menu {
 
     display: flex;
+    flex-direction: column;
     position: absolute;
-    width: 100%;
+    left: 45%;
+    width: 380px;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -78,21 +60,25 @@
 }
 
 /* Input fields inside dropdown */
-.personality-dropdown-menu .input-container {
+.input-container {
     display: flex;
+    flex-direction: row;
     align-items: center;
     padding: 10px;
 }
 
 .personality-dropdown-menu input {
-    width: 100%;
+    width: 250px;
     padding: 10px;
     margin-right: 10px;
+    flex-grow: 1;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
 
 .personality-dropdown-menu button {
+    display: flex;
+    width: 100px;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -101,34 +87,18 @@
     cursor: pointer;
 }
 
-/* Arrow icon */
-.arrow {
-    border: solid black;
-    border-width: 0 2px 2px 0;
-    display: inline-block;
-    padding: 3px;
-    margin-left: 10px;
-    transform: rotate(45deg);
-    -webkit-transform: rotate(45deg);
-}
-
-/* Rotate arrow icon when dropdown is open */
-#dropdown-button.open .arrow {
-    transform: rotate(-135deg);
-    -webkit-transform: rotate(-135deg);
-}
 
 /* Additional buttons */
 .additional-buttons {
-    margin: 10px;
     display: flex;
-    justify-content: space-between;
 
 }
 
 .additional-buttons button {
     padding: 10px;
-    width: 48%;
+    width: 360px;
+    margin: 10px;
+    text-align: center;
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: white;

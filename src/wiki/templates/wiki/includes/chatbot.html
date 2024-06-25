@@ -18,6 +18,67 @@
 
         <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
 
+
+
+
+            {% if spoiler_free_button_state == "off" %}
+            <li class="nav-item px-3">
+
+                <!-- Button to trigger dropdown -->
+                <form method="post">
+                    {% csrf_token %}
+                    {% if dropdown_button_state == "off" %}
+                    <label for="dropdown-button" class="px-3 nav-link" style="color:#5c1b1b">Personalities</label>
+                    {% else %}
+                    <label for="dropdown-button" class="px-3 nav-link"
+                        style="background-color:#5c1b1b; color:white;">Personalities</label>
+                    {% endif %}
+                    <button id="dropdown-button" name="dropdown-button">
+
+
+                        <!-- <i class="arrow"></i> -->
+
+                    </button>
+                </form>
+                {% if dropdown_button_state == "on" %}
+                <div id="personality-dropdown-menu" class="personality-dropdown-menu">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="input-container">
+
+
+                            <input type="text" id="user-selected-personality" name="user-selected-personality"
+                                placeholder="Enter personality or persona" name="personality">
+                            <button type="submit">Enter</button>
+
+
+                        </div>
+                    </form>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="additional-buttons">
+
+
+                            <label for="default-personality" class="px-3 nav-link"
+                                style="color:#5c1b1b; display: none; "></label>
+                            <button id="default-personality" name="default-personality">Default
+                                Personality</button>
+
+                            <!-- <form method="post">
+                                                {% csrf_token %}
+                                                <button id="chatbot-chooses-personality">Chatbot Chooses</button>
+                                            </form> -->
+
+                        </div>
+                    </form>
+
+                </div>
+
+
+                {% endif %}
+
+            </li>
+            {% endif %}
             <li class="nav-item">
                 <form method="post">
                     {% csrf_token %}
@@ -35,51 +96,6 @@
                 </form>
 
             </li>
-
-
-            {% if spoiler_free_button_state == "off" %}
-            <li class="nav-item px-3">
-
-                <!-- Button to trigger dropdown -->
-                <form method="post">
-                    {% csrf_token %}
-                    <label for="dropdown-button" class="px-3 nav-link" style="color:#5c1b1b">Personalities</label>
-                    <button id="dropdown-button" name="dropdown-button">
-
-
-                        <!-- <i class="arrow"></i> -->
-
-                    </button>
-                </form>
-                {% if dropdown_button_state == "on" %}
-                <div id="personality-dropdown-menu" class="personality-dropdown-menu">
-                    <div class="input-container">
-                        <form method="post">
-                            {% csrf_token %}
-                            <input type="text" id="user-selected-personality" name="user-selected-personality"
-                                placeholder="Enter personality or persona" name="personality">
-                            <button type="submit">Enter</button>
-                        </form>
-                    </div>
-                    <div class="additional-buttons">
-                        <form method="post">
-                            {% csrf_token %}
-                            <label for="default-personality" class="px-3 nav-link" style="color:#5c1b1b">Default</label>
-                            <button id="default-personality" name="default-personality"></button>
-                        </form>
-                        <!-- <form method="post">
-                            {% csrf_token %}
-                            <button id="chatbot-chooses-personality">Chatbot Chooses</button>
-                        </form> -->
-
-                    </div>
-                </div>
-
-
-                {% endif %}
-
-            </li>
-            {% endif %}
         </ul>
 
     </nav>
