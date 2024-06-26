@@ -41,6 +41,16 @@ $(document).ready(function () {
         $(this).css("color", "#5c1b1b");
     });
 
+    // Change color on hover
+    $("#delete-chat-history-label").mouseenter(function () {
+
+        $(this).css("color", "black");
+    });
+
+    $("#delete-chat-history-label").mouseleave(function () {
+        $(this).css("color", "#5c1b1b");
+    });
+
     // Scrolls to the bottom of the chatbot history
     $('#chatbot-history').scrollTop($('#chatbot-history')[0].scrollHeight);
 

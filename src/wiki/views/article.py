@@ -123,6 +123,9 @@ class ArticleView(TemplateView, ArticleMixin):
         elif "default-personality" in request.POST:
             self.request.session["personality"] = "default"
 
+        elif "delete-chat-history" in request.POST:
+            chatbot.delete_chat_history(str(urlPath))
+
         # elif "chatbot-chooses-personality" in request.POST:
         #     context["personality"] = "chatbot-chooses"
         context["personality"] = self.request.session.get("personality", "default")

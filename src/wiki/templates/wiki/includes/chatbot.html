@@ -79,6 +79,7 @@
 
             </li>
             {% endif %}
+
             <li class="nav-item">
                 <form method="post">
                     {% csrf_token %}
@@ -92,6 +93,19 @@
                     {% endif %}
 
                     <button id='spoiler-free-button' name="spoiler-free-button">
+                    </button>
+                </form>
+
+            </li>
+            <li class="nav-item">
+                <form method="post">
+                    {% csrf_token %}
+                    <!-- If the spoiler free button is off, display the button as off with no green background-->
+
+                    <label id="delete-chat-history-label" for="delete-chat-history" class="px-3 nav-link"
+                        style="color:#5c1b1b">Delete Chat History</label>
+
+                    <button id='delete-chat-history' name="delete-chat-history">
                     </button>
                 </form>
 

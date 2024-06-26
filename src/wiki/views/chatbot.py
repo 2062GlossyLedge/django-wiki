@@ -65,6 +65,19 @@ docsDict = dict()
 
 class Chatbot:
 
+    def delete_chat_history(self, urlPath):
+        """delete chat history for a specific wiki page
+
+        Args:
+            urlPath (str): wiki page url
+        """
+        session_id0 = SQLChatMessageHistory(
+            session_id=urlPath,
+            connection_string="sqlite:///sqlite.db",
+        )
+
+        session_id0.clear()
+
     def getUserPrompt(self, userPrompt):
         return userPrompt
 
