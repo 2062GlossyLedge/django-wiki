@@ -12,7 +12,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain import hub
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
+from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from langchain_core.chat_history import HumanMessage, AIMessage, BaseMessage
 
 from langchain_community.chat_message_histories import SQLChatMessageHistory
@@ -65,6 +65,9 @@ docsDict = dict()
 
 class Chatbot:
 
+    def getUserPrompt(self, userPrompt):
+        return userPrompt
+
     def setPersonality(self, personality):
         if personality == "default":
             return "You are helpful and friendly assistant for question-answering tasks for WikiWard - a Wikipedia site"
@@ -105,7 +108,7 @@ class Chatbot:
             if docs[0].page_content == "\n":
                 docs[0].page_content = "No content found"
 
-            print(docs)
+            # print(docs)
 
             docsDict[urlPath] = docs
 
@@ -158,7 +161,7 @@ class Chatbot:
         """
         )
 
-        print(qa_system_prompt)
+        # print(qa_system_prompt)
         qa_prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", qa_system_prompt),
@@ -220,6 +223,9 @@ class Chatbot:
             vectorstore = vectorstoreDict[urlPath]
             docs = docsDict[urlPath]
 
+            if docs[0].page_content == "\n":
+                docs[0].page_content = "No content found"
+
         else:
             # Scrape the wiki page
             loader = WebBaseLoader(
@@ -227,6 +233,9 @@ class Chatbot:
                 bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
             )
             docs = loader.load()
+
+            if docs[0].page_content == "\n":
+                docs[0].page_content = "No content found"
 
             docsDict[urlPath] = docs
 
@@ -245,19 +254,19 @@ class Chatbot:
                 collection_name=urlPath.replace("/", ""),
             )
             vectorstoreDict[urlPath] = vectorstore
-            # print(vectorstoreDict[urlPath]._collection)
 
         # Retrieve and generate using the relevant snippets of the wiki page.
         retriever = vectorstore.as_retriever(
             search_type="similarity", search_kwargs={"k": 6}
         )
 
-        # prompt = hub.pull("rlm/rag-prompt")
-        prompt = """You are an assistant for question-answering tasks for WikiWard - a spoiler free Wikipedia site. \
-        Use the following pieces of retrieved context to answer the question. \
-        If the retrieved context does not answer the question, just say you don't know. \
-        Use three sentences maximum and keep the answer concise.\
-        """
+        prompt = hub.pull("rlm/rag-prompt")
+        # prompt needs to be a dict
+        # prompt = """You are an assistant for question-answering tasks for WikiWard - a spoiler free Wikipedia site. \
+        # Use the following pieces of retrieved context to answer the question. \
+        # If the retrieved context does not answer the question, just say you don't know. \
+        # Use three sentences maximum and keep the answer concise.\
+        # """
 
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
@@ -273,6 +282,8 @@ class Chatbot:
             session_id=urlPath,
             connection_string="sqlite:///sqlite.db",
         )
+
+        # session_id1.clear()
 
         userPromptMessage = HumanMessage(content=userPrompt)
 

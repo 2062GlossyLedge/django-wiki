@@ -43,6 +43,7 @@
       <li class="float-left nav-item" id="article-title-li">
         <h1 id="article-title">
           {{ article.current_revision.title }}
+          {% comment %}
           <small style="font-size: 14px;">
             {% if urlpath.parent %}
             <a href="{% url 'wiki:get' path=urlpath.path %}" class="nav-link"><span class="fa fa-bookmark"></span> {{
@@ -52,6 +53,7 @@
             <span class="fa fa-lock"></span> {% trans "locked" %}
             {% endif %}
           </small>
+          {% endcomment %}
         </h1>
       </li>
     </ul>
@@ -68,6 +70,9 @@
 {% endblock %}
 
 {% block wiki_footer_prepend %}
+{% comment %}
+
 <p style="margin-bottom: 10px;"><em>{% trans "This article was last modified:" %} {{ article.current_revision.modified
     }}</em></p>
+{% endcomment %}
 {% endblock %}
