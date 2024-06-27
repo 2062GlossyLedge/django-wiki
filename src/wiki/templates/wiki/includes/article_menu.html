@@ -78,7 +78,7 @@
   </a>
 </li>
 
-{% if user.is_authenticated %}
+{% if user.is_authenticated and urlpath.parent %}
 <li class="nav-item">
   <form method="post">
     {% csrf_token %}

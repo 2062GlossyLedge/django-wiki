@@ -28,7 +28,7 @@
 <!-- </div> -->
 {% endcomment %}
 
-{% if button_state == 'on' and user.is_authenticated %}
+{% if button_state == 'on' and user.is_authenticated and urlpath.parent %}
 <div class="chatbot-view">
 
   {% include "wiki/includes/chatbot.html"%}
