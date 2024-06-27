@@ -72,6 +72,7 @@ class ArticleView(TemplateView, ArticleMixin):
         context = self.get_context_data(**kwargs)
         chatbot = Chatbot()
         urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
+        session = str(urlPath) + str(request.user)
 
         # prompt chatbot
         if "prompt" in request.POST:
@@ -83,13 +84,14 @@ class ArticleView(TemplateView, ArticleMixin):
                 chatbot.handle_message_without_llm_knowledge(
                     user_message,
                     str(urlPath),
-                    self.request.session.get("personality", "default"),
+                    session,
                 )
             else:
                 chatbot.handle_message_with_llm_knowledge(
                     user_message,
                     str(urlPath),
                     self.request.session.get("personality", "default"),
+                    session,
                 )
 
         # toggle chatbot view
@@ -124,7 +126,7 @@ class ArticleView(TemplateView, ArticleMixin):
             self.request.session["personality"] = "default"
 
         elif "delete-chat-history" in request.POST:
-            chatbot.delete_chat_history(str(urlPath))
+            chatbot.delete_chat_history(session)
 
         # elif "chatbot-chooses-personality" in request.POST:
         #     context["personality"] = "chatbot-chooses"
@@ -138,7 +140,7 @@ class ArticleView(TemplateView, ArticleMixin):
         )
 
         # update chat history
-        context["chat_history"] = chatbot.get_chat_history(str(urlPath))
+        context["chat_history"] = chatbot.get_chat_history(session)
         return self.render_to_response(context)
 
 

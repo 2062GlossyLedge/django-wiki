@@ -78,6 +78,7 @@
   </a>
 </li>
 
+{% if user.is_authenticated %}
 <li class="nav-item">
   <form method="post">
     {% csrf_token %}
@@ -94,5 +95,8 @@
 
 </li>
 {% endif %}
+{% endif %}
+
+
 
 {% endwith %}

@@ -65,12 +65,17 @@ docsDict = dict()
 
 class Chatbot:
 
-    def delete_chat_history(self, urlPath):
+    def delete_chat_history(self, session):
         """delete chat history for a specific wiki page
 
         Args:
             urlPath (str): wiki page url
         """
+        session_id0 = SQLChatMessageHistory(
+            session_id=session,
+            connection_string="sqlite:///sqlite.db",
+        )
+
         session_id0 = SQLChatMessageHistory(
             session_id=urlPath,
             connection_string="sqlite:///sqlite.db",
@@ -88,7 +93,9 @@ class Chatbot:
 
             return f"You are {personality}. Act like this person or thing in your responses. State who you are at the beginning of your response."
 
-    def handle_message_with_llm_knowledge(self, userPrompt, urlPath, personality):
+    def handle_message_with_llm_knowledge(
+        self, userPrompt, urlPath, personality, session
+    ):
         """chatbot response to user input
 
         Args:
@@ -189,21 +196,12 @@ class Chatbot:
             history_aware_retriever, question_answer_chain
         )
 
-        # clear chat history
-        # session_id0 = SQLChatMessageHistory(
-        #     session_id=urlPath,
-        #     connection_string="sqlite:///sqlite.db",
-        # )
-
-        # session_id0.clear()
-        # print(session_id0)
-
         # https://python.langchain.com/v0.1/docs/integrations/memory/sqlite/
         chain_with_history = RunnableWithMessageHistory(
             rag_chain,
             # only use chat history from questions asked on the respective page
             lambda session_id: SQLChatMessageHistory(
-                session_id=urlPath,
+                session_id=session,
                 connection_string="sqlite:///sqlite.db",
             ),
             history_messages_key="chat_history",
@@ -218,7 +216,7 @@ class Chatbot:
             "answer"
         ]
 
-    def handle_message_without_llm_knowledge(self, userPrompt, urlPath, personality):
+    def handle_message_without_llm_knowledge(self, userPrompt, urlPath, session):
         """chatbot response to user input
 
         Args:
@@ -292,11 +290,11 @@ class Chatbot:
         )
 
         session_id1 = SQLChatMessageHistory(
-            session_id=urlPath,
+            session_id=session,
             connection_string="sqlite:///sqlite.db",
         )
 
-        # session_id1.clear()
+        # Add messages to the chat history
 
         userPromptMessage = HumanMessage(content=userPrompt)
 
@@ -308,7 +306,7 @@ class Chatbot:
         session_id1.add_ai_message(responseMessage)
         return response
 
-    def get_chat_history(self, urlPath):
+    def get_chat_history(self, session):
         """get chat history for a specific wiki page
 
         Args:
@@ -318,7 +316,7 @@ class Chatbot:
             list: chat history
         """
         session_id0 = SQLChatMessageHistory(
-            session_id=urlPath,
+            session_id=session,
             connection_string="sqlite:///sqlite.db",
         )
         chat_history = str(session_id0)

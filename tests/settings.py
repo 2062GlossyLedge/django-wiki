@@ -1,6 +1,10 @@
 import os
 
 from django.urls import reverse_lazy
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
 
 TESTS_DATA_ROOT = os.path.dirname(__file__)
 
@@ -8,7 +12,7 @@ MEDIA_ROOT = os.path.join(TESTS_DATA_ROOT, "media")
 
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3"}}
 
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "") != "False"
 
 AUTH_USER_MODEL = "testdata.CustomUser"
 WIKI_GROUP_MODEL = "testdata.CustomGroup"

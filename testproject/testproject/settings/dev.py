@@ -1,8 +1,7 @@
 from .base import *  # noqa @UnusedWildImport
 from .demo import *  # noqa @UnusedWildImport
 
-DEBUG = True
-
+DEBUG = os.environ.get("DJANGO_DEBUG", "") != "False"
 for template_engine in TEMPLATES:
     template_engine["OPTIONS"]["debug"] = True
 
