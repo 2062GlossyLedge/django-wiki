@@ -77,7 +77,7 @@ class Chatbot:
         )
 
         session_id0 = SQLChatMessageHistory(
-            session_id=urlPath,
+            session_id=session,
             connection_string="sqlite:///sqlite.db",
         )
 
