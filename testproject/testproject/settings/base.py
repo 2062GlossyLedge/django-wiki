@@ -126,7 +126,7 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
-TIME_ZONE = "Europe/Berlin"
+TIME_ZONE = "America/Denver"
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html

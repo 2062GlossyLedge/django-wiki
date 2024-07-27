@@ -23,6 +23,7 @@ import os, sys
 import environ
 import bs4
 import pdb
+import re
 
 
 env = environ.Env()
@@ -33,8 +34,8 @@ from langchain_openai import ChatOpenAI
 
 os.environ["GOOGLE_API_KEY"] = env("GOOGLE_API_KEY")
 
-# os.environ["LANGCHAIN_TRACING_V2"] = "true"
-# os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
 
 # llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0.1)
 # from langchain_google_vertexai import ChatVertexAI
@@ -92,6 +93,141 @@ class Chatbot:
         else:
 
             return f"You are {personality}. Act like this person or thing in your responses. State who you are at the beginning of your response."
+
+    def get_previous_chapters(self, url_path):
+        print(url_path)
+        # Parse the given URL path
+        path_parts = url_path.strip("/").split("/")
+
+        # Extract book and chapter
+        wiki = path_parts[-4]
+        media_type = path_parts[-3]
+        book = path_parts[-2]
+        current_chapter = path_parts[-1]
+
+        # Extract the chapter number using regex
+        chapter_match = re.match(r"chapter(\d+)", current_chapter, re.IGNORECASE)
+        if not chapter_match:
+            raise ValueError(f"Invalid chapter format in URL: {current_chapter}")
+
+        current_chapter_number = int(chapter_match.group(1))
+
+        # Generate URLs for all previous chapters
+        previous_chapters_urls = []
+        for i in range(1, current_chapter_number + 1):
+            previous_chapter_url = f"{wiki}/{media_type}/{book}/chapter{i}"
+            previous_chapters_urls.append(previous_chapter_url)
+
+        return previous_chapters_urls
+
+    def scrape_chapters(self, url_path):
+        previous_chapters_urls = self.get_previous_chapters(url_path)
+        print(previous_chapters_urls)
+        all_docs = []
+
+        for chapter_url in previous_chapters_urls:
+            loader = WebBaseLoader(
+                web_paths=("http://localhost:8000/" + chapter_url,),
+                bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
+            )
+            docs = loader.load()
+            all_docs.extend(docs)
+
+        return all_docs
+
+    def handle_message_given_location(
+        self,
+        userPrompt,
+        urlPath,
+        session,
+    ):
+        """chatbot response to user input using context from user selected location in media
+
+        Args:
+            user_message (_type_): _description_
+            urlPath (_type_): _description_
+            session (_type_): _description_
+        """
+        global vectorstoreDict
+        # breakpoint()
+
+        # "and_below" to signify it holds all wikis of chapters below it to uniquely id docs held in doctDict and Chroma db
+        urlPath = urlPath + "and-below"
+        # find if vectorstroe already holds contents of wiki page, else  scrape and create a new vectorstore if the URL hasn't been scraped yetf
+        if urlPath in vectorstoreDict:
+            vectorstore = vectorstoreDict[urlPath]
+            docs = docsDict[urlPath]
+            print("saved")
+
+        else:
+            docs = self.scrape_chapters(urlPath.replace("and-below", ""))
+
+            docsDict[urlPath] = docs
+
+            # print(docs)
+
+            if docs[0].page_content == "\n":
+                docs[0].page_content = "No content found"
+
+            text_splitter = RecursiveCharacterTextSplitter(
+                chunk_size=1000, chunk_overlap=200
+            )
+            splits = text_splitter.split_documents(docs)
+
+            # create new vectore store
+
+            vectorstore = Chroma.from_documents(
+                documents=splits,
+                embedding=OpenAIEmbeddings(),
+                persist_directory="./chroma_db",
+                # makes it so each stored db collection only holds document containing the contents of the single wiki page
+                # collection name is the the url without that "/" and .
+                collection_name=urlPath.replace("/", ""),
+            )
+            vectorstoreDict[urlPath] = vectorstore
+            print(vectorstoreDict)
+
+        # print(vectorstoreDict[urlPath]._collection)
+
+        # Delete chroma db instances
+        # print(vectorstore._collection.peek())
+        # print("count before", vectorstore._collection.count())
+        # vectorstore._collection.delete(vectorstore._collection.peek()["ids"])
+        # print("count after", vectorstore._collection.count())
+
+        # Retrieve and generate using the relevant snippets of the wiki page.
+        retriever = vectorstore.as_retriever(
+            search_type="similarity", search_kwargs={"k": 6}
+        )
+
+        prompt = hub.pull("rlm/rag-prompt")
+
+        def format_docs(docs):
+            return "\n\n".join(doc.page_content for doc in docs)
+
+        rag_chain = (
+            {"context": retriever | format_docs, "question": RunnablePassthrough()}
+            | prompt
+            | llm
+            | StrOutputParser()
+        )
+
+        session_id1 = SQLChatMessageHistory(
+            session_id=session,
+            connection_string="sqlite:///sqlite.db",
+        )
+
+        # Add messages to the chat history
+
+        userPromptMessage = HumanMessage(content=userPrompt)
+
+        session_id1.add_user_message(userPromptMessage)
+
+        response = rag_chain.invoke(userPrompt)
+
+        responseMessage = AIMessage(content=response)
+        session_id1.add_ai_message(responseMessage)
+        return response
 
     def handle_message_with_llm_knowledge(
         self, userPrompt, urlPath, personality, session
@@ -272,12 +408,6 @@ class Chatbot:
         )
 
         prompt = hub.pull("rlm/rag-prompt")
-        # prompt needs to be a dict
-        # prompt = """You are an assistant for question-answering tasks for WikiWard - a spoiler free Wikipedia site. \
-        # Use the following pieces of retrieved context to answer the question. \
-        # If the retrieved context does not answer the question, just say you don't know. \
-        # Use three sentences maximum and keep the answer concise.\
-        # """
 
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)

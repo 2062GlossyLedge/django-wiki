@@ -15,6 +15,21 @@
 {% addtoblock "js" %}
 <script type="text/javascript">
   $(document).ready(function () {
+    let selectedBookUrl = localStorage.getItem('selectedBookUrl');
+    let selectedChapterUrl = localStorage.getItem('selectedChapterUrl');
+
+    if (selectedBookUrl) {
+      $('#book-select').val(selectedBookUrl).trigger('change');
+    }
+
+    if (selectedChapterUrl) {
+      $('#chapter-select').val(selectedChapterUrl).trigger('change');
+    }
+
+
+    console.log(selectedBookUrl);
+    console.log(selectedChapterUrl);
+
     $('#book-select').select2({
       dropdownAutoWidth: true,
       placeholder: "Type to search...",
@@ -30,11 +45,17 @@
           return { results: ret };
         },
       },
+
+    });
+    $('#book-select').on('select2:select', function () {
+      selectedBookUrl = $('#book-select').val();  // assuming the selected URL is the value of the select2 input
+
+      tryMediaLocPostReq();
     });
 
     $('#chapter-select').select2({
       dropdownAutoWidth: true,
-      placeholder: "Type to search...",
+      placeholder: selectedChapterUrl ? selectedChapterUrl : "Type to search...",
       ajax: {
         url: function (params) {
           return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
@@ -48,6 +69,12 @@
         },
       },
     });
+    $('#chapter-select').on('select2:select', function () {
+      selectedChapterUrl = $('#chapter-select').val();  // assuming the selected URL is the value of the select2 input
+      localStorage.setItem('selectedChapterUrl', selectedChapterUrl);
+
+      tryMediaLocPostReq();
+    });
     // Store the value to be displayed
     let addedValue = "";
 
@@ -59,6 +86,22 @@
     // $("#citation_add_citation_button").on("click", function () {
     //   $('#id_content').insertAtCaret(addedValue);
     // });
+
+    function tryMediaLocPostReq() {
+      console.log(selectedBookUrl);
+      console.log(selectedChapterUrl);
+      if (selectedChapterUrl
+      ) {
+        console.log(69)
+        $.post("{% url 'wiki:get' article_id=article.id path=urlpath.path%}", {
+          // 'selected-book-url': selectedBookUrl,
+          'selected-chapter-url': selectedChapterUrl,
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+        }, function (response) {
+          //console.log(response);
+        });
+      }
+    }
   });
 
 </script>

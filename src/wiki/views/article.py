@@ -48,6 +48,11 @@ import pdb
 
 class ArticleView(TemplateView, ArticleMixin):
     template_name = "wiki/view.html"
+    chatbot = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.chatbot = Chatbot()
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
@@ -61,33 +66,52 @@ class ArticleView(TemplateView, ArticleMixin):
         kwargs["spoiler_free_button_state"] = self.request.session.get(
             "spoiler_free_button_state", "on"
         )
-        chatbot = Chatbot()
         urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
-        kwargs["chat_history"] = chatbot.get_chat_history(str(urlPath))
+        kwargs["chat_history"] = self.chatbot.get_chat_history(str(urlPath))
 
         return ArticleMixin.get_context_data(self, **kwargs)
 
     def post(self, request, *args, **kwargs):
         # breakpoint()
         context = self.get_context_data(**kwargs)
-        chatbot = Chatbot()
         urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
         session = str(urlPath) + str(request.user)
+        selected_chapter_url = None
+
+        if "selected-chapter-url" in request.POST:
+            # selected book url not needed since location picker for book doesn't affect ch picker
+            # selected_book_url = request.POST.get("selected-book-url")
+            selected_chapter_url = request.POST.get("selected-chapter-url")
+            urlPath = selected_chapter_url.split("wiki:")[1]
+            self.request.session["chapter_selected"] = True
+            self.request.session["urlPath"] = urlPath
 
         # prompt chatbot
-        if "prompt" in request.POST:
+        elif "prompt" in request.POST:
 
             user_message = request.POST.get("prompt", "")
 
+            # When location is set, handle without llm knowledge. Use custom url
+            if request.session.get(
+                "spoiler_free_button_state", "on"
+            ) == "on" and self.request.session.get("chapter_selected", False):
+                print("yo")
+                self.chatbot.handle_message_given_location(
+                    user_message,
+                    self.request.session.get("urlPath", str(urlPath)),
+                    session,
+                )
+            # When location isn't set or choose don't filter by location, prompt with llm knowledge and without a url
+
             # check if spoiler free button is toggled, if so, use the chatbot without LLM knowledge
-            if request.session.get("spoiler_free_button_state", "on") == "on":
-                chatbot.handle_message_without_llm_knowledge(
+            elif request.session.get("spoiler_free_button_state", "on") == "on":
+                self.chatbot.handle_message_without_llm_knowledge(
                     user_message,
                     str(urlPath),
                     session,
                 )
             else:
-                chatbot.handle_message_with_llm_knowledge(
+                self.chatbot.handle_message_with_llm_knowledge(
                     user_message,
                     str(urlPath),
                     self.request.session.get("personality", "default"),
@@ -126,7 +150,7 @@ class ArticleView(TemplateView, ArticleMixin):
             self.request.session["personality"] = "default"
 
         elif "delete-chat-history" in request.POST:
-            chatbot.delete_chat_history(session)
+            self.chatbot.delete_chat_history(session)
 
         # elif "chatbot-chooses-personality" in request.POST:
         #     context["personality"] = "chatbot-chooses"
@@ -140,7 +164,7 @@ class ArticleView(TemplateView, ArticleMixin):
         )
 
         # update chat history
-        context["chat_history"] = chatbot.get_chat_history(session)
+        context["chat_history"] = self.chatbot.get_chat_history(session)
         return self.render_to_response(context)
 
 
