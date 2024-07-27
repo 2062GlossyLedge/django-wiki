@@ -19,13 +19,14 @@
 {% endaddtoblock %}
 
 
-
-<div class="left-sidebar">
-  <!-- only shows article left sidebar for slugs past Wikis/<media source>/ -->
-  {% if urlpath.parent.parent %}
-  {% include "wiki/includes/article_leftbar.html" %}
-  {% endif %}
-</div>
+{% comment %}
+<!-- <div class="left-sidebar"> -->
+<!-- only shows article left sidebar for slugs past Wikis/<media source>/ -->
+{% if urlpath.parent.parent %}
+{% include "wiki/includes/article_leftbar.html" %}
+{% endif %}
+<!-- </div> -->
+{% endcomment %}
 
 {% if button_state == 'on' and user.is_authenticated and urlpath.parent %}
 <div class="chatbot-view">

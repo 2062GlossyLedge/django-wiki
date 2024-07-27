@@ -1,0 +1,15 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block wiki_contents %}
+<div class="left-sidebar">
+    {% if spoiler_free_button_state == "on" %}
+    {% include "wiki/includes/mediaLocationPicker.html" %}
+    {% endif %}
+</div>
+<div class="chatbot-view">
+
+    {% include "wiki/includes/chatbot.html"%}
+
+</div>
+{% endblock %}

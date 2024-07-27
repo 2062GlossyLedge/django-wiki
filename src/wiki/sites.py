@@ -29,6 +29,11 @@ class WikiSite:
             self, "root_missing_view", article.MissingRootView.as_view()
         )
 
+        # agnostic chatbot view
+        self.agnostic_Chatbot_view = getattr(
+            self, "agnostic_Chatbot_view", home.AgnosticChatbot.as_view()
+        )
+
         # basic views
         self.article_view = getattr(self, "article_view", article.ArticleView.as_view())
         self.article_create_view = getattr(
@@ -112,6 +117,11 @@ class WikiSite:
     def get_root_urls(self):
         urlpatterns = [
             re_path(r"^homepage/$", self.homepage_view, name="homepage"),
+            re_path(
+                r"^agnosticChatbot/$",
+                self.agnostic_Chatbot_view,
+                name="agnostic_chatbot",
+            ),
             re_path(r"^$", self.article_view, name="root", kwargs={"path": ""}),
             re_path(r"^create-root/$", self.root_view, name="root_create"),
             re_path(r"^missing-root/$", self.root_missing_view, name="root_missing"),

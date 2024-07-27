@@ -1,0 +1,112 @@
+{% load i18n sekizai_tags static %}
+
+<div id="progress-select">
+    <!-- <h4>{% trans "Select Book/Season" %}</h4>
+  <select id="book-select" style="width: 200px;"></select> -->
+
+    <h2>{% trans "Select Location in Media" %}</h2>
+    <select id="chapter-select" style="width: 200px; "></select>
+</div>
+
+
+
+{% addtoblock "js" %}
+<script type="text/javascript" src="{% static 'wiki/select2/js/select2.min.js' %}"></script>{% endaddtoblock %}
+{% addtoblock "js" %}
+<script type="text/javascript">
+    $(document).ready(function () {
+        let selectedBookUrl = localStorage.getItem('selectedBookUrl');
+        let selectedChapterUrl = localStorage.getItem('selectedChapterUrl');
+
+        if (selectedBookUrl) {
+            $('#book-select').val(selectedBookUrl).trigger('change');
+        }
+
+        if (selectedChapterUrl) {
+            $('#chapter-select').val(selectedChapterUrl).trigger('change');
+        }
+
+
+        console.log(selectedBookUrl);
+        console.log(selectedChapterUrl);
+
+        // $('#book-select').select2({
+        //   dropdownAutoWidth: true,
+        //   placeholder: "Type to search...",
+        //   ajax: {
+        //     url: function (params) {
+        //       return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
+        //     },
+        //     processResults: function (data) {
+        //       let ret = [];
+        //       data.forEach(function (val) {
+        //         ret.push({ "id": val, "text": val })
+        //       });
+        //       return { results: ret };
+        //     },
+        //   },
+
+        // });
+        // $('#book-select').on('select2:select', function () {
+        //   selectedBookUrl = $('#book-select').val();  // assuming the selected URL is the value of the select2 input
+
+        //   tryMediaLocPostReq();
+        // });
+
+        $('#chapter-select').select2({
+            dropdownAutoWidth: true,
+            placeholder: selectedChapterUrl ? selectedChapterUrl : "Type to search...",
+            ajax: {
+                url: function (params) {
+                    return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
+                },
+                processResults: function (data) {
+                    let ret = [];
+                    data.forEach(function (val) {
+                        ret.push({ "id": val, "text": val })
+                    });
+                    return { results: ret };
+                },
+            },
+        });
+        $('#chapter-select').on('select2:select', function () {
+            selectedChapterUrl = $('#chapter-select').val();  // assuming the selected URL is the value of the select2 input
+            localStorage.setItem('selectedChapterUrl', selectedChapterUrl);
+
+            tryMediaLocPostReq();
+        });
+        // Store the value to be displayed
+        let addedValue = "";
+
+        // Update the value to add to the page on click of citation_add_citation_button
+        // $('#citations_page_title_query').on('select2:select', function (e) {
+        //     addedValue = ">> ADD YOUR CONTRIBUTION HERE [*](wiki:" + e.params.data.id.split("wiki:")[1] + ")";
+        // });
+
+        // $("#citation_add_citation_button").on("click", function () {
+        //   $('#id_content').insertAtCaret(addedValue);
+        // });
+
+        //sends a post request telling what location the user is in in their media 
+        function tryMediaLocPostReq() {
+            console.log(selectedBookUrl);
+            console.log(selectedChapterUrl);
+            if (selectedChapterUrl
+            ) {
+                console.log(69)
+                $.post("{% url 'wiki:get' article_id=article.id path=urlpath.path%}", {
+                    // 'selected-book-url': selectedBookUrl,
+                    'selected-chapter-url': selectedChapterUrl,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                }, function (response) {
+                    //console.log(response);
+                });
+            }
+        }
+    });
+
+</script>
+{% endaddtoblock %}
+{% addtoblock "css" %}
+<link rel="stylesheet" href="{% static 'wiki/select2/css/select2.min.css' %}" type="text/css" />
+{% endaddtoblock %}

@@ -78,33 +78,13 @@ class ArticleView(TemplateView, ArticleMixin):
         session = str(urlPath) + str(request.user)
         selected_chapter_url = None
 
-        if "selected-chapter-url" in request.POST:
-            # selected book url not needed since location picker for book doesn't affect ch picker
-            # selected_book_url = request.POST.get("selected-book-url")
-            selected_chapter_url = request.POST.get("selected-chapter-url")
-            urlPath = selected_chapter_url.split("wiki:")[1]
-            self.request.session["chapter_selected"] = True
-            self.request.session["urlPath"] = urlPath
-
         # prompt chatbot
-        elif "prompt" in request.POST:
+        if "prompt" in request.POST:
 
             user_message = request.POST.get("prompt", "")
 
-            # When location is set, handle without llm knowledge. Use custom url
-            if request.session.get(
-                "spoiler_free_button_state", "on"
-            ) == "on" and self.request.session.get("chapter_selected", False):
-                print("yo")
-                self.chatbot.handle_message_given_location(
-                    user_message,
-                    self.request.session.get("urlPath", str(urlPath)),
-                    session,
-                )
-            # When location isn't set or choose don't filter by location, prompt with llm knowledge and without a url
-
             # check if spoiler free button is toggled, if so, use the chatbot without LLM knowledge
-            elif request.session.get("spoiler_free_button_state", "on") == "on":
+            if request.session.get("spoiler_free_button_state", "on") == "on":
                 self.chatbot.handle_message_without_llm_knowledge(
                     user_message,
                     str(urlPath),

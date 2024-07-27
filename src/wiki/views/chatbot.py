@@ -229,6 +229,47 @@ class Chatbot:
         session_id1.add_ai_message(responseMessage)
         return response
 
+    def handle_message_given_no_location(
+        self,
+        userPrompt,
+        urlPath,
+        session,
+    ):
+        from langchain_core.prompts import ChatPromptTemplate
+
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    "You are a helpful assistant that translates .",
+                ),
+                ("human", "{input}"),
+            ]
+        )
+
+        chain = prompt | llm
+        response = chain.invoke(
+            {
+                "input_language": "English",
+                "output_language": "German",
+                "input": userPrompt,
+            }
+        )
+        session_id1 = SQLChatMessageHistory(
+            session_id=session,
+            connection_string="sqlite:///sqlite.db",
+        )
+
+        # Add messages to the chat history
+
+        userPromptMessage = HumanMessage(content=userPrompt)
+
+        session_id1.add_user_message(userPromptMessage)
+
+        # responseMessage = AIMessage(content=response)
+        session_id1.add_ai_message(response)
+        return response
+
     def handle_message_with_llm_knowledge(
         self, userPrompt, urlPath, personality, session
     ):
