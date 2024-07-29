@@ -16,6 +16,7 @@ from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from langchain_core.chat_history import HumanMessage, AIMessage, BaseMessage
 
 from langchain_community.chat_message_histories import SQLChatMessageHistory
+from langchain_core.prompts import ChatPromptTemplate
 
 
 import getpass
@@ -190,17 +191,33 @@ class Chatbot:
         # print(vectorstoreDict[urlPath]._collection)
 
         # Delete chroma db instances
-        # print(vectorstore._collection.peek())
-        # print("count before", vectorstore._collection.count())
-        # vectorstore._collection.delete(vectorstore._collection.peek()["ids"])
-        # print("count after", vectorstore._collection.count())
+
+        print(vectorstore._collection.peek())
+        print("count before", vectorstore._collection.count())
+        vectorstore._collection.delete(vectorstore._collection.peek()["ids"])
+        print("count after", vectorstore._collection.count())
 
         # Retrieve and generate using the relevant snippets of the wiki page.
         retriever = vectorstore.as_retriever(
             search_type="similarity", search_kwargs={"k": 6}
         )
 
-        prompt = hub.pull("rlm/rag-prompt")
+        # prompt = hub.pull("rlm/rag-prompt")
+        # prompt = dict()
+        # prompt["prompt"] = (
+        #     "you are a helpful assistant. Use the context to answer the questions. If you don't know the answer, say you dont know. Answer using 5 sentences"
+        # )
+
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    "you are a helpful assistant. Use the context to answer the questions. If you don't know the answer, say you dont know. Answer using 5 sentences",
+                ),
+                # ("human", "{input}"),
+                ("human", userPrompt),
+            ]
+        )
 
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
@@ -235,7 +252,6 @@ class Chatbot:
         urlPath,
         session,
     ):
-        from langchain_core.prompts import ChatPromptTemplate
 
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -251,7 +267,7 @@ class Chatbot:
         response = chain.invoke(
             {
                 "input_language": "English",
-                "output_language": "German",
+                "output_language": "English",
                 "input": userPrompt,
             }
         )
