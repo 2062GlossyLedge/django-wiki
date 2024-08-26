@@ -6,7 +6,7 @@
   {% trans "Select in the location where the information added can be found. Keep your contribution between the >> and the [*]:" %}<br />
 </p>
 
-<pre> &gt&gt TEXT [*](wiki:/BaseWiki/chapters/Chapter#)</pre>
+<pre> &gt&gt TEXT [*](wiki:/BaseWiki/MediaType/Book#/Chapter#)</pre>
 
 <p>
 {% trans "Note that citations are required for all test in the wiki for allow for filtering based on spoilers" %}<br />
@@ -18,54 +18,158 @@
 
 <pre> &gt&gt Meta Information [](wiki:/BaseWiki/MediaType)</pre>
 
+<div class="input-group">
+  <select id="citations_page_book_query"></select>
+</div>
 
 <div class="input-group">
-  <select id="citations_page_title_query"></select>
+  <select id="citations_page_chapter_query" disabled></select>
+</div>
 
-  <div class="input-group-append">
-    <button class="btn btn-outline-secondary" type="button" id="citation_add_citation_button">Add Citation</button>
-  </div>
+<div class="input-group-append">
+  <button class="btn btn-outline-secondary" type="button" id="citation_add_citation_button" disabled>Add Citation</button>
 </div>
 
 <hr />
 
-
 {% addtoblock "js" %}<script type="text/javascript" src="{% static "wiki/select2/js/select2.min.js" %}"></script>{% endaddtoblock %}
 {% addtoblock "js" %}
-<script
-type = "text/javascript" >
+<script type="text/javascript">
   $(document).ready(function () {
-    $('#citations_page_title_query').select2({
+
+    function getBaseWikiPath(pathname) {
+        // Define possible substrings to look for
+        const basePathOptions = ['/book/', '/tv/'];
+    
+        // Initialize base wiki path variable
+        let baseWiki = '';
+    
+        // Iterate through each option to find the first match
+        basePathOptions.some(option => {
+          const index = pathname.indexOf(option);
+          if (index !== -1) {
+            baseWiki = pathname.substring(0, index + option.length);
+            return true; // Exit the loop once a match is found
+          }
+          return false;
+        });
+    
+        return baseWiki || pathname; // Fallback to the full pathname if no match
+    }
+
+    // Variables to track if selections have been made
+    let firstSelectionMade = false;
+    let secondSelectionMade = false;
+    let firstSelectionValue = '';
+
+    const basePathOptions = ['/book/', '/tv/'];
+    let basewiki = getBaseWikiPath(window.location.pathname)
+    
+    // Set values based on wiki type
+    const isBookWiki = basewiki.includes('/book/');
+    let outerSelectionPlaceholder = isBookWiki ? "Select Book" : "Select Season";
+    let outerDefaultSearch = isBookWiki ? "Book" : "Season"
+    let innerSelectionPlaceholder = isBookWiki ? "Select Chapter" : "Select Episode";
+    let innerDefaultSearch = isBookWiki ? "Chapter" : "Episode ";
+
+
+    // Initialize select2 for the first selection box
+    $('#citations_page_book_query').select2({
+        dropdownAutoWidth: true,
+        placeholder: outerSelectionPlaceholder,
+        ajax: {
+          url: function (params) {
+            if (!params.term)
+                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + " ";
+            else
+                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term;
+          },
+          processResults: function (data) {
+            let ret = [];
+            data.forEach(function (val) {
+                if (val.toLowerCase().indexOf(basewiki.toLowerCase()) > -1 && ((val.split('/').length - 1) == 3)) {
+                    ret.push({ "id": val, "text": val });
+                }
+            });
+            return {results: ret};
+          },
+        },
+      });
+
+    // Initialize select2 for the second selection box
+    $('#citations_page_chapter_query').select2({
       dropdownAutoWidth: true,
-      placeholder: "Type to search...",
+      placeholder: innerSelectionPlaceholder,
       ajax: {
         url: function (params) {
-          return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
+            if (!params.term)
+                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + innerDefaultSearch;
+            else
+                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term;
         },
         processResults: function (data) {
           let ret = [];
           data.forEach(function (val) {
-            ret.push({"id": val, "text": val})
+            if (val.toLowerCase().indexOf(firstSelectionValue.toLowerCase()) > -1 && ((val.split('/').length - 1) == 4)) {
+                ret.push({"id": val, "text": val})
+            }
           });
           return {results: ret};
         },
       },
     });
-    // Store the value to be displayed
-    let addedValue = "";
 
-    // Update the value to add to the page on click of citation_add_citation_button
-    $('#citations_page_title_query').on('select2:select', function (e) {
-        addedValue = ">> ADD YOUR CONTRIBUTION HERE [*](wiki:" + e.params.data.id.split("wiki:")[1] + ")";
+    // Check if the selections were made previously
+    function resetSelections() {
+      $('#citations_page_book_query').val(null).trigger('change');
+      $('#citations_page_chapter_query').val(null).trigger('change').prop('disabled', true);
+      $('#citation_add_citation_button').prop('disabled', true);
+      firstSelectionMade = false;
+      secondSelectionMade = false;
+    }
+
+    resetSelections(); // Call reset function on page load
+
+    // Enable the second selection box once the first selection is made
+    $('#citations_page_book_query').on('select2:select', function (e) {
+        // Reset the second selection
+        $('#citations_page_chapter_query').val(null).trigger('change').prop('disabled', true);
+        secondSelectionMade = false;
+
+        firstSelectionMade = true;
+        firstSelectionValue = $('#citations_page_book_query').val().split("wiki:")[1]; // Corrected line
+        $('#citations_page_chapter_query').prop('disabled', false); // Enable second select box
+        $('#citations_page_chapter_query').trigger('change'); // Trigger change to update options
+        checkSelections(); // Check if both selections are made
+    });
+      
+
+    // Update the value for the second selection
+    $('#citations_page_chapter_query').on('select2:select', function (e) {
+      secondSelectionMade = true;
+      checkSelections(); // Check if both selections are made
     });
 
+    // Function to enable the Add Citation button only when both selections are made
+    function checkSelections() {
+      if (firstSelectionMade && secondSelectionMade) {
+        $('#citation_add_citation_button').prop('disabled', false);
+      }
+      else {
+        $('#citation_add_citation_button').prop('disabled', true);
+      }
+    }
+
+    // Insert selections into the content on button click
     $("#citation_add_citation_button").on("click", function () {
-      $('#id_content').insertAtCaret(addedValue);
+      let addedValue = ">> ADD YOUR CONTRIBUTION HERE [*](wiki:" + $('#citations_page_chapter_query').val().split("wiki:")[1] + ")";
+      let finalContent = addedValue;
+      $('#id_content').insertAtCaret(finalContent);
     });
   });
-
 </script>
 {% endaddtoblock %}
+
 {% addtoblock "css" %}
 <link rel="stylesheet" href="{% static "wiki/select2/css/select2.min.css" %}" type="text/css" />
 {% endaddtoblock %}
