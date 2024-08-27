@@ -23,9 +23,7 @@ User = get_user_model()
 
 
 def check_user_field(user_model):
-    return isinstance(
-        _get_field(user_model, user_model.USERNAME_FIELD), CharField
-    )
+    return isinstance(_get_field(user_model, user_model.USERNAME_FIELD), CharField)
 
 
 def check_email_field(user_model):
@@ -39,9 +37,7 @@ def check_email_field(user_model):
 CustomUser = (
     User
     if (
-        settings.ACCOUNT_HANDLING
-        and check_user_field(User)
-        and check_email_field(User)
+        settings.ACCOUNT_HANDLING and check_user_field(User) and check_email_field(User)
     )
     else django.contrib.auth.models.User
 )
@@ -56,12 +52,10 @@ class UserCreationForm(UserCreationForm):
         # Add honeypots
         self.honeypot_fieldnames = "address", "phone"
         self.honeypot_class = "".join(
-            random.choice(string.ascii_uppercase + string.digits)
-            for __ in range(10)
+            random.choice(string.ascii_uppercase + string.digits) for __ in range(10)
         )
         self.honeypot_jsfunction = "f" + "".join(
-            random.choice(string.ascii_uppercase + string.digits)
-            for __ in range(10)
+            random.choice(string.ascii_uppercase + string.digits) for __ in range(10)
         )
 
         for fieldname in self.honeypot_fieldnames:
@@ -104,3 +98,15 @@ class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = [CustomUser.get_email_field_name()]
+
+
+# class UserDeleteForm(forms.ModelForm):
+#     delete_option = forms.BooleanField(label="Delete Account")
+
+#     class Meta:
+#         model = CustomUser
+#         fields = []
+
+
+class UserDeleteForm(forms.Form):
+    confirm_deletion = forms.BooleanField(label="Confirm account deletion")

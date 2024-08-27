@@ -8,6 +8,7 @@ settings.WIKI_SIGNUP_URL = '/your/signup/url'
 SETTINGS.LOGIN_URL
 SETTINGS.LOGOUT_URL
 """
+
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -19,7 +20,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import CreateView
+from django.views.generic import CreateView, DeleteView
 from django.views.generic import FormView
 from django.views.generic import UpdateView
 from django.views.generic import View
@@ -42,15 +43,8 @@ class Signup(CreateView):
         if not settings.ACCOUNT_HANDLING:
             return redirect(settings.SIGNUP_URL)
         # Allow superusers to use signup page...
-        if (
-            not request.user.is_superuser
-            and not settings.ACCOUNT_SIGNUP_ALLOWED
-        ):
-            c = {
-                "error_msg": _(
-                    "Account signup is only allowed for administrators."
-                )
-            }
+        if not request.user.is_superuser and not settings.ACCOUNT_SIGNUP_ALLOWED:
+            c = {"error_msg": _("Account signup is only allowed for administrators.")}
             return render(request, "wiki/error.html", context=c)
 
         return super().dispatch(request, *args, **kwargs)
@@ -123,7 +117,7 @@ class Login(FormView):
 class Update(UpdateView):
     model = User
     form_class = forms.UserUpdateForm
-    template_name = "wiki/accounts/account_settings.html"
+    template_name = "wiki/accounts/account.html"
 
     def get_object(self, queryset=None):
         return get_object_or_404(self.model, pk=self.request.user.pk)
@@ -155,3 +149,42 @@ class Update(UpdateView):
             return redirect(django_settings.LOGIN_REDIRECT_URL)
         return redirect("wiki:root")
 
+
+# class delete(DeleteView):
+#     model = User
+#     form_class = forms.UserDeleteForm
+#     template_name = "wiki/accounts/account_settings.html"
+#     # verify password
+
+#     # delete instance of user model
+
+#     # redirect to home page
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.views.generic import TemplateView
+
+
+class UserAccountView(TemplateView):
+    template_name = "wiki/accounts/account_settings.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # context["update_form"] = UserUpdateForm(instance=self.request.user)
+        context["delete_form"] = forms.UserDeleteForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if "update_account" in request.POST:
+            pass
+            # update_form = UserUpdateForm(request.POST, instance=request.user)
+            # if update_form.is_valid():
+            #     update_form.save()
+        elif "delete_account" in request.POST:
+            delete_form = forms.UserDeleteForm(request.POST)
+            if delete_form.is_valid() and delete_form.cleaned_data["confirm_deletion"]:
+                request.user.delete()
+                print("deleted!")
+                return redirect("wiki:root")
+
+        return self.get(request, *args, **kwargs)
