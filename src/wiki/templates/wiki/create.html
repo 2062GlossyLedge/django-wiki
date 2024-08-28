@@ -58,7 +58,8 @@
         var numChapters = parseInt($(this).val());
         if (numChapters > 0) {
           $("#id_chapter_1, label[for='id_chapter_1']").show();
-          $("#id_chapter_1").attr("required", "required")
+          $("#id_chapter_1").attr("required", "required");
+          $("#id_chapter_1").attr("placeholder", "Book 1 chapters");
           removeDuplicatedFields();
           $("#additional_fields_container").empty();
           for (var i = 2; i <= numChapters; i++) {
@@ -66,6 +67,7 @@
             numChaptersField.attr('id', 'chapter_' + i); // Remove ID to avoid duplication
             numChaptersField.attr('name', 'chapter_' + i);
             numChaptersField.find('input').val(''); // Clear input value
+            numChaptersField.find('input').attr('placeholder', 'Book ' + i + ' chapters'); // Set placeholder for each input
             var container = $("<div></div>").appendTo($('#id_chapter_1').parent());
             numChaptersField.appendTo(container);
           }
