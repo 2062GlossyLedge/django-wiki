@@ -85,6 +85,7 @@ class UserUpdateForm(forms.ModelForm):
     password2 = forms.CharField(
         label="Confirm password", widget=forms.PasswordInput(), required=False
     )
+    profile_picture = forms.ImageField(label="Profile Picture", required=False)
 
     def clean(self):
         password1 = self.cleaned_data.get("password1")
@@ -100,13 +101,5 @@ class UserUpdateForm(forms.ModelForm):
         fields = [CustomUser.get_email_field_name()]
 
 
-# class UserDeleteForm(forms.ModelForm):
-#     delete_option = forms.BooleanField(label="Delete Account")
-
-#     class Meta:
-#         model = CustomUser
-#         fields = []
-
-
 class UserDeleteForm(forms.Form):
-    confirm_deletion = forms.BooleanField(label="Confirm account deletion")
+    confirm_deletion = forms.BooleanField(label="Delete Account")

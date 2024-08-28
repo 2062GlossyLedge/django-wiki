@@ -165,21 +165,42 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
 
+# Give the user the possibility to update their account and delete it
 class UserAccountView(TemplateView):
+    model = User
     template_name = "wiki/accounts/account_settings.html"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(self.model, pk=self.request.user.pk)
+
+    def get(self, request, *args, **kwargs):
+        """
+        Save the initial referer
+        """
+        self.referer = request.META.get("HTTP_REFERER", "")
+        request.session["login_referer"] = self.referer
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context["update_form"] = UserUpdateForm(instance=self.request.user)
+        context["update_form"] = forms.UserUpdateForm(instance=self.request.user)
         context["delete_form"] = forms.UserDeleteForm()
         return context
 
     def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
         if "update_account" in request.POST:
-            pass
-            # update_form = UserUpdateForm(request.POST, instance=request.user)
-            # if update_form.is_valid():
-            #     update_form.save()
+            self.referer = request.session.get("login_referer", "")
+            update_form = forms.UserUpdateForm(
+                request.POST, request.FILES, instance=request.user
+            )
+            if update_form.is_valid():
+                pw = update_form.cleaned_data["password1"]
+                if pw != "":
+                    self.object.set_password(pw)
+                self.object.save()
+                print("saved!")
         elif "delete_account" in request.POST:
             delete_form = forms.UserDeleteForm(request.POST)
             if delete_form.is_valid() and delete_form.cleaned_data["confirm_deletion"]:

@@ -12,6 +12,13 @@
     {% trans "Confirm Account Deletion" %}
   </button>
 </form>
-
+<hr>
+<form class="form-horizontal" action="" method="post">{% csrf_token %}
+  {{ update_form.as_p }}
+  <label for="update_account"></label>
+  <button type="submit" name="update_account" class="btn btn-primary btn-lg">
+    {% trans "Update" %}
+  </button>
+</form>
 
 {% endblock %}
