@@ -61,6 +61,7 @@ urlpatterns = [
         "tests.core.test_sites.WikiCustomConfig",
         "wiki.plugins.attachments.apps.AttachmentsConfig",
         "wiki.plugins.notifications.apps.NotificationsConfig",
+        "wiki.plugins.userprogress.apps.UserProgressConfig",
         "wiki.plugins.images.apps.ImagesConfig",
         "wiki.plugins.citations.apps.CitationsConfig",
         "wiki.plugins.macros.apps.MacrosConfig",
