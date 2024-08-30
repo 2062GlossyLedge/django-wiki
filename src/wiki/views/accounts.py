@@ -26,6 +26,7 @@ from django.views.generic import UpdateView
 from django.views.generic import View
 from wiki import forms
 from wiki.conf import settings
+from wiki.models.account import UserProfile
 
 User = get_user_model()
 
@@ -150,16 +151,6 @@ class Update(UpdateView):
         return redirect("wiki:root")
 
 
-# class delete(DeleteView):
-#     model = User
-#     form_class = forms.UserDeleteForm
-#     template_name = "wiki/accounts/account_settings.html"
-#     # verify password
-
-#     # delete instance of user model
-
-#     # redirect to home page
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.views.generic import TemplateView
@@ -185,6 +176,12 @@ class UserAccountView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["update_form"] = forms.UserUpdateForm(instance=self.request.user)
         context["delete_form"] = forms.UserDeleteForm()
+        context["img_form"] = forms.UserProfileImgForm()
+
+        context["profile_picture"] = UserProfile.objects.get(
+            user=self.request.user
+        ).profile_image.url  # self.request.session.get("profile_picture", "")
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -207,5 +204,37 @@ class UserAccountView(TemplateView):
                 request.user.delete()
                 print("deleted!")
                 return redirect("wiki:root")
+        elif "update_img" in request.POST:
+            img_form = forms.UserProfileImgForm(request.POST, request.FILES)
+            print(request.FILES)
+            if img_form.is_valid():
+                # Check if a UserProfile instance already exists for the current user - allows for updating the profile image instead of creating a new entry in db
+                try:
+                    # Fetch the existing user profile instance
+                    user_profile = UserProfile.objects.get(user=request.user)
+                    # Bind the form to the existing instance
+                    img_form = forms.UserProfileImgForm(
+                        request.POST, request.FILES, instance=user_profile
+                    )
+                except UserProfile.DoesNotExist:
+                    # If no instance exists, create a new one
+                    img_form = forms.UserProfileImgForm(request.POST, request.FILES)
+                    user_profile = img_form.save(commit=False)
+                    user_profile.user = request.user
+
+                if img_form.is_valid():
+                    # Save the updated instance
+                    user_profile.save()
+                    print("Profile picture updated successfully")
+                else:
+                    print("Form is not valid")
+                    print(img_form.errors)
+
+                self.request.session["profile_picture"] = user_profile.profile_image.url
+
+                print("Profile image updated successfully!")
+            else:
+                print("Form is not valid.")
+                print(img_form.errors)
 
         return self.get(request, *args, **kwargs)

@@ -20,5 +20,12 @@
     {% trans "Update" %}
   </button>
 </form>
-
+<hr>
+<form class="form-horizontal" action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+  {{ img_form.as_p }}
+  <label for="update_img"></label>
+  <button type="submit" name="update_img" class="btn btn-primary btn-lg">
+    {% trans "Update Profile Picture" %}
+  </button>
+</form>
 {% endblock %}

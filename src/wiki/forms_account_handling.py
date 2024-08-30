@@ -10,6 +10,7 @@ from django.db.models.fields import CharField
 from django.db.models.fields import EmailField
 from django.utils.translation import gettext_lazy as _
 from wiki.conf import settings
+from wiki.models.account import UserProfile
 
 
 def _get_field(model, field):
@@ -85,7 +86,6 @@ class UserUpdateForm(forms.ModelForm):
     password2 = forms.CharField(
         label="Confirm password", widget=forms.PasswordInput(), required=False
     )
-    profile_picture = forms.ImageField(label="Profile Picture", required=False)
 
     def clean(self):
         password1 = self.cleaned_data.get("password1")
@@ -103,3 +103,10 @@ class UserUpdateForm(forms.ModelForm):
 
 class UserDeleteForm(forms.Form):
     confirm_deletion = forms.BooleanField(label="Delete Account")
+
+
+class UserProfileImgForm(forms.ModelForm):
+
+    class Meta:
+        model = UserProfile
+        fields = ["profile_image"]

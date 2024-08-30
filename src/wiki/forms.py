@@ -2,6 +2,7 @@ __all__ = [
     "UserCreationForm",
     "UserUpdateForm",
     "UserDeleteForm",
+    "UserProfileImgForm",
     "WikiSlugField",
     "SpamProtectionMixin",
     "CreateRootForm",
@@ -38,7 +39,12 @@ from wiki.editors import getEditor
 from wiki.models import Article
 from wiki.core.utils import allTextHasCitations
 
-from .forms_account_handling import UserCreationForm, UserDeleteForm, UserUpdateForm
+from .forms_account_handling import (
+    UserCreationForm,
+    UserDeleteForm,
+    UserUpdateForm,
+    UserProfileImgForm,
+)
 
 validate_slug_numbers = RegexValidator(
     r"^[0-9]+$",
