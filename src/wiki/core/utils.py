@@ -72,3 +72,32 @@ def allTextHasCitations(section):
     
     # If all matches cover the entire section content, return True
     return (sumMatchChars + sumMatchCharsMeta) == len(section_content)
+
+def extractLocationNumbers(text):
+    """Extract book/season number and chapter/episode number from the text."""
+    match = re.search(r'wiki:(?:.*?)/(?:book|season)(\d+)(?:/(?:chapter(\d+)|episode(\d+)))?', text)
+    if match:
+        outer_number = int(match.group(1)) # Extract the outer number (book or season)
+        inner_number = int(match.group(2) or match.group(3)) # Extract the inner number (chapter or episode)
+        return outer_number, inner_number
+    return None, None
+
+def removeSpoilerContent(section_content, currentProgress):
+    citationPattern = r">>.*?\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
+    citationRegex = re.compile(citationPattern)
+    # print("Removing spoiler content!")
+    new_text = section_content
+    matches = citationRegex.findall(section_content)
+    currentProgressOuter, currentProgressInner = extractLocationNumbers(currentProgress)
+    # print("The current progress outer number is " + str(currentProgressOuter) + " and the inner number is " + str(currentProgressInner))
+    for match in matches:
+        # print("Match found (repr):", repr(match))
+        matchOuter, matchInner = extractLocationNumbers(match)  # Causing error?
+        # print("The match outer number is " + str(matchOuter) + " and the inner number is " + str(matchInner))
+        if (matchOuter > currentProgressOuter) or (matchOuter == currentProgressOuter and matchInner > currentProgressInner):
+            start_index = new_text.find(match)
+            if start_index != -1:
+                end_index = start_index + len(match)
+                new_text = new_text[:start_index] + new_text[end_index:]
+                # print("New text after removal (repr):", repr(new_text))
+    return new_text

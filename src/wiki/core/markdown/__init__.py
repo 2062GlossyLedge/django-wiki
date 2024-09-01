@@ -3,7 +3,7 @@ import markdown
 from bleach.css_sanitizer import CSSSanitizer
 from wiki.conf import settings
 from wiki.core.plugins import registry as plugin_registry
-
+from wiki.core.utils import removeSpoilerContent
 
 class ArticleMarkdown(markdown.Markdown):
     def __init__(self, article, preview=False, user=None, *args, **kwargs):
@@ -32,7 +32,10 @@ class ArticleMarkdown(markdown.Markdown):
     def convert(self, text, *args, **kwargs):
         # store source in instance, for extensions which might need it
         self.source = text
-        html = super().convert(text, *args, **kwargs)
+        
+        # Remove spoiler content!
+        noSpoilerText = removeSpoilerContent(text, "wiki:/one-piece/tv/season1/episode1071")  #Get location from self.user instead of hard value. If statement so only filter if a location is chosen. 
+        html = super().convert(noSpoilerText, *args, **kwargs)
         if settings.MARKDOWN_SANITIZE_HTML:
             tags = settings.MARKDOWN_HTML_WHITELIST.union(
                 plugin_registry.get_html_whitelist()
