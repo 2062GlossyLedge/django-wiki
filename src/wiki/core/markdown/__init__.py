@@ -34,7 +34,7 @@ class ArticleMarkdown(markdown.Markdown):
         self.source = text
         
         # Remove spoiler content!
-        noSpoilerText = removeSpoilerContent(text, "wiki:/one-piece/tv/season1/episode1071")  #Get location from self.user instead of hard value. If statement so only filter if a location is chosen. 
+        noSpoilerText = removeSpoilerContent(text, "wiki:/one-piece/tv/season1/episode1")  #Get location from self.user instead of hard value. If statement so only filter if a location is chosen. 
         html = super().convert(noSpoilerText, *args, **kwargs)
         if settings.MARKDOWN_SANITIZE_HTML:
             tags = settings.MARKDOWN_HTML_WHITELIST.union(
