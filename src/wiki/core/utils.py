@@ -92,7 +92,7 @@ def removeSpoilerContent(section_content, currentProgress):
     # print("The current progress outer number is " + str(currentProgressOuter) + " and the inner number is " + str(currentProgressInner))
     for match in matches:
         # print("Match found (repr):", repr(match))
-        matchOuter, matchInner = extractLocationNumbers(match)  # Causing error?
+        matchOuter, matchInner = extractLocationNumbers(match) 
         # print("The match outer number is " + str(matchOuter) + " and the inner number is " + str(matchInner))
         if (matchOuter > currentProgressOuter) or (matchOuter == currentProgressOuter and matchInner > currentProgressInner):
             start_index = new_text.find(match)
