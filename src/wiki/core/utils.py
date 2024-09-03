@@ -77,8 +77,8 @@ def extractLocationNumbers(text):
     """Extract book/season number and chapter/episode number from the text."""
     match = re.search(r'wiki:(?:.*?)/(?:book|season)(\d+)(?:/(?:chapter(\d+)|episode(\d+)))?', text)
     if match:
-        outer_number = int(match.group(1)) # Extract the outer number (book or season)
-        inner_number = int(match.group(2) or match.group(3)) # Extract the inner number (chapter or episode)
+        outer_number = int(match.group(1) or 0) # Extract the outer number (book or season)
+        inner_number = int(match.group(2) or match.group(3) or 0) # Extract the inner number (chapter or episode)
         return outer_number, inner_number
     return None, None
 
