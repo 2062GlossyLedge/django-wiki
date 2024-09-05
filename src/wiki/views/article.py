@@ -49,7 +49,9 @@ class ArticleView(ArticleMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs["selected_tab"] = "view"
+        kwargs["response"] = "Hi"
         return ArticleMixin.get_context_data(self, **kwargs)
+    
 
 
 class Create(FormView, ArticleMixin):
@@ -1191,3 +1193,29 @@ class ProgressPathSearch(View):
             ]
 
         return object_to_json_response(matches)
+
+# class Chatbot(TemplateView):
+#     template_name = 'wiki/includes/article_rightbar.html'
+#     # pass in url of current wiki page and query. Return chabot response 
+#     def getResponse(request):
+#         response= "Hi, I'm your friendly chatbot"
+#         context = {'response': response}
+#         return render(request, template_name, context)    # pass response to template 
+    # def responseContext(self):
+    #     # get prompt
+    #     if request.method == "POST":
+    #         prompt = request.POST.get("prompt")
+
+# class Chatbot(TemplateView):
+#     template_name = 'wiki/includes/article_rightbar.html'
+
+#     def get(self, request, *args, **kwargs):
+#         response = "Hi, I'm your friendly chatbot"
+#         context = self.get_context_data(**kwargs)
+#         context['response'] = response
+#         return self.render_to_response(context)
+    
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         print(context)  # Print the context to the console for debugging
+#         return context

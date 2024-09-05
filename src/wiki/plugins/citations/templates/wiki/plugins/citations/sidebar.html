@@ -3,17 +3,20 @@
 <h4>{% trans "Add citation" %}</h4>
 
 <p>
-  {% trans "Select in the location where the information added can be found. Keep your contribution between the >> and the [*]:" %}<br />
+  {% trans "Select in the location where the information added can be found. Keep your contribution between the >> and
+  the [*]:" %}<br />
 </p>
 
 <pre> &gt&gt TEXT [*](wiki:/BaseWiki/MediaType/Book#/Chapter#)</pre>
 
 <p>
-{% trans "Note that citations are required for all test in the wiki for allow for filtering based on spoilers" %}<br />
+  {% trans "Note that citations are required for all test in the wiki for allow for filtering based on spoilers"
+  %}<br />
 </p>
 
 <p>
-    {% trans "If addition is spoiler-free meta series information, such as author information, remove * and refer to base wiki:" %}<br />
+  {% trans "If addition is spoiler-free meta series information, such as author information, remove * and refer to base
+  wiki:" %}<br />
 </p>
 
 <pre> &gt&gt Meta Information [](wiki:/BaseWiki/MediaType)</pre>
@@ -32,7 +35,9 @@
 
 <hr />
 
-{% addtoblock "js" %}<script type="text/javascript" src="{% static "wiki/select2/js/select2.min.js" %}"></script>{% endaddtoblock %}
+
+{% addtoblock "js" %}
+<script type="text/javascript" src="{% static 'wiki/select2/js/select2.min.js' %}"></script>{% endaddtoblock %}
 {% addtoblock "js" %}
 <script type="text/javascript">
   $(document).ready(function () {
@@ -106,11 +111,11 @@
                 return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&subwiki=" +  firstSelectionValue;
         },
         processResults: function (data) {
-            let ret = [];
-            data.forEach(function (val) {
-                ret.push({"id": val, "text": val})
-            });
-            return {results: ret};
+          let ret = [];
+          data.forEach(function (val) {
+            ret.push({ "id": val, "text": val })
+          });
+          return { results: ret };
         },
       },
     });
@@ -167,5 +172,5 @@
 {% endaddtoblock %}
 
 {% addtoblock "css" %}
-<link rel="stylesheet" href="{% static "wiki/select2/css/select2.min.css" %}" type="text/css" />
+<link rel="stylesheet" href="{% static 'wiki/select2/css/select2.min.css' %}" type="text/css" />
 {% endaddtoblock %}

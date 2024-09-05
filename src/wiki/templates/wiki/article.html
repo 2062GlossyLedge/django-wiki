@@ -12,42 +12,52 @@
 
 {% block wiki_contents %}
 
+
 <div class="left-sidebar">
   {% if urlpath.parent.parent %}
   {% include "wiki/includes/article_leftbar.html" %}
   {% endif %}
 </div>
 
-  <div id="article-container">
-   <nav id="article-menu" class="navbar navbar-expand-md nav-pills">
+<!-- <div class="right-sidebar">
+
+  {%comment%}
+  {% include "wiki/includes/article_rightbar.html" with response=response %}
+{%endcomment%}
+</div> -->
+
+<div id="article-container">
+  <nav id="article-menu" class="navbar navbar-expand-md nav-pills">
 
     <ul class="navbar-nav w-75">
-    <li class="float-left nav-item" id="article-title-li">
+      <li class="float-left nav-item" id="article-title-li">
         <h1 id="article-title">
           {{ article.current_revision.title }}
           <small style="font-size: 14px;">
             {% if urlpath.parent %}
-            <a href="{% url 'wiki:get' path=urlpath.path %}" class="nav-link"><span class="fa fa-bookmark"></span> {{ urlpath.slug }}</a>
+            <a href="{% url 'wiki:get' path=urlpath.path %}" class="nav-link"><span class="fa fa-bookmark"></span> {{
+              urlpath.slug }}</a>
             {% endif %}
             {% if article.current_revision.locked %}
-              <span class="fa fa-lock"></span> {% trans "locked" %}
+            <span class="fa fa-lock"></span> {% trans "locked" %}
             {% endif %}
           </small>
         </h1>
       </li>
     </ul>
-     <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
+    <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
       {% include "wiki/includes/article_menu.html" %}
     </ul>
-   </nav>
-    <div>
-      {% block wiki_contents_tab %}
-      {% endblock %}
-    </div>
+  </nav>
+  <div>
+    {% block wiki_contents_tab %}
+    {% endblock %}
   </div>
+</div>
 
 {% endblock %}
 
 {% block wiki_footer_prepend %}
-  <p style="margin-bottom: 10px;"><em>{% trans "This article was last modified:" %} {{ article.current_revision.modified }}</em></p>
+<p style="margin-bottom: 10px;"><em>{% trans "This article was last modified:" %} {{ article.current_revision.modified
+    }}</em></p>
 {% endblock %}
