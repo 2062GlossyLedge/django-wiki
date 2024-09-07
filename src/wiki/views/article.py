@@ -36,6 +36,8 @@ from wiki.core.utils import object_to_json_response
 from wiki.decorators import get_article
 from wiki.models.article import Article, ArticleRevision
 from wiki.views.mixins import ArticleMixin
+from wiki.models.account import UserProfile
+
 
 log = logging.getLogger(__name__)
 
@@ -49,14 +51,18 @@ class ArticleView(ArticleMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs["selected_tab"] = "view"
-        if self.request.user.is_authenticated:
-            # Log user activity
-            user = self.request.user
-            url = self.request.path_info
-            # timestamp = timezone.now()
 
-            # Save the data to the database (you'll need a model to store it)
-            UserProfile.objects.create(user=user, url=url, timestamp=timestamp)
+        if self.request.user.is_authenticated:
+            # Get or create the user's activity log
+            user_activity, created = UserProfile.objects.get_or_create(
+                user=self.request.user
+            )
+
+            # Get the current URL
+            current_url = self.request.path_info
+
+            # Save the URL
+            user_activity.save_url(current_url)
         return ArticleMixin.get_context_data(self, **kwargs)
 
 
