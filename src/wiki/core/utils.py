@@ -13,7 +13,7 @@ def object_to_json_response(obj, status=200):
         json_dumps_params={"ensure_ascii": False},
     )
     
-def allTextHasCitations(section):
+def allUncitedText(section):
     """
     Returns true if all of the text of the section excluding header has a citation, false if not
     """
@@ -41,8 +41,6 @@ def allTextHasCitations(section):
     
     section_content = section_content.replace("\r","") # Remove lines for easier deciphering
     section_content = section_content.replace("\n","") # Remove lines for easier deciphering
-    section_content = section_content.replace(" ","") # Remove spaces for easier deciphering
-    
     metaCitationEndPattern = r"\[\]\(wiki:\/[^\s()]+?\/(?:book\b|tv\b)(?=\s|\))\)"
     citationEndPattern = r"\[\*?\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
     citationEndPatternEnd = r"\[\*?\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)(?:\~(?:book\d+(?:\/chapter\d+)?|season\d+(?:\/episode\d+)?))\)"
@@ -51,7 +49,7 @@ def allTextHasCitations(section):
     section_content = re.sub(citationEndPatternEnd, r"\g<0>\n", section_content)
     
     # Define the regex pattern of citations, and count
-    citationPattern = r">>.*?\[\*?\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
+    citationPattern = r"(?s)>>(?:(?!>>).)*?\[\*?\]\(wiki:(?:(?!>>).)*?\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
     citationRegex = re.compile(citationPattern)
 
     allmatches = citationRegex.findall(section_content)
@@ -59,26 +57,37 @@ def allTextHasCitations(section):
     # Iterate over all matches and sum the characters
     for match in allmatches:
         sumMatchChars += len(match)
+        start_index = section_content.find(match)
+        if start_index != -1:
+            end_index = start_index + len(match)
+            section_content = section_content[:start_index] + section_content[end_index:]
         
-    metaCitationPattern = r">>.*?\[\]\(wiki:\/[^\s()]+?\/(?:book\b|tv\b)(?=\s|\))\)"
+    metaCitationPattern = r"(?s)>>(?:(?!>>).)*?\[\]\(wiki:\/(?:(?!>>).)*?\/(?:book\b|tv\b)(?=\s|\))\)"
     metaCitationRegex = re.compile(metaCitationPattern)
     sumMatchCharsMeta = 0
     allmatchesMeta = metaCitationRegex.findall(section_content)
     for match in allmatchesMeta:
         sumMatchCharsMeta += len(match)
+        start_index = section_content.find(match)
+        if start_index != -1:
+            end_index = start_index + len(match)
+            section_content = section_content[:start_index] + section_content[end_index:]
         
         
-    endPointCitationPattern = r">>.*?\[\*?\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)(?:\~(?:book\d+(?:\/chapter\d+)?|season\d+(?:\/episode\d+)?))\)"
+    endPointCitationPattern = r"(?s)>>(?:(?!>>).)*?\[\*?\]\(wiki:(?:(?!>>).)*?\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)(?:\~(?:book\d+(?:\/chapter\d+)?|season\d+(?:\/episode\d+)?))\)"
     endPointCitationRegex = re.compile(endPointCitationPattern)
     sumMatchCharsEndPoint = 0
     allmatchesEndPoint = endPointCitationRegex.findall(section_content)
     for match in allmatchesEndPoint:
         sumMatchCharsEndPoint += len(match)
+        start_index = section_content.find(match)
+        if start_index != -1:
+            end_index = start_index + len(match)
+            section_content = section_content[:start_index] + section_content[end_index:]
         
-    section_content = section_content.replace("\n","") # Remove lines for math
-    
-    # If all matches cover the entire section content, return True
-    return (sumMatchChars + sumMatchCharsMeta + sumMatchCharsEndPoint) == len(section_content)
+    section_content = section_content.strip()
+    # Return all uncited text in the section.
+    return section_content
 
 def extractLocationNumbers(text):
     """Extract book/season number and chapter/episode number from the text."""

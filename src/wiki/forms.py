@@ -37,7 +37,7 @@ from wiki.core.diff import simple_merge
 from wiki.core.plugins.base import PluginSettingsFormMixin
 from wiki.editors import getEditor
 from wiki.models import Article
-from wiki.core.utils import allTextHasCitations
+from wiki.core.utils import allUncitedText
 
 from .forms_account_handling import (
     UserCreationForm,
@@ -313,7 +313,7 @@ class EditForm(forms.Form, SpamProtectionMixin):
         """Validates form data by checking for the following
         No new revisions have been created since user attempted to edit
         Revision title or content has changed
-        Wiki content includes text that is not cited.
+        Wiki content does not includes text that is not cited.
         """
         if self.no_clean or self.preview:
             return self.cleaned_data
@@ -329,10 +329,11 @@ class EditForm(forms.Form, SpamProtectionMixin):
             and self.cleaned_data["content"] == self.initial_revision.content
         ):
             raise forms.ValidationError(gettext("No changes made. Nothing to save."))
-        if not allTextHasCitations(self.cleaned_data["content"]):
+        uncitedText = allUncitedText(self.cleaned_data["content"])
+        if len(uncitedText) != 0:
             raise forms.ValidationError(
                 gettext(
-                    "Not all text in edited section has citations. Please ensure all text is properly cited for changes to take effect."
+                    "\"" + uncitedText +  "\" does not have citations. Please ensure all text is properly cited for changes to take effect."
                 )
             )
         self.check_spam()
