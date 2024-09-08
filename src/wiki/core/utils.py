@@ -44,14 +44,14 @@ def allTextHasCitations(section):
     section_content = section_content.replace(" ","") # Remove spaces for easier deciphering
     
     metaCitationEndPattern = r"\[\]\(wiki:\/[^\s()]+?\/(?:book\b|tv\b)(?=\s|\))\)"
-    citationEndPattern = r"\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
-    citationEndPatternEnd = r"\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)(?:\~(?:book\d+(?:\/chapter\d+)?|season\d+(?:\/episode\d+)?))\)"
+    citationEndPattern = r"\[\*?\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
+    citationEndPatternEnd = r"\[\*?\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)(?:\~(?:book\d+(?:\/chapter\d+)?|season\d+(?:\/episode\d+)?))\)"
     section_content = re.sub(metaCitationEndPattern, r"\g<0>\n", section_content)
     section_content = re.sub(citationEndPattern, r"\g<0>\n", section_content)
     section_content = re.sub(citationEndPatternEnd, r"\g<0>\n", section_content)
     
     # Define the regex pattern of citations, and count
-    citationPattern = r">>.*?\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
+    citationPattern = r">>.*?\[\*?\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
     citationRegex = re.compile(citationPattern)
 
     allmatches = citationRegex.findall(section_content)
@@ -68,7 +68,7 @@ def allTextHasCitations(section):
         sumMatchCharsMeta += len(match)
         
         
-    endPointCitationPattern = r">>.*?\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)(?:\~(?:book\d+(?:\/chapter\d+)?|season\d+(?:\/episode\d+)?))\)"
+    endPointCitationPattern = r">>.*?\[\*?\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)(?:\~(?:book\d+(?:\/chapter\d+)?|season\d+(?:\/episode\d+)?))\)"
     endPointCitationRegex = re.compile(endPointCitationPattern)
     sumMatchCharsEndPoint = 0
     allmatchesEndPoint = endPointCitationRegex.findall(section_content)
@@ -103,10 +103,10 @@ def extractLocationNumbersEndpoint(text):
         second_inner_number = int(match.group(6) or match.group(8) or 0)  # Second chapter or episode number
         
         return first_outer_number, first_inner_number, second_outer_number, second_inner_number
-    return None, None, None, None
+    return 0, 0, 0, 0
 
 def removeSpoilerContent(section_content, currentProgress):
-    citationPattern = r">>.*?\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
+    citationPattern = r"(?s)>>(?:(?!>>).)*?\[\*?\]\(wiki:(?:(?!>>).)*?\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
     citationRegex = re.compile(citationPattern)
     # Filter based on citations without an endpoint
     new_text = section_content
@@ -121,7 +121,7 @@ def removeSpoilerContent(section_content, currentProgress):
                 new_text = new_text[:start_index] + new_text[end_index:]
                 
     # Remove citations with an endpoint
-    endPointCitationPattern = r">>.*?\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)(?:\~(?:book\d+(?:\/chapter\d+)?|season\d+(?:\/episode\d+)?))\)"
+    endPointCitationPattern = r"(?s)>>(?:(?!>>).)*?\[\*?\]\(wiki:(?:(?!>>).)*?\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)(?:\~(?:book\d+(?:\/chapter\d+)?|season\d+(?:\/episode\d+)?))\)"
     endPointCitationRegex = re.compile(endPointCitationPattern)
     endpointMatches = endPointCitationRegex.findall(section_content)
     
@@ -141,4 +141,18 @@ def removeSpoilerContent(section_content, currentProgress):
             if tilde_index != -1 and end_index != -1:
                 # Keep the part before the tilde and the closing parenthesis
                 new_text = new_text[:tilde_index] + new_text[end_index:]
+    return new_text
+
+def wikiContentCleanup(section):
+    new_text = section
+    #Remove >>
+    doubleArrowPattern = r">>"
+    doubleArrowRegex = re.compile(doubleArrowPattern)
+    # Filter based on citations without an endpoint
+    matches = doubleArrowRegex.findall(section)
+    for match in matches:
+        start_index = new_text.find(match)
+        if start_index != -1:
+            end_index = start_index + len(match)
+            new_text = new_text[:start_index] + new_text[end_index:]
     return new_text
