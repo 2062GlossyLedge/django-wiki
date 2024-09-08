@@ -45,8 +45,10 @@ def allTextHasCitations(section):
     
     metaCitationEndPattern = r"\[\]\(wiki:\/[^\s()]+?\/(?:book\b|tv\b)(?=\s|\))\)"
     citationEndPattern = r"\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
+    citationEndPatternEnd = r"\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)(?:\~(?:book\d+(?:\/chapter\d+)?|season\d+(?:\/episode\d+)?))\)"
     section_content = re.sub(metaCitationEndPattern, r"\g<0>\n", section_content)
     section_content = re.sub(citationEndPattern, r"\g<0>\n", section_content)
+    section_content = re.sub(citationEndPatternEnd, r"\g<0>\n", section_content)
     
     # Define the regex pattern of citations, and count
     citationPattern = r">>.*?\[\*\]\(wiki:(?:.*?)\/(?:book\/book\d+(?:\/chapter\d+)?|tv\/season\d+(?:\/episode\d+)?)\)"
