@@ -16,11 +16,10 @@ class Homepage(TemplateView):
         if urls is None:
             urls = []
 
-        # Remove empty path
-        urls = [url for url in urls if url != "/"]
+        # Remove empty paths and duplicate urls masked by having different number of slashes in url
+        urls = [url.replace("//", "/") for url in urls if url != "/"]
         context["urls"] = urls
 
-        print(urls)
         urls_dict = {url: url.replace("/", " ") for url in urls}
         context["urls_dict"] = urls_dict
 

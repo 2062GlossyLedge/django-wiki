@@ -21,15 +21,23 @@
         <div class="buttons-container">
             <button class="button"><a href="{%url 'wiki:root' %}">Root Wiki</a></button>
         </div>
-        <div class="list-container">
-            <ul>
+        <div class="recent-wikis">
+            <h2>Recently Visited Wikis</h2>
+            <div class="flex-container">
                 {% for url, wikiPage in urls_dict.items %}
-                <li>
-                    <a href="{% url 'wiki:get' path=url%}">{{wikiPage}}</a>
-                </li>
+                <div class="card">
+                    <a href="{% url 'wiki:get' path=url %}">
+                        <div class="card-content">
+                            <h3>{{ wikiPage }}</h3>
+                        </div>
+                    </a>
+                </div>
                 {% endfor %}
-            </ul>
+            </div>
         </div>
+
+        <br>
+
     </div>
 
     <p> {{response}} </p>

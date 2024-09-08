@@ -180,7 +180,7 @@ class UserAccountView(TemplateView):
 
         context["profile_picture"] = UserProfile.objects.get(
             user=self.request.user
-        ).profile_image.url  # self.request.session.get("profile_picture", "")
+        ).profile_image.url
 
         return context
 
