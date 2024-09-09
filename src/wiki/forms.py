@@ -550,6 +550,44 @@ class CreateWikiForm(forms.Form, SpamProtectionMixin):
         self.check_spam()
         return self.cleaned_data
 
+class AddMediaForm(forms.Form, SpamProtectionMixin):
+    def __init__(self, request, urlpath_parent, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+        self.urlpath_parent = urlpath_parent
+
+    slug = WikiSlugField(
+        label=_("Slug"),
+        help_text=_(
+            "This will be the address where your article can be found. Use only alphanumeric characters and - or _.<br>Note: If you change the slug later on, links pointing to this article are <b>not</b> updated."
+        ),
+        max_length=models.URLPath.SLUG_MAX_LENGTH
+    )
+
+    media = forms.ChoiceField(
+        label=_("Media"),
+        choices=(("", "Select Media"), ("Book", "Book"), ("Tv", "TV Series")),
+    )
+
+    num_media = forms.IntegerField(label=_("Books"), required=False)
+
+    chapter_1 = forms.IntegerField(
+        label=_("Number of Chapters For Each Book"), required=False
+    )
+
+    summary = forms.CharField(
+        label=pgettext_lazy("Revision comment", "Summary"),
+        help_text=_("Write a brief message for the article's history log."),
+        required=False,
+    )
+
+    def clean_slug(self):
+        return _clean_slug(self.cleaned_data["slug"], self.urlpath_parent)
+
+    def clean(self):
+        self.check_spam()
+        return self.cleaned_data
+
 
 class DeleteForm(forms.Form):
     def __init__(self, *args, **kwargs):
