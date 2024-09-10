@@ -8,6 +8,8 @@ from wiki.views import accounts
 from wiki.views import article, home
 from wiki.views import deleted_list
 
+from wiki.views import progress_views
+
 urlpatterns = [
     re_path(r"^", sites.site.urls),
 ]
@@ -58,16 +60,27 @@ class WikiURLPatterns:
         urlpatterns += self.get_revision_urls()
         urlpatterns += self.get_article_urls()
         urlpatterns += self.get_plugin_urls()
+        urlpatterns += self.get_progress_urls()
 
         # This ALWAYS has to be the last of all the patterns since
         # the paths in theory could wrongly match other targets.
         urlpatterns += self.get_article_path_urls()
         return urlpatterns
 
+    def get_progress_urls(self):
+        urlpatterns = [
+            re_path(
+                r"^save_user_progress/$",
+                progress_views.save_user_progress,
+                name='save_user_progress',
+            ),
+        ]
+        return urlpatterns
+
     def get_root_urls(self):
         urlpatterns = [
             #Only need to create url route in sites.py
-            
+
             # re_path(
             #     r"^homepage/$",
             #     home.Homepage.as_view(),

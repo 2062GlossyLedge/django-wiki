@@ -17,10 +17,10 @@
     function getBaseWikiPath(pathname) {
         // Define possible substrings to look for
         const basePathOptions = ['/book/', '/tv/'];
-    
+
         // Initialize base wiki path variable
         let baseWiki = '';
-    
+
         // Iterate through each option to find the first match
         basePathOptions.some(option => {
           const index = pathname.indexOf(option);
@@ -30,7 +30,7 @@
           }
           return false;
         });
-    
+
         return baseWiki || pathname; // Fallback to the full pathname if no match
     }
 
@@ -41,7 +41,7 @@
 
     const basePathOptions = ['/book/', '/tv/'];
     let basewiki = getBaseWikiPath(window.location.pathname)
-    
+
     // Set values based on wiki type
     const isBookWiki = basewiki.includes('/book/');
     let outerSelectionPlaceholder = isBookWiki ? "Select Book" : "Select Season";
@@ -102,10 +102,30 @@
 
     // Update the value for the second selection
     $('#chapter-select').on('select2:select', function (e) {
-        // TODO: Gavin, add the saving functionality here 
-        // (once a book / epsiode is selected, save it some way where it persists with user and between pages
-        // Code above will also need to be changed to 
-    });
+      const progress = e.params.data.id;
+      const wikiId = basewiki; // Ensure `basewiki` is correctly set
+
+      $.ajax({
+          url: "{% url 'save_user_progress' %}",
+          type: "POST",
+          data: {
+              'wiki_id': wikiId,
+              'progress': progress,
+              'csrfmiddlewaretoken': '{{ csrf_token }}' // Include CSRF token
+          },
+          success: function (response) {
+              if (response.status === 'success') {
+                  console.log('User progress updated successfully');
+              } else {
+                  console.log('Failed to update user progress');
+              }
+          },
+          error: function () {
+              console.log('Error occurred while updating user progress');
+          }
+      });
+  });
+
 
     // Store the value to be displayed
     let addedValue = "";
