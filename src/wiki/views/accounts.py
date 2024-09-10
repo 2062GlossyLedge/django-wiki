@@ -178,9 +178,18 @@ class UserAccountView(TemplateView):
         context["delete_form"] = forms.UserDeleteForm()
         context["img_form"] = forms.UserProfileImgForm()
 
-        context["profile_picture"] = UserProfile.objects.get(
-            user=self.request.user
-        ).profile_image.url
+        # pass the profile picture url to the template, use default image if no profile picture is set
+        UserProfile.objects.get_or_create(user=self.request.user)
+
+        try:
+            context["profile_picture"] = UserProfile.objects.get(
+                user=self.request.user
+            ).profile_image.url
+        except:
+            UserProfile.objects.update(profile_image="profile_pics/default.png")
+            context["profile_picture"] = UserProfile.objects.get(
+                user=self.request.user
+            ).profile_image.url
         return context
 
     def post(self, request, *args, **kwargs):
