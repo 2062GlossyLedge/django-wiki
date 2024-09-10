@@ -7,6 +7,8 @@ from mptt.admin import MPTTModelAdmin
 from . import editors
 from . import models
 
+from wiki.models.account import UserProfile
+
 
 class ArticleObjectAdmin(GenericTabularInline):
     model = models.ArticleForObject
@@ -61,14 +63,14 @@ class ArticleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk:
-            revisions = models.ArticleRevision.objects.select_related(
-                "article"
-            ).filter(article=self.instance)
+            revisions = models.ArticleRevision.objects.select_related("article").filter(
+                article=self.instance
+            )
             self.fields["current_revision"].queryset = revisions
         else:
-            self.fields[
-                "current_revision"
-            ].queryset = models.ArticleRevision.objects.none()
+            self.fields["current_revision"].queryset = (
+                models.ArticleRevision.objects.none()
+            )
             self.fields["current_revision"].widget = forms.HiddenInput()
 
 
@@ -105,3 +107,4 @@ class URLPathAdmin(MPTTModelAdmin):
 admin.site.register(models.URLPath, URLPathAdmin)
 admin.site.register(models.Article, ArticleAdmin)
 admin.site.register(models.ArticleRevision, ArticleRevisionAdmin)
+admin.site.register(UserProfile)
