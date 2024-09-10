@@ -21,8 +21,11 @@
         <div class="buttons-container">
             <button class="button"><a href="{%url 'wiki:root' %}">Root Wiki</a></button>
         </div>
+        {% if urls_dict %}
         <div class="recent-wikis">
-            <h2>Recently Visited Wikis</h2>
+
+            <h2>Recently Visited Pages</h2>
+
             <div class="flex-container">
                 {% for url, wikiPage in urls_dict.items %}
                 <div class="card">
@@ -35,6 +38,7 @@
                 {% endfor %}
             </div>
         </div>
+        {%endif%}
 
         <br>
 
