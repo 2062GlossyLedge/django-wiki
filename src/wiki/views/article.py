@@ -51,9 +51,7 @@ class ArticleView(ArticleMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs["selected_tab"] = "view"
-        kwargs["profile_picture"] = UserProfile.objects.get(
-            user=self.request.user
-        ).profile_image.url
+
         return ArticleMixin.get_context_data(self, **kwargs)
 
 
@@ -240,9 +238,6 @@ class Create(FormView, ArticleMixin):
         c["parent_article"] = self.article
         c["create_form"] = c.pop("form", None)
         c["editor"] = editors.getEditor()
-        c["profile_picture"] = UserProfile.objects.get(
-            user=self.request.user
-        ).profile_image.url
         return c
 
 

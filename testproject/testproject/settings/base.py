@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 import environ
+
 env = environ.Env()
 environ.Env.read_env()
 
@@ -46,17 +47,16 @@ INSTALLED_APPS = [
     "mptt",
     "tailwind",
     "theme",
-     'django_browser_reload'
-
+    "django_browser_reload",
 ]
 
-TAILWIND_APP_NAME = 'theme'
+TAILWIND_APP_NAME = "theme"
 
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-#npm path
+# npm path
 # NPM_BIN_PATH = env("NPM_Path")
 
 
@@ -92,6 +92,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "sekizai.context_processors.sekizai",
+                "wiki.templatetags.context_processors.profile_picture",
             ],
             "debug": DEBUG,
         },
@@ -113,14 +114,13 @@ DATABASES = {
     #     'USER': env("DB_USER"),
     #     'PASSWORD': env("DB_PASSWORD"),
     #     'HOST': env("DB_HOST"),
-    #     'PORT': env("DB_PORT"),                    
+    #     'PORT': env("DB_PORT"),
     # }
-    #Uncomment this and comment other default to use sql lite 
-      "default": {
+    # Uncomment this and comment other default to use sql lite
+    "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(PROJECT_DIR, "db.sqlite3"),
-
-      }
+    }
 }
 
 # Internationalization
