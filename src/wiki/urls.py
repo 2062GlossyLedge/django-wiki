@@ -53,6 +53,9 @@ class WikiURLPatterns:
     # deleted list view
     deleted_list_view_class = deleted_list.DeletedListView
 
+    # progress view
+    progress_view = progress_views.SaveUserProgressView
+
     def get_urls(self):
         urlpatterns = self.get_root_urls()
         urlpatterns += self.get_accounts_urls()
@@ -71,7 +74,7 @@ class WikiURLPatterns:
         urlpatterns = [
             re_path(
                 r"^save_user_progress/$",
-                progress_views.save_user_progress,
+                self.progress_view.as_view(),
                 name='save_user_progress',
             ),
         ]
@@ -369,6 +372,7 @@ def get_pattern(app_name="wiki", namespace="wiki", url_config_class=None):
                 DeprecationWarning,
             )
             url_config_class = import_string(url_config_classname)
-    urlpatterns = url_config_class().get_urls()
 
+    urlpatterns = url_config_class().get_urls()
+    print(urlpatterns)
     return urlpatterns, app_name, namespace
