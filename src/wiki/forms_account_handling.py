@@ -11,6 +11,7 @@ from django.db.models.fields import EmailField
 from django.utils.translation import gettext_lazy as _
 from wiki.conf import settings
 from wiki.models.account import UserProfile
+from wiki.models.account import UserProgress
 
 
 def _get_field(model, field):
@@ -110,3 +111,9 @@ class UserProfileImgForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ["profile_image"]
+
+
+class UserProgressForm(forms.ModelForm):
+    class Meta:
+        model = UserProgress
+        fields = ['wiki_id', 'progress']
