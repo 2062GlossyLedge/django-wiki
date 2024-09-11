@@ -96,7 +96,7 @@
       const progress = e.params.data.id;
 
       $.ajax({
-          url: "/save_user_progress/", // ISSUE WITH URL REVERSING. HARD CODED TEMPORARILY
+          url: "_plugin/saveprogress/", // ISSUE WITH URL REVERSING. HARD CODED TEMPORARILY
           type: "POST",
           data: {
               'wiki_id': baseWiki,  // Use baseWiki as the wiki_id
@@ -107,7 +107,7 @@
               if (response.status === 'success') {
                   console.log('User progress updated successfully');
               } else {
-                  console.log('Failed to update user progress');
+                  console.log(response);
               }
           },
           error: function () {

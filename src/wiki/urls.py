@@ -10,6 +10,9 @@ from wiki.views import deleted_list
 
 from wiki.views import progress_views
 
+import logging
+logger = logging.getLogger(__name__)
+
 urlpatterns = [
     re_path(r"^", sites.site.urls),
 ]
@@ -54,7 +57,6 @@ class WikiURLPatterns:
     deleted_list_view_class = deleted_list.DeletedListView
 
     # progress view
-    progress_view = progress_views.SaveUserProgressView
 
     def get_urls(self):
         urlpatterns = self.get_root_urls()
@@ -63,22 +65,12 @@ class WikiURLPatterns:
         urlpatterns += self.get_revision_urls()
         urlpatterns += self.get_article_urls()
         urlpatterns += self.get_plugin_urls()
-        urlpatterns += self.get_progress_urls()
 
         # This ALWAYS has to be the last of all the patterns since
         # the paths in theory could wrongly match other targets.
         urlpatterns += self.get_article_path_urls()
         return urlpatterns
 
-    def get_progress_urls(self):
-        urlpatterns = [
-            re_path(
-                r"^save_user_progress/$",
-                self.progress_view.as_view(),
-                name='save_user_progress',
-            ),
-        ]
-        return urlpatterns
 
     def get_root_urls(self):
         urlpatterns = [

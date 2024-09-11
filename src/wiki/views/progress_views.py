@@ -9,7 +9,7 @@ class SaveUserProgressView(View):
         # Extract wiki_id and progress from the POST request
         wiki_id = request.POST.get('wiki_id')
         progress = request.POST.get('progress')
-        print("HELP HELP HELP HELP")
+
         # Ensure the user is authenticated
         if not request.user.is_authenticated:
             return JsonResponse({"error": "User is not authenticated"}, status=403)
