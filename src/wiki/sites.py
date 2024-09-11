@@ -18,25 +18,22 @@ class WikiSite:
     """
 
     def __init__(self, name="wiki"):
-        from wiki.views import accounts, article, deleted_list, home
+        from wiki.views import accounts, article, deleted_list, home, sidebar
 
         self.name = name
 
-        # root view
-        self.homepage_view = getattr(
-            self, "homepage_view", home.Homepage.as_view()
-        )
-        self.root_view = getattr(
-            self, "root_view", article.CreateRootView.as_view()
-        )
+        #  view of homepage
+        self.homepage_view = getattr(self, "homepage_view", home.Homepage.as_view())
+        self.root_view = getattr(self, "root_view", article.CreateRootView.as_view())
         self.root_missing_view = getattr(
             self, "root_missing_view", article.MissingRootView.as_view()
         )
 
+        # chatbot view
+        self.chatbot_view = getattr(self, "chatbot_view", sidebar.Chatbot.as_view())
+
         # basic views
-        self.article_view = getattr(
-            self, "article_view", article.ArticleView.as_view()
-        )
+        self.article_view = getattr(self, "article_view", article.ArticleView.as_view())
         self.article_create_view = getattr(
             self, "article_create_view", article.Create.as_view()
         )
@@ -46,9 +43,7 @@ class WikiSite:
         self.article_deleted_view = getattr(
             self, "article_deleted_view", article.Deleted.as_view()
         )
-        self.article_dir_view = getattr(
-            self, "article_dir_view", article.Dir.as_view()
-        )
+        self.article_dir_view = getattr(self, "article_dir_view", article.Dir.as_view())
         self.article_edit_view = getattr(
             self, "article_edit_view", article.Edit.as_view()
         )
@@ -82,23 +77,17 @@ class WikiSite:
             article.MergeView.as_view(preview=True),
         )
 
-        self.search_view = getattr(
-            self, "search_view", article.SearchView.as_view()
-        )
+        self.search_view = getattr(self, "search_view", article.SearchView.as_view())
         self.article_diff_view = getattr(
             self, "article_diff_view", article.DiffView.as_view()
         )
 
         # account views
-        self.signup_view = getattr(
-            self, "signup_view", accounts.Signup.as_view()
-        )
+        self.signup_view = getattr(self, "signup_view", accounts.Signup.as_view())
         self.login_view = getattr(self, "login_view", accounts.Login.as_view())
-        self.logout_view = getattr(
-            self, "logout_view", accounts.Logout.as_view()
-        )
+        self.logout_view = getattr(self, "logout_view", accounts.Logout.as_view())
         self.profile_update_view = getattr(
-            self, "profile_update_view", accounts.Update.as_view()
+            self, "profile_update_view", accounts.UserAccountView.as_view()
         )
 
         # deleted list view
@@ -125,18 +114,10 @@ class WikiSite:
 
     def get_root_urls(self):
         urlpatterns = [
-             re_path(
-                r"^homepage/$",
-                self.homepage_view,
-                name="homepage"
-            ),
-            re_path(
-                r"^$", self.article_view, name="root", kwargs={"path": ""}
-            ),
+            re_path(r"^homepage/$", self.homepage_view, name="homepage"),
+            re_path(r"^$", self.article_view, name="root", kwargs={"path": ""}),
             re_path(r"^create-root/$", self.root_view, name="root_create"),
-            re_path(
-                r"^missing-root/$", self.root_missing_view, name="root_missing"
-            ),
+            re_path(r"^missing-root/$", self.root_missing_view, name="root_missing"),
             re_path(r"^_search/$", self.search_view, name="search"),
             re_path(
                 r"^_revision/diff/(?P<revision_id>[0-9]+)/$",
@@ -155,12 +136,8 @@ class WikiSite:
     def get_accounts_urls(self):
         if settings.ACCOUNT_HANDLING:
             urlpatterns = [
-                re_path(
-                    r"^_accounts/sign-up/$", self.signup_view, name="signup"
-                ),
-                re_path(
-                    r"^_accounts/logout/$", self.logout_view, name="logout"
-                ),
+                re_path(r"^_accounts/sign-up/$", self.signup_view, name="signup"),
+                re_path(r"^_accounts/logout/$", self.logout_view, name="logout"),
                 re_path(r"^_accounts/login/$", self.login_view, name="login"),
                 re_path(
                     r"^_accounts/settings/$",
@@ -193,14 +170,13 @@ class WikiSite:
             ),
         ]
         return [
-            re_path(
-                r"^_revision/(?P<article_id>[0-9]+)/", include(urlpatterns)
-            ),
+            re_path(r"^_revision/(?P<article_id>[0-9]+)/", include(urlpatterns)),
         ]
 
     def get_article_urls(self):
         urlpatterns = [
             # Paths decided by article_ids
+            re_path(r"^chatbot/$", self.chatbot_view, name="chatbot"),
             re_path(r"^$", self.article_view, name="get"),
             re_path(r"^delete/$", self.article_delete_view, name="delete"),
             re_path(r"^deleted/$", self.article_deleted_view, name="deleted"),
@@ -208,9 +184,7 @@ class WikiSite:
             re_path(r"^move/$", self.article_move_view, name="move"),
             re_path(r"^preview/$", self.article_preview_view, name="preview"),
             re_path(r"^history/$", self.article_history_view, name="history"),
-            re_path(
-                r"^settings/$", self.article_settings_view, name="settings"
-            ),
+            re_path(r"^settings/$", self.article_settings_view, name="settings"),
             re_path(r"^source/$", self.article_source_view, name="source"),
             re_path(
                 r"^revision/change/(?P<revision_id>[0-9]+)/$",
@@ -250,12 +224,8 @@ class WikiSite:
                 self.article_deleted_view,
                 name="deleted",
             ),
-            re_path(
-                r"^(?P<path>.+/|)_edit/$", self.article_edit_view, name="edit"
-            ),
-            re_path(
-                r"^(?P<path>.+/|)_move/$", self.article_move_view, name="move"
-            ),
+            re_path(r"^(?P<path>.+/|)_edit/$", self.article_edit_view, name="edit"),
+            re_path(r"^(?P<path>.+/|)_move/$", self.article_move_view, name="move"),
             re_path(
                 r"^(?P<path>.+/|)_preview/$",
                 self.article_preview_view,
@@ -266,12 +236,8 @@ class WikiSite:
                 self.article_history_view,
                 name="history",
             ),
-            re_path(
-                r"^(?P<path>.+/|)_dir/$", self.article_dir_view, name="dir"
-            ),
-            re_path(
-                r"^(?P<path>.+/|)_search/$", self.search_view, name="search"
-            ),
+            re_path(r"^(?P<path>.+/|)_dir/$", self.article_dir_view, name="dir"),
+            re_path(r"^(?P<path>.+/|)_search/$", self.search_view, name="search"),
             re_path(
                 r"^(?P<path>.+/|)_settings/$",
                 self.article_settings_view,
@@ -320,9 +286,7 @@ class WikiSite:
                 ]
                 root_urlpatterns = plugin.urlpatterns.get("root", [])
                 urlpatterns += [
-                    re_path(
-                        r"^_plugin/" + slug + "/", include(root_urlpatterns)
-                    ),
+                    re_path(r"^_plugin/" + slug + "/", include(root_urlpatterns)),
                 ]
         return urlpatterns
 
