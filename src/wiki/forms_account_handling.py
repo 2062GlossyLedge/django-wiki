@@ -114,6 +114,5 @@ class UserProfileImgForm(forms.ModelForm):
 
 
 class UserProgressForm(forms.ModelForm):
-    class Meta:
-        model = UserProgress
-        fields = ['wiki_id', 'progress']
+    book = forms.CharField(widget=forms.Select(attrs={'id': 'book-select'}))
+    chapter = forms.CharField(widget=forms.Select(attrs={'id': 'chapter-select', 'disabled': True}))

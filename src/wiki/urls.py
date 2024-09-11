@@ -8,7 +8,7 @@ from wiki.views import accounts
 from wiki.views import article, home
 from wiki.views import deleted_list
 
-from wiki.views import progress_views
+
 
 urlpatterns = [
     re_path(r"^", sites.site.urls),
@@ -53,32 +53,29 @@ class WikiURLPatterns:
     # deleted list view
     deleted_list_view_class = deleted_list.DeletedListView
 
-    # progress view
-    progress_view = progress_views.SaveUserProgressView
 
     def get_urls(self):
+        print("get urls called")
         urlpatterns = self.get_root_urls()
         urlpatterns += self.get_accounts_urls()
         urlpatterns += self.get_deleted_list_urls()
         urlpatterns += self.get_revision_urls()
         urlpatterns += self.get_article_urls()
         urlpatterns += self.get_plugin_urls()
-        urlpatterns += self.get_progress_urls()
+
+        urlpatterns += [
+            re_path(r'^save-progress/$', self.save_progress_view, name='save_progress'),
+        ]
 
         # This ALWAYS has to be the last of all the patterns since
         # the paths in theory could wrongly match other targets.
         urlpatterns += self.get_article_path_urls()
         return urlpatterns
 
-    def get_progress_urls(self):
-        urlpatterns = [
-            re_path(
-                r"^save_user_progress/$",
-                self.progress_view.as_view(),
-                name='save_user_progress',
-            ),
-        ]
-        return urlpatterns
+    def save_progress_view(self, request):
+            from django.http import JsonResponse
+            from wiki.views.progress_views import save_progress
+            return save_progress(request)
 
     def get_root_urls(self):
         urlpatterns = [
