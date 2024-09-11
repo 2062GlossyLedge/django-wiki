@@ -1,5 +1,5 @@
 {% extends "wiki/base.html" %}
-{% load wiki_tags i18n sekizai_tags %}
+{% load wiki_tags i18n sekizai_tags static %}
 
 
 {% block wiki_pagetitle %}{{ article.current_revision.title }}{% endblock %}
@@ -10,7 +10,14 @@
 
 
 
+
 {% block wiki_contents %}
+
+{% addtoblock "js" %}
+
+<script src="{% static '/wiki/js/wikiPage.js' %}"></script>
+{% endaddtoblock %}
+
 
 
 <div class="left-sidebar">
@@ -55,7 +62,11 @@
   </div>
 </div>
 
+
+
 {% endblock %}
+
+
 
 {% block wiki_footer_prepend %}
 <p style="margin-bottom: 10px;"><em>{% trans "This article was last modified:" %} {{ article.current_revision.modified

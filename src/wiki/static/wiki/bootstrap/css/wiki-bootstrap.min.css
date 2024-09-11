@@ -3716,6 +3716,26 @@ input[type="button"].btn-block {
     border-left: .3em solid transparent
 }
 
+/* toggles the toc closed */
+.wiki-article div.toc #toctitleclosed::after {
+    display: inline-block;
+    margin-left: .255em;
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    border-left: .3em solid transparent;
+    transform: rotate(180deg)
+}
+
+
+
+.wiki-article div.toc {
+    border-left: 1px solid rgb(226, 226, 226);
+    padding: 0.2em;
+}
+
 .dropdown-toggle:empty::after,
 .wiki-article div.toc .toctitle:empty::after {
     margin-left: 0
@@ -11987,12 +12007,12 @@ h1#article-title {
     padding-left: 10px
 }
 
-#article-container>div>div>div>ul>li:nth-child(1) {
+/* #article-container>div>div>div>ul>li:nth-child(1) {
     text-decoration: underline;
     text-decoration-color: red;
     text-decoration-thickness: 3px;
 
-}
+} */
 
 .wiki-article div.toc ul li a,
 .wiki-article div.article-list ul li a {
