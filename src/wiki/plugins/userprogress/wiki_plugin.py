@@ -6,21 +6,19 @@ from . import settings
 from . import views
 
 
-# class NotifyPlugin(BasePlugin):
-#     slug = settings.SLUG
-#     urlpatterns = {
-#         "root": [
-#             re_path(
-#                 r"^$",
-#                 views.UserProgress.as_view(),
-#                 name="user_progress",
-#             ),
-#         ]
-#     }
+class ProgressPlugin(BasePlugin):
+    slug = settings.SLUG
+    urlpatterns = {
+        "root": [
+            re_path(
+                r"^$",
+                views.UserProgressListView.as_view(),
+                name="user_progress",
+            ),
+        ]
+    }
 
-#     article_view = views.UserProgress().dispatch
-
-#     settings_form = "wiki.plugins.userprogress.forms.SubscriptionForm"
+    article_view = views.UserProgressListView().dispatch
 
 
-# registry.register(NotifyPlugin)
+registry.register(ProgressPlugin)

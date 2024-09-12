@@ -124,97 +124,97 @@ SettingsFormSet = modelformset_factory(
 )
 
 
-# class SubscriptionForm(PluginSettingsFormMixin, forms.Form):
-#     settings_form_headline = _("Notifications")
-#     settings_order = 1
-#     settings_write_access = False
+class SubscriptionForm(PluginSettingsFormMixin, forms.Form):
+    settings_form_headline = _("Notifications")
+    settings_order = 1
+    settings_write_access = False
 
-#     settings = SettingsModelChoiceField(
-#         None, empty_label=None, label=_("Settings")
-#     )
-#     edit = forms.BooleanField(
-#         required=False, label=_("When this article is edited")
-#     )
-#     edit_email = forms.BooleanField(
-#         required=False,
-#         label=_("Also receive emails about article edits"),
-#         widget=forms.CheckboxInput(
-#             attrs={
-#                 "onclick": mark_safe(
-#                     "$('#id_edit').attr('checked', $(this).is(':checked'));"
-#                 )
-#             }
-#         ),
-#     )
+    settings = SettingsModelChoiceField(
+        None, empty_label=None, label=_("Settings")
+    )
+    edit = forms.BooleanField(
+        required=False, label=_("When this article is edited")
+    )
+    edit_email = forms.BooleanField(
+        required=False,
+        label=_("Also receive emails about article edits"),
+        widget=forms.CheckboxInput(
+            attrs={
+                "onclick": mark_safe(
+                    "$('#id_edit').attr('checked', $(this).is(':checked'));"
+                )
+            }
+        ),
+    )
 
-#     def __init__(self, article, request, *args, **kwargs):
-#         self.article = article
-#         self.user = request.user
-#         initial = kwargs.pop("initial", None)
-#         self.notification_type = NotificationType.objects.get_or_create(
-#             key=ARTICLE_EDIT,
-#             content_type=ContentType.objects.get_for_model(article),
-#         )[0]
-#         self.edit_notifications = models.ArticleSubscription.objects.filter(
-#             article=article,
-#             subscription__notification_type=self.notification_type,
-#             subscription__settings__user=self.user,
-#         )
-#         self.default_settings = Settings.get_default_setting(request.user)
-#         if self.edit_notifications:
-#             self.default_settings = self.edit_notifications[
-#                 0
-#             ].subscription.settings
-#         if not initial:
-#             initial = {
-#                 "edit": bool(self.edit_notifications),
-#                 "edit_email": bool(
-#                     self.edit_notifications.filter(
-#                         subscription__send_emails=True
-#                     )
-#                 ),
-#                 "settings": self.default_settings,
-#             }
-#         kwargs["initial"] = initial
-#         super().__init__(*args, **kwargs)
-#         self.fields["settings"].queryset = Settings.objects.filter(
-#             user=request.user,
-#         )
+    def __init__(self, article, request, *args, **kwargs):
+        self.article = article
+        self.user = request.user
+        initial = kwargs.pop("initial", None)
+        self.notification_type = NotificationType.objects.get_or_create(
+            key=ARTICLE_EDIT,
+            content_type=ContentType.objects.get_for_model(article),
+        )[0]
+        self.edit_notifications = models.ArticleSubscription.objects.filter(
+            article=article,
+            subscription__notification_type=self.notification_type,
+            subscription__settings__user=self.user,
+        )
+        self.default_settings = Settings.get_default_setting(request.user)
+        if self.edit_notifications:
+            self.default_settings = self.edit_notifications[
+                0
+            ].subscription.settings
+        if not initial:
+            initial = {
+                "edit": bool(self.edit_notifications),
+                "edit_email": bool(
+                    self.edit_notifications.filter(
+                        subscription__send_emails=True
+                    )
+                ),
+                "settings": self.default_settings,
+            }
+        kwargs["initial"] = initial
+        super().__init__(*args, **kwargs)
+        self.fields["settings"].queryset = Settings.objects.filter(
+            user=request.user,
+        )
 
-#     def get_usermessage(self):
-#         if self.changed_data:
-#             return _("Your notification settings were updated.")
-#         else:
-#             return _(
-#                 "Your notification settings were unchanged, so nothing saved."
-#             )
+    def get_usermessage(self):
+        if self.changed_data:
+            return _("Your notification settings were updated.")
+        else:
+            return _(
+                "Your notification settings were unchanged, so nothing saved."
+            )
 
-#     def save(self, *args, **kwargs):
-#         if not self.changed_data:
-#             return
-#         if self.cleaned_data["edit"]:
-#             try:
-#                 edit_notification = models.ArticleSubscription.objects.get(
-#                     subscription__notification_type=self.notification_type,
-#                     article=self.article,
-#                     subscription__settings=self.cleaned_data["settings"],
-#                 )
-#                 edit_notification.subscription.send_emails = self.cleaned_data[
-#                     "edit_email"
-#                 ]
-#                 edit_notification.subscription.save()
-#             except models.ArticleSubscription.DoesNotExist:
-#                 subscription, __ = Subscription.objects.get_or_create(
-#                     settings=self.cleaned_data["settings"],
-#                     notification_type=self.notification_type,
-#                     object_id=self.article.id,
-#                 )
-#                 models.ArticleSubscription.objects.create(
-#                     subscription=subscription,
-#                     article=self.article,
-#                 )
-#                 subscription.send_emails = self.cleaned_data["edit_email"]
-#                 subscription.save()
+    def save(self, *args, **kwargs):
+        if not self.changed_data:
+            return
+        if self.cleaned_data["edit"]:
+            try:
+                edit_notification = models.ArticleSubscription.objects.get(
+                    subscription__notification_type=self.notification_type,
+                    article=self.article,
+                    subscription__settings=self.cleaned_data["settings"],
+                )
+                edit_notification.subscription.send_emails = self.cleaned_data[
+                    "edit_email"
+                ]
+                edit_notification.subscription.save()
+            except models.ArticleSubscription.DoesNotExist:
+                subscription, __ = Subscription.objects.get_or_create(
+                    settings=self.cleaned_data["settings"],
+                    notification_type=self.notification_type,
+                    object_id=self.article.id,
+                )
+                models.ArticleSubscription.objects.create(
+                    subscription=subscription,
+                    article=self.article,
+                )
+                subscription.send_emails = self.cleaned_data["edit_email"]
+                subscription.save()
 
-#         else:
-#             self.edit_notifications.delete()
+        else:
+            self.edit_notifications.delete()
