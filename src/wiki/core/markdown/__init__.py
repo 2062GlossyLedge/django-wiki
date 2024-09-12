@@ -36,7 +36,9 @@ class ArticleMarkdown(markdown.Markdown):
         self.source = text
         current_url = self.articleUrl
         # Remove spoiler content!
-        noSpoilerText = removeSpoilerContent(text, "wiki:/one-piece/tv/season1000/episode1000")  #Get location from self.user instead of hard value. If statement so only filter if a location is chosen. 
+        noSpoilerText = text
+        if self.user is not None:
+            noSpoilerText = removeSpoilerContent(text, "wiki:/one-piece/tv/season1000/episode1000")  #Get location from self.user instead of hard value. If statement so only filter if a location is chosen. 
         noSpoilerText = wikiContentCleanup(noSpoilerText)
         html = super().convert(noSpoilerText, *args, **kwargs)
         if settings.MARKDOWN_SANITIZE_HTML:
