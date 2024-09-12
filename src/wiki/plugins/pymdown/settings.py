@@ -5,7 +5,6 @@ from wiki.conf import settings
 SLUG = "pymdown"
 APP_LABEL = "wiki"
 
-
 def update_whitelist():
     setattr(
         settings,

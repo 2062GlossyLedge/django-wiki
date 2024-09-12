@@ -1,53 +1,48 @@
 {% load i18n sekizai_tags static %}
 
-<div id="progress-select">
+<form method="POST" action="{% url 'save_progress' %}" id="progress-form">
+  {% csrf_token %}
+  {{ form.as_p }}  <!-- Django form fields -->
+
   <h4>{% trans "Select Location in Media" %}</h4>
-  <select id="book-select" style="width: 200px;"></select>
-  <select id="chapter-select" disabled style="width: 200px;"></select>
-</div>
+  <select id="book-select" name="book" style="width: 200px;"></select>
+  <select id="chapter-select" name="chapter" disabled style="width: 200px;"></select>
 
-
+  <button type="submit" style="display: none;" id="submit-btn">Submit</button>
+</form>
 
 {% addtoblock "js" %}
-<script type="text/javascript" src="{% static 'wiki/select2/js/select2.min.js' %}"></script>{% endaddtoblock %}
+<script type="text/javascript" src="{% static 'wiki/select2/js/select2.min.js' %}"></script>
+{% endaddtoblock %}
+
 {% addtoblock "js" %}
 <script type="text/javascript">
   $(document).ready(function () {
-
     function getBaseWikiPath(pathname) {
-        // Define possible substrings to look for
         const basePathOptions = ['/book/', '/tv/'];
-    
-        // Initialize base wiki path variable
         let baseWiki = '';
-    
-        // Iterate through each option to find the first match
+
         basePathOptions.some(option => {
           const index = pathname.indexOf(option);
           if (index !== -1) {
             baseWiki = pathname.substring(0, index + option.length);
-            return true; // Exit the loop once a match is found
+            return true;
           }
           return false;
         });
-    
-        return baseWiki || pathname; // Fallback to the full pathname if no match
+
+        return baseWiki || pathname;
     }
 
-    // Variables to track if selections have been made
     let firstSelectionMade = false;
-    let secondSelectionMade = false;
     let firstSelectionValue = '';
+    let baseWiki = getBaseWikiPath(window.location.pathname);
 
-    const basePathOptions = ['/book/', '/tv/'];
-    let basewiki = getBaseWikiPath(window.location.pathname)
-    
-    // Set values based on wiki type
-    const isBookWiki = basewiki.includes('/book/');
+    const isBookWiki = baseWiki.includes('/book/');
     let outerSelectionPlaceholder = isBookWiki ? "Select Book" : "Select Season";
-    let outerDefaultSearch = isBookWiki ? "Book" : "Season"
+    let outerDefaultSearch = isBookWiki ? "Book" : "Season";
     let innerSelectionPlaceholder = isBookWiki ? "Select Chapter" : "Select Episode";
-    let innerDefaultSearch = isBookWiki ? "Chapter" : "Episode ";
+    let innerDefaultSearch = isBookWiki ? "Chapter" : "Episode";
 
     $('#book-select').select2({
       dropdownAutoWidth: true,
@@ -55,14 +50,14 @@
       ajax: {
         url: function (params) {
             if (!params.term)
-                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + outerDefaultSearch + "&wiki=" + basewiki;
+                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + outerDefaultSearch + "&wiki=" + baseWiki;
             else
-                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&wiki=" + basewiki;
+                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&wiki=" + baseWiki;
         },
         processResults: function (data) {
           let ret = [];
           data.forEach(function (val) {
-            ret.push({ "id": val, "text": val })
+            ret.push({ "id": val, "text": val });
           });
           return { results: ret };
         },
@@ -77,51 +72,53 @@
             if (!params.term)
                 return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + innerDefaultSearch + "&subwiki=" + firstSelectionValue;
             else
-                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&subwiki=" +  firstSelectionValue;
+                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&subwiki=" + firstSelectionValue;
         },
         processResults: function (data) {
           let ret = [];
           data.forEach(function (val) {
-            ret.push({ "id": val, "text": val })
+            ret.push({ "id": val, "text": val });
           });
           return { results: ret };
         },
       },
     });
 
-    // Enable the second selection box once the first selection is made
     $('#book-select').on('select2:select', function (e) {
-        // Reset the second selection
         $('#chapter-select').val(null).trigger('change').prop('disabled', true);
-
-        firstSelectionMade = true;
-        firstSelectionValue = $('#book-select').val().split("wiki:")[1]; // Corrected line
-        $('#chapter-select').prop('disabled', false); // Enable second select box
-        $('#chapter-select').trigger('change'); // Trigger change to update options
+        firstSelectionValue = $('#book-select').val().split("wiki:")[1];
+        $('#chapter-select').prop('disabled', false);
+        $('#chapter-select').trigger('change');
     });
 
-    // Update the value for the second selection
     $('#chapter-select').on('select2:select', function (e) {
-        // TODO: Gavin, add the saving functionality here 
-        // (once a book / epsiode is selected, save it some way where it persists with user and between pages
-        // Code above will also need to be changed to 
+      const progress = e.params.data.id;
+
+      $.ajax({
+          url: "_plugin/saveprogress/", // ISSUE WITH URL REVERSING. HARD CODED TEMPORARILY
+          type: "POST",
+          data: {
+              'wiki_id': baseWiki,  // Use baseWiki as the wiki_id
+              'progress': progress,
+              'csrfmiddlewaretoken': '{{ csrf_token }}' // Include CSRF token for security
+          },
+          success: function (response) {
+              if (response.status === 'success') {
+                  console.log('User progress updated successfully');
+              } else {
+                  console.log(response);
+              }
+          },
+          error: function () {
+              console.log('Error occurred while updating user progress');
+          }
+      });
     });
 
-    // Store the value to be displayed
-    let addedValue = "";
-
-    // Update the value to add to the page on click of citation_add_citation_button
-    // $('#citations_page_title_query').on('select2:select', function (e) {
-    //     addedValue = ">> ADD YOUR CONTRIBUTION HERE [*](wiki:" + e.params.data.id.split("wiki:")[1] + ")";
-    // });
-
-    // $("#citation_add_citation_button").on("click", function () {
-    //   $('#id_content').insertAtCaret(addedValue);
-    // });
   });
-
 </script>
 {% endaddtoblock %}
+
 {% addtoblock "css" %}
 <link rel="stylesheet" href="{% static 'wiki/select2/css/select2.min.css' %}" type="text/css" />
 {% endaddtoblock %}

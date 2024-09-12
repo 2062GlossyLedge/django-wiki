@@ -3,6 +3,7 @@ __all__ = [
     "UserUpdateForm",
     "UserDeleteForm",
     "UserProfileImgForm",
+    "UserProgressForm",
     "WikiSlugField",
     "SpamProtectionMixin",
     "CreateRootForm",
@@ -44,6 +45,7 @@ from .forms_account_handling import (
     UserDeleteForm,
     UserUpdateForm,
     UserProfileImgForm,
+    UserProgressForm,
 )
 
 validate_slug_numbers = RegexValidator(
@@ -832,3 +834,4 @@ class SearchForm(forms.Form):
         ),
         required=False,
     )
+

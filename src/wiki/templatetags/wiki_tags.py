@@ -181,6 +181,8 @@ def is_locked(model):
     return model.current_revision and model.current_revision.locked
 
 
+
+
 @register.simple_tag(takes_context=True)
 def login_url(context):
     request = context["request"]
@@ -212,9 +214,21 @@ def wiki_settings(name):
 def starts_with(value, arg):
     return value.startswith(arg)
 
+@register.filter(name='progress_process')
+def before_colon(value):
+    if isinstance(value, str):
+        splt = value.split('/')
+        return splt[-2] + ' ' + splt[-1]
+    return value
+
+@register.filter(name='media_process')
+def before_colon(value):
+    if isinstance(value, str):
+        splt = value.split('/')
+        return splt[1] + ' ' + splt[2]
+    return value
 
 from wiki.models.account import UserProfile
-
 
 @register.filter
 def profile_picture(request):

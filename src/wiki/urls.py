@@ -8,6 +8,11 @@ from wiki.views import accounts
 from wiki.views import article, home
 from wiki.views import deleted_list
 
+from wiki.views import progress_views
+
+import logging
+logger = logging.getLogger(__name__)
+
 urlpatterns = [
     re_path(r"^", sites.site.urls),
 ]
@@ -51,6 +56,8 @@ class WikiURLPatterns:
     # deleted list view
     deleted_list_view_class = deleted_list.DeletedListView
 
+    # progress view
+
     def get_urls(self):
         urlpatterns = self.get_root_urls()
         urlpatterns += self.get_accounts_urls()
@@ -64,10 +71,11 @@ class WikiURLPatterns:
         urlpatterns += self.get_article_path_urls()
         return urlpatterns
 
+
     def get_root_urls(self):
         urlpatterns = [
             #Only need to create url route in sites.py
-            
+
             # re_path(
             #     r"^homepage/$",
             #     home.Homepage.as_view(),
@@ -356,6 +364,7 @@ def get_pattern(app_name="wiki", namespace="wiki", url_config_class=None):
                 DeprecationWarning,
             )
             url_config_class = import_string(url_config_classname)
-    urlpatterns = url_config_class().get_urls()
 
+    urlpatterns = url_config_class().get_urls()
+    print(urlpatterns)
     return urlpatterns, app_name, namespace

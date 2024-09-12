@@ -27,6 +27,7 @@ from django.views.generic import View
 from wiki import forms
 from wiki.conf import settings
 from wiki.models.account import UserProfile
+from wiki.models.account import UserProgress
 
 User = get_user_model()
 
