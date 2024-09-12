@@ -1,4 +1,7 @@
 from django.views.generic import TemplateView
+from django.utils.decorators import method_decorator
+from wiki.models.account import UserProfile
+
 
 from django.shortcuts import redirect, render
 from openai import OpenAI

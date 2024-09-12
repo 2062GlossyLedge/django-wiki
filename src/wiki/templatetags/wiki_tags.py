@@ -211,3 +211,24 @@ def wiki_settings(name):
 @register.filter
 def starts_with(value, arg):
     return value.startswith(arg)
+
+
+from wiki.models.account import UserProfile
+
+
+@register.filter
+def profile_picture(request):
+    if request.user.is_authenticated:
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+            profile_picture = (
+                user_profile.profile_image.url
+                if user_profile.profile_image
+                else "/path/to/default/profile_image.jpg"
+            )
+        except UserProfile.DoesNotExist:
+            profile_picture = "/path/to/default/profile_image.jpg"
+    else:
+        profile_picture = None
+
+    return {"profile_picture": profile_picture}
