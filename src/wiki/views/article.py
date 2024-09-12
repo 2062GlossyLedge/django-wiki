@@ -23,6 +23,7 @@ from django.views.generic import RedirectView
 from django.views.generic import TemplateView
 from django.views.generic import View
 from django.urls import reverse_lazy
+import re
 from wiki import editors
 from wiki import forms
 from wiki import models
@@ -70,6 +71,8 @@ class Create(FormView, ArticleMixin):
             form_class = self.get_form_class()
         if self.urlpath.path == "":
             form_class = forms.CreateWikiForm
+        elif len(self.urlpath.path.split("/")) == 2:
+            form_class = forms.AddMediaForm
         kwargs = self.get_form_kwargs()
         initial = kwargs.get("initial", {})
         initial["slug"] = self.request.GET.get("slug", None)
@@ -92,8 +95,74 @@ class Create(FormView, ArticleMixin):
 
     def form_valid(self, form):
         try:
-            if self.urlpath.path == "":
+            if form.cleaned_data["is_book"] == True:
+                matches = models.URLPath.objects.can_read(self.request.user)
+                media = str(self.urlpath).split("/")[1]
+                fandom = str(self.urlpath).split("/")[0]
+                if media == "tv":
+                    media = "season"
+                matches = matches.filter(slug__icontains = media)
+                matches = matches.filter(parent__parent__slug__icontains = fandom)
 
+                num_books = 0
+                for match in matches:
+                    if re.search(f"{media}\d*/$", str(match)):
+                        num_books += 1
+
+                if media == "season":
+                    self.newpath = models.URLPath._create_urlpath_from_request(
+                        self.request,
+                        self.article,
+                        self.urlpath,
+                        "season" + str(num_books + 1),
+                        form.cleaned_data["title"],
+                        "[article_list depth:3]",
+                        form.cleaned_data["summary"],
+                    )
+
+                    #Creates wikis for how many episodes are in a season
+                    episode_path = self.newpath
+                    episode_article = self.newpath.article
+                    for j in range(1, form.cleaned_data["num_chapters"] + 1):
+                        self.newpath = models.URLPath._create_urlpath_from_request(
+                            self.request,
+                            episode_article,
+                            episode_path,
+                            "episode" + str(j),
+                            "Episode " + str(j),
+                            "",
+                            form.cleaned_data["summary"],
+                        )
+                #Other types of media
+                else:
+                    self.newpath = models.URLPath._create_urlpath_from_request(
+                        self.request,
+                        self.article,
+                        self.urlpath,
+                        media + str(num_books + 1),
+                        form.cleaned_data["title"],
+                        "[article_list depth:3]",
+                        form.cleaned_data["summary"],
+                    )
+
+                    #Creates wikis for chapters in a book
+                    chapter_path = self.newpath
+                    chapter_article = self.newpath.article
+                    for j in range(1, form.cleaned_data["num_chapters"] + 1):
+                        self.newpath = models.URLPath._create_urlpath_from_request(
+                            self.request,
+                            chapter_article,
+                            chapter_path,
+                            "chapter" + str(j),
+                            "Chapter " + str(j),
+                            "",
+                            form.cleaned_data["summary"],
+                        )
+                return self.get_success_url()
+
+
+
+            if self.urlpath.path == "":
                 #Creates Homepage for wiki
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
@@ -109,7 +178,7 @@ class Create(FormView, ArticleMixin):
                     _("New article '%s' created.")
                     % self.newpath.article.current_revision.title,
                 )
-                
+
                 #Creates Media type wiki
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
@@ -117,7 +186,8 @@ class Create(FormView, ArticleMixin):
                     self.newpath,
                     form.cleaned_data["media"].lower(),
                     form.cleaned_data["title"] + " Wiki (" + form.cleaned_data["media"] + ")",
-                    "Change " + form.cleaned_data["media"] + " wikis to include title if applicable\n[article_list depth:2]",
+                    ">> Change " + form.cleaned_data["media"] + " wikis to include title if applicable [](wiki:/" 
+                    + form.cleaned_data["slug"] + "/" + form.cleaned_data["media"].lower() + ")\n[article_list depth:2]",
                     form.cleaned_data["summary"],
                 )
                 messages.success(
@@ -125,7 +195,24 @@ class Create(FormView, ArticleMixin):
                     _("New article '%s' created.")
                     % self.newpath.article.current_revision.title,
                 )
-
+            elif len(self.urlpath.path.split("/")) == 2:
+                #Creates Media type wiki
+                self.newpath = models.URLPath._create_urlpath_from_request(
+                    self.request,
+                    self.article,
+                    self.urlpath,
+                    form.cleaned_data["media"].lower(),
+                    str(self.article) + " Wiki (" + form.cleaned_data["media"] + ")",
+                    ">> Change " + form.cleaned_data["media"] + " wikis to include title if applicable [](wiki:/" 
+                    + form.cleaned_data["slug"] + "/" + form.cleaned_data["media"].lower() + ")\n[article_list depth:2]",
+                    form.cleaned_data["summary"],
+                )
+                messages.success(
+                    self.request,
+                    _("New article '%s' created.")
+                    % self.newpath.article.current_revision.title,
+                )
+            if self.urlpath.path == "" or len(self.urlpath.path.split("/")) == 2:
                 #Creates Wikis For Books/Seasons
                 path = self.newpath
                 article = self.newpath.article

@@ -32,6 +32,14 @@
       let book = true;
       $("#id_num_media, label[for='id_num_media']").hide();
       $("#id_chapter_1, label[for='id_chapter_1']").hide();
+      $("#id_num_chapters, label[for='id_num_chapters'], #id_num_chapters_help_text").hide();
+      if(window.location.href.split("/")[4] == "tv") {
+        $("label[for='id_is_book").text("Add New Season");
+        $("label[for='id_num_chapters").text("Number Of Episodes");
+      }
+      if(window.location.href.split("/").length != 7) {
+        $("#id_is_book, label[for='id_is_book']").hide()
+      }
 		  $("#id_title").keyup(function () {
 			  var e = $("#id_slug")[0];
 			  if(!e._changed) {
@@ -39,6 +47,24 @@
 				  e.value = slug;
 			  }
 	      });
+        
+      $("#id_is_book").change(function () {
+          if ($(this).is(":checked")) {
+            console.log(window.location.href.split("/"));
+            $("label[for='id_title").text("Title of Book");
+            $("#id_content, label[for='id_content']").hide();
+
+            $("#id_num_chapters").attr("required", "required");
+            $("#id_num_chapters, label[for='id_num_chapters'], #id_num_chapters_help_text").show();
+          } else {
+              $("#id_num_chapters").removeAttr("required");
+              $("#id_num_chapters, label[for='id_num_chapters'], #id_num_chapters_help_text").hide();
+
+              $("label[for='id_title").text("Title");
+              $("#id_content, label[for='id_content']").show();
+          }
+      });
+
       $("#id_media").change(function () {
         if ($(this).val()) {
           if ($(this).val() == "Book") {
@@ -48,6 +74,9 @@
             $("label[for='id_num_media").text("Number of Books");
             $("label[for='id_chapter_1").text("Number of Chapters For Each Book");
             $("#id_num_media, label[for='id_num_media'], #id_num_media_help_text").show();
+            if (window.location.href.split("/").length == 6 || document.getElementById('id_is_book').checked) {
+              $("#id_slug")[0].value = "book";
+            }
           }
           else {
             book = false;
@@ -56,6 +85,9 @@
             $("label[for='id_num_media").text("Number of Seasons");
             $("label[for='id_chapter_1").text("Number of Episodes For Each Season");
             $("#id_num_media, label[for='id_num_media'], #id_num_media_help_text").show();
+            if (window.location.href.split("/").length == 6 || document.getElementById('id_is_book').checked) {
+              $("#id_slug")[0].value = "tv";
+            }
           }
         }
         else {
@@ -108,7 +140,7 @@
   {% include "wiki/includes/editormedia.html" %}
   
   <h1 class="page-header">{% trans "Add new article" %}</h1>
-
+  
   <form method="POST" class="form-horizontal">
     {% wiki_form create_form %}
     
