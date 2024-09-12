@@ -1,7 +1,7 @@
 {% load i18n sekizai_tags static %}
 
 <div id="progress-select">
-  <h4>{% trans "Select Location in Media" %}</h4>
+  <h4>{% trans "Filter Page by Current Progress in Media" %}</h4>
   <select id="book-select" style="width: 200px;"></select>
   <select id="chapter-select" disabled style="width: 200px;"></select>
 </div>
@@ -15,19 +15,19 @@
   $(document).ready(function () {
 
     function getBaseWikiPath(pathname) {
-        const basePathOptions = ['/book/', '/tv/'];
-        let baseWiki = '';
+      const basePathOptions = ['/book/', '/tv/'];
+      let baseWiki = '';
 
-        basePathOptions.some(option => {
-          const index = pathname.indexOf(option);
-          if (index !== -1) {
-            baseWiki = pathname.substring(0, index + option.length);
-            return true;
-          }
-          return false;
-        });
+      basePathOptions.some(option => {
+        const index = pathname.indexOf(option);
+        if (index !== -1) {
+          baseWiki = pathname.substring(0, index + option.length);
+          return true;
+        }
+        return false;
+      });
 
-        return baseWiki || pathname;
+      return baseWiki || pathname;
     }
 
     // Variables to track if selections have been made
@@ -48,10 +48,10 @@
       placeholder: outerSelectionPlaceholder,
       ajax: {
         url: function (params) {
-            if (!params.term)
-                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + outerDefaultSearch + "&wiki=" + baseWiki;
-            else
-                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&wiki=" + baseWiki;
+          if (!params.term)
+            return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + outerDefaultSearch + "&wiki=" + baseWiki;
+          else
+            return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&wiki=" + baseWiki;
         },
         processResults: function (data) {
           let ret = [];
@@ -68,10 +68,10 @@
       placeholder: innerSelectionPlaceholder,
       ajax: {
         url: function (params) {
-            if (!params.term)
-                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + innerDefaultSearch + "&subwiki=" + firstSelectionValue;
-            else
-                return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&subwiki=" + firstSelectionValue;
+          if (!params.term)
+            return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + innerDefaultSearch + "&subwiki=" + firstSelectionValue;
+          else
+            return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&subwiki=" + firstSelectionValue;
         },
         processResults: function (data) {
           let ret = [];
@@ -84,11 +84,11 @@
     });
 
     $('#book-select').on('select2:select', function (e) {
-        $('#chapter-select').val(null).trigger('change').prop('disabled', true);
-        firstSelectionMade = true;
-        firstSelectionValue = $('#book-select').val().split("wiki:")[1];
-        $('#chapter-select').prop('disabled', false);
-        $('#chapter-select').trigger('change');
+      $('#chapter-select').val(null).trigger('change').prop('disabled', true);
+      firstSelectionMade = true;
+      firstSelectionValue = $('#book-select').val().split("wiki:")[1];
+      $('#chapter-select').prop('disabled', false);
+      $('#chapter-select').trigger('change');
     });
 
     // When a chapter or episode is selected, send progress to the server
@@ -96,23 +96,23 @@
       const progress = e.params.data.id;
 
       $.ajax({
-          url: "_plugin/saveprogress/", // ISSUE WITH URL REVERSING. HARD CODED TEMPORARILY
-          type: "POST",
-          data: {
-              'wiki_id': baseWiki,  // Use baseWiki as the wiki_id
-              'progress': progress,
-              'csrfmiddlewaretoken': '{{ csrf_token }}' // Include CSRF token for security
-          },
-          success: function (response) {
-              if (response.status === 'success') {
-                  console.log('User progress updated successfully');
-              } else {
-                  console.log(response);
-              }
-          },
-          error: function () {
-              console.log('Error occurred while updating user progress');
+        url: "_plugin/saveprogress/", // ISSUE WITH URL REVERSING. HARD CODED TEMPORARILY
+        type: "POST",
+        data: {
+          'wiki_id': baseWiki,  // Use baseWiki as the wiki_id
+          'progress': progress,
+          'csrfmiddlewaretoken': '{{ csrf_token }}' // Include CSRF token for security
+        },
+        success: function (response) {
+          if (response.status === 'success') {
+            console.log('User progress updated successfully');
+          } else {
+            console.log(response);
           }
+        },
+        error: function () {
+          console.log('Error occurred while updating user progress');
+        }
       });
     });
 
@@ -123,4 +123,3 @@
 {% addtoblock "css" %}
 <link rel="stylesheet" href="{% static 'wiki/select2/css/select2.min.css' %}" type="text/css" />
 {% endaddtoblock %}
-
