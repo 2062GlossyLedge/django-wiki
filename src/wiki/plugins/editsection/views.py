@@ -7,7 +7,6 @@ from wiki import models
 from wiki.core.markdown import article_markdown
 from wiki.decorators import get_article
 from wiki.views.article import Edit as EditView
-from wiki.core.utils import allTextHasCitations
 import re
 
 
@@ -122,8 +121,6 @@ class EditSection(EditView):
                 content[0:start] + section + content[end:]
             )
             self.article.current_revision.save()
-            # if allTextHasCitations(section):
-                # Include the edited section into the complete previous article
             self.article.current_revision.content = (
                 content[0:start] + section + content[end:]
             )
