@@ -1,11 +1,12 @@
-# views.py
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views import View
 from ..models.account import UserProgress
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
-@csrf_exempt
-def save_progress(request):
-    if request.method == 'POST':
+class SaveUserProgressView(View):
+    def post(self, request, *args, **kwargs):
+        # Extract wiki_id and progress from the POST request
         wiki_id = request.POST.get('wiki_id')
         progress = request.POST.get('progress')
 
@@ -17,8 +18,18 @@ def save_progress(request):
         user_progress, created = UserProgress.objects.update_or_create(
             user=request.user,
             wiki_id=wiki_id,
-            user=user,
-            progress=progress
+            defaults={'progress': progress}
         )
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'error'}, status=400)
+
+        # Respond with appropriate success message
+        if created:
+            message = "Progress successfully created."
+        else:
+            message = "Progress successfully updated."
+
+        return JsonResponse({
+            "message": message,
+            "user": request.user.username,
+            "wiki_id": wiki_id,
+            "progress": user_progress.progress
+        }, status=200)
