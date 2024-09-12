@@ -1,45 +1,108 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
 
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+.homepage-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 50vh;
+}
 
-        .homepage-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 50vh;
-        }
+.image-container {
+    width: 400px;
+    height: 400px;
+    padding-top: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
 
-        .image-container {
-            width: 400px;
-            height: 400px;
-            padding-top: 5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 2rem;
+}
 
-        .buttons-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            padding: 2rem;
-        }
+.button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    background-color: #000000b2;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
 
-        .button {
-            margin: 0 10px;
-            padding: 10px 20px;
-            background-color: #000000b2;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
+.button>a {
+    color: white;
+}
 
-        .button > a {
-            color: white;
-        }
+/* Container for recently visited wikis */
+.recent-wikis {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    color: #464646
+}
+
+.recent-wikis h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+/* Flex container to align cards horizontally */
+.flex-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 30px;
+
+}
+
+/* Individual card style */
+.card {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    width: 100%;
+    max-width: 250px;
+    /* Allow the card to resize based on available space */
+    flex: 1 1 auto;
+    margin: 2px;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card-content {
+    padding: 10px;
+    text-align: center;
+}
+
+.card-content h3 {
+    font-size: 18px;
+    color: #6d2a2a;
+    font-weight: 600;
+    margin: 0;
+    text-decoration: none;
+}
+
+
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .flex-container {
+        flex-direction: column;
+        /* Stack cards vertically on small screens */
+    }
+}

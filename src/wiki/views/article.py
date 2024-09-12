@@ -53,6 +53,17 @@ class ArticleView(ArticleMixin, TemplateView):
     def get_context_data(self, **kwargs):
         kwargs["selected_tab"] = "view"
 
+        if self.request.user.is_authenticated:
+            # Get or create the user's activity log
+            user_activity, created = UserProfile.objects.get_or_create(
+                user=self.request.user
+            )
+
+            # Get the current URL
+            current_url = self.request.path_info
+
+            # Save the URL
+            user_activity.save_url(current_url)
         return ArticleMixin.get_context_data(self, **kwargs)
 
 
