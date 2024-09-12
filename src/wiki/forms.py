@@ -490,9 +490,16 @@ class CreateForm(forms.Form, SpamProtectionMixin):
         ),
         max_length=models.URLPath.SLUG_MAX_LENGTH,
     )
+
+    is_book = forms.BooleanField(
+        label= ("Add New Book"),
+        required=False,
+    )
     content = forms.CharField(
         label=_("Contents"), required=False, widget=getEditor().get_widget()
     )  # @UndefinedVariable
+
+    num_chapters = forms.IntegerField(label=_("Number of Chapters"), required=False)
 
     summary = forms.CharField(
         label=pgettext_lazy("Revision comment", "Summary"),
@@ -573,6 +580,11 @@ class AddMediaForm(forms.Form, SpamProtectionMixin):
 
     chapter_1 = forms.IntegerField(
         label=_("Number of Chapters For Each Book"), required=False
+    )
+
+    is_book = forms.BooleanField(
+        label= ("Create normal wiki"),
+        required=False,
     )
 
     summary = forms.CharField(

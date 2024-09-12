@@ -23,6 +23,7 @@ from django.views.generic import RedirectView
 from django.views.generic import TemplateView
 from django.views.generic import View
 from django.urls import reverse_lazy
+import re
 from wiki import editors
 from wiki import forms
 from wiki import models
@@ -94,6 +95,73 @@ class Create(FormView, ArticleMixin):
 
     def form_valid(self, form):
         try:
+            if form.cleaned_data["is_book"] == True:
+                matches = models.URLPath.objects.can_read(self.request.user)
+                media = str(self.urlpath).split("/")[1]
+                fandom = str(self.urlpath).split("/")[0]
+                if media == "tv":
+                    media = "season"
+                matches = matches.filter(slug__icontains = media)
+                matches = matches.filter(parent__parent__slug__icontains = fandom)
+
+                num_books = 0
+                for match in matches:
+                    if re.search(f"{media}\d*/$", str(match)):
+                        num_books += 1
+
+                if media == "season":
+                    self.newpath = models.URLPath._create_urlpath_from_request(
+                        self.request,
+                        self.article,
+                        self.urlpath,
+                        "season" + str(num_books + 1),
+                        form.cleaned_data["title"],
+                        "[article_list depth:3]",
+                        form.cleaned_data["summary"],
+                    )
+
+                    #Creates wikis for how many episodes are in a season
+                    episode_path = self.newpath
+                    episode_article = self.newpath.article
+                    for j in range(1, form.cleaned_data["num_chapters"] + 1):
+                        self.newpath = models.URLPath._create_urlpath_from_request(
+                            self.request,
+                            episode_article,
+                            episode_path,
+                            "episode" + str(j),
+                            "Episode " + str(j),
+                            "",
+                            form.cleaned_data["summary"],
+                        )
+                #Other types of media
+                else:
+                    self.newpath = models.URLPath._create_urlpath_from_request(
+                        self.request,
+                        self.article,
+                        self.urlpath,
+                        media + str(num_books + 1),
+                        form.cleaned_data["title"],
+                        "[article_list depth:3]",
+                        form.cleaned_data["summary"],
+                    )
+
+                    #Creates wikis for chapters in a book
+                    chapter_path = self.newpath
+                    chapter_article = self.newpath.article
+                    for j in range(1, form.cleaned_data["num_chapters"] + 1):
+                        self.newpath = models.URLPath._create_urlpath_from_request(
+                            self.request,
+                            chapter_article,
+                            chapter_path,
+                            "chapter" + str(j),
+                            "Chapter " + str(j),
+                            "",
+                            form.cleaned_data["summary"],
+                        )
+                return self.get_success_url()
+
+
+
             if self.urlpath.path == "":
                 #Creates Homepage for wiki
                 self.newpath = models.URLPath._create_urlpath_from_request(
