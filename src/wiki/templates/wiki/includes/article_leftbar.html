@@ -1,15 +1,10 @@
 {% load i18n sekizai_tags static %}
 
-<form method="POST" action="{% url 'save_progress' %}" id="progress-form">
-  {% csrf_token %}
-  {{ form.as_p }}  <!-- Django form fields -->
-
+<div id="progress-select">
   <h4>{% trans "Select Location in Media" %}</h4>
-  <select id="book-select" name="book" style="width: 200px;"></select>
-  <select id="chapter-select" name="chapter" disabled style="width: 200px;"></select>
-
-  <button type="submit" style="display: none;" id="submit-btn">Submit</button>
-</form>
+  <select id="book-select" style="width: 200px;"></select>
+  <select id="chapter-select" disabled style="width: 200px;"></select>
+</div>
 
 {% addtoblock "js" %}
 <script type="text/javascript" src="{% static 'wiki/select2/js/select2.min.js' %}"></script>
@@ -18,6 +13,7 @@
 {% addtoblock "js" %}
 <script type="text/javascript">
   $(document).ready(function () {
+
     function getBaseWikiPath(pathname) {
         const basePathOptions = ['/book/', '/tv/'];
         let baseWiki = '';
@@ -34,9 +30,12 @@
         return baseWiki || pathname;
     }
 
+    // Variables to track if selections have been made
     let firstSelectionMade = false;
+    let secondSelectionMade = false;
     let firstSelectionValue = '';
-    let baseWiki = getBaseWikiPath(window.location.pathname);
+
+    let baseWiki = getBaseWikiPath(window.location.pathname); // Updated to use baseWiki
 
     const isBookWiki = baseWiki.includes('/book/');
     let outerSelectionPlaceholder = isBookWiki ? "Select Book" : "Select Season";
@@ -86,11 +85,13 @@
 
     $('#book-select').on('select2:select', function (e) {
         $('#chapter-select').val(null).trigger('change').prop('disabled', true);
+        firstSelectionMade = true;
         firstSelectionValue = $('#book-select').val().split("wiki:")[1];
         $('#chapter-select').prop('disabled', false);
         $('#chapter-select').trigger('change');
     });
 
+    // When a chapter or episode is selected, send progress to the server
     $('#chapter-select').on('select2:select', function (e) {
       const progress = e.params.data.id;
 
@@ -122,3 +123,4 @@
 {% addtoblock "css" %}
 <link rel="stylesheet" href="{% static 'wiki/select2/css/select2.min.css' %}" type="text/css" />
 {% endaddtoblock %}
+
