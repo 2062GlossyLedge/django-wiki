@@ -7,11 +7,12 @@ from wiki.core.utils import removeSpoilerContent
 from wiki.core.utils import wikiContentCleanup
 
 class ArticleMarkdown(markdown.Markdown):
-    def __init__(self, article, preview=False, user=None, *args, **kwargs):
+    def __init__(self, article, articleUrl='', preview=False, user=None, *args, **kwargs):
         kwargs.update(settings.MARKDOWN_KWARGS)
         kwargs["extensions"] = self.get_markdown_extensions()
         super().__init__(*args, **kwargs)
         self.article = article
+        self.articleUrl = articleUrl
         self.preview = preview
         self.user = user
         self.source = None
@@ -33,7 +34,7 @@ class ArticleMarkdown(markdown.Markdown):
     def convert(self, text, *args, **kwargs):
         # store source in instance, for extensions which might need it
         self.source = text
-        
+        current_url = self.articleUrl
         # Remove spoiler content!
         noSpoilerText = removeSpoilerContent(text, "wiki:/one-piece/tv/season1000/episode1000")  #Get location from self.user instead of hard value. If statement so only filter if a location is chosen. 
         noSpoilerText = wikiContentCleanup(noSpoilerText)
