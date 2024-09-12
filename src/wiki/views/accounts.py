@@ -179,10 +179,6 @@ class UserAccountView(TemplateView):
         context["delete_form"] = forms.UserDeleteForm()
         context["img_form"] = forms.UserProfileImgForm()
 
-        context["profile_picture"] = UserProfile.objects.get(
-            user=self.request.user
-        ).profile_image.url  # self.request.session.get("profile_picture", "")
-
         return context
 
     def post(self, request, *args, **kwargs):

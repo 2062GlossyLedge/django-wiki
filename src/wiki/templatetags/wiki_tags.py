@@ -214,6 +214,7 @@ def wiki_settings(name):
 def starts_with(value, arg):
     return value.startswith(arg)
 
+<<<<<<< src/wiki/templatetags/wiki_tags.py
 @register.filter(name='progress_process')
 def before_colon(value):
     if isinstance(value, str):
@@ -227,3 +228,19 @@ def before_colon(value):
         splt = value.split('/')
         return splt[1] + ' ' + splt[2]
     return value
+
+from wiki.models.account import UserProfile
+
+@register.filter
+def profile_picture(request):
+    if request.user.is_authenticated:
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+            profile_picture = (
+                user_profile.profile_image.url
+                if user_profile.profile_image
+                else "/path/to/default/profile_image.jpg"
+            )
+        except UserProfile.DoesNotExist:
+    else:
+        profile_picture = None
