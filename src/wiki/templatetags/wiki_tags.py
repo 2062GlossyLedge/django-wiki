@@ -214,7 +214,6 @@ def wiki_settings(name):
 def starts_with(value, arg):
     return value.startswith(arg)
 
-<<<<<<< src/wiki/templatetags/wiki_tags.py
 @register.filter(name='progress_process')
 def before_colon(value):
     if isinstance(value, str):
@@ -242,5 +241,8 @@ def profile_picture(request):
                 else "/path/to/default/profile_image.jpg"
             )
         except UserProfile.DoesNotExist:
+            profile_picture = "/path/to/default/profile_image.jpg"
     else:
         profile_picture = None
+
+    return {"profile_picture": profile_picture}
