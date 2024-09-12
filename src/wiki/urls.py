@@ -59,7 +59,6 @@ class WikiURLPatterns:
     # progress view
 
     def get_urls(self):
-        print("get urls called")
         urlpatterns = self.get_root_urls()
         urlpatterns += self.get_accounts_urls()
         urlpatterns += self.get_deleted_list_urls()
