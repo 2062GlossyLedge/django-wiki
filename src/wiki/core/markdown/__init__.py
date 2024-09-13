@@ -1,3 +1,4 @@
+import json
 import bleach
 import markdown
 from bleach.css_sanitizer import CSSSanitizer
@@ -36,12 +37,27 @@ class ArticleMarkdown(markdown.Markdown):
         # store source in instance, for extensions which might need it
         self.source = text
         current_url = self.articleUrl
-        print(current_url)
-        #print(UserProgress.objects.get(user=self.user, wiki_id=current_url).progress)
-        # Remove spoiler content!
-        noSpoilerText = text
+        # Attempt to get user progress, but handle case where it doesn't exist
+        user_progress = None
         if self.user is not None:
-            noSpoilerText = removeSpoilerContent(text, "wiki:/one-piece/tv/season1000/episode1000")  #Get location from self.user instead of hard value. If statement so only filter if a location is chosen.
+            try:
+                user_progress = UserProgress.objects.get(user=self.user, wiki_id=current_url)
+            except UserProgress.DoesNotExist:
+                # User doesn't have progress for this wiki, which is okay
+                pass
+
+        # Remove spoiler content only if user progress exists
+        noSpoilerText = text
+        if user_progress is not None:
+            try:
+                progress_data = json.loads(user_progress.progress)
+                user_location = progress_data['chapter']
+
+                noSpoilerText = removeSpoilerContent(text, user_location)
+            except json.JSONDecodeError:
+                # If progress is not valid JSON, don't remove spoilers
+                pass
+
         noSpoilerText = wikiContentCleanup(noSpoilerText)
         html = super().convert(noSpoilerText, *args, **kwargs)
         if settings.MARKDOWN_SANITIZE_HTML:
