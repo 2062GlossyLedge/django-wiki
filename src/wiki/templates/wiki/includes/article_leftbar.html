@@ -1,7 +1,7 @@
 {% load i18n sekizai_tags static %}
 
 <div id="progress-select">
-  <h4>{% trans "Filter Page by Current Progress in Media" %}</h4>
+  <h4>{% trans "Filter Page by Current Progress" %}</h4>
   <select id="book-select" style="width: 200px;"></select>
   <select id="chapter-select" disabled style="width: 200px;"></select>
 </div>
@@ -13,7 +13,6 @@
 {% addtoblock "js" %}
 <script type="text/javascript">
   $(document).ready(function () {
-
     function getBaseWikiPath(pathname) {
       const basePathOptions = ['/book/', '/tv/'];
       let baseWiki = '';
@@ -30,78 +29,116 @@
       return baseWiki || pathname;
     }
 
-    // Variables to track if selections have been made
-    let firstSelectionMade = false;
-    let secondSelectionMade = false;
     let firstSelectionValue = '';
-
-    let baseWiki = getBaseWikiPath(window.location.pathname); // Updated to use baseWiki
-
+    let baseWiki = getBaseWikiPath(window.location.pathname);
     const isBookWiki = baseWiki.includes('/book/');
     let outerSelectionPlaceholder = isBookWiki ? "Select Book" : "Select Season";
     let outerDefaultSearch = isBookWiki ? "Book" : "Season";
     let innerSelectionPlaceholder = isBookWiki ? "Select Chapter" : "Select Episode";
     let innerDefaultSearch = isBookWiki ? "Chapter" : "Episode";
 
-    $('#book-select').select2({
-      dropdownAutoWidth: true,
-      placeholder: outerSelectionPlaceholder,
-      ajax: {
-        url: function (params) {
-          if (!params.term)
-            return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + outerDefaultSearch + "&wiki=" + baseWiki;
-          else
-            return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&wiki=" + baseWiki;
-        },
-        processResults: function (data) {
-          let ret = [];
-          data.forEach(function (val) {
-            ret.push({ "id": val, "text": val });
-          });
-          return { results: ret };
-        },
+    // Object to store current selections
+    let currentProgress = {
+      book: '',
+      chapter: ''
+    };
+
+    // Fetch the user's progress before initializing Select2
+    $.ajax({
+      url: "_plugin/getprogress/",
+      type: "GET",
+      data: { 'wiki_id': baseWiki },
+      success: function (response) {
+        if (response.progress) {
+          try {
+            currentProgress = JSON.parse(response.progress);
+            outerSelectionPlaceholder = currentProgress.book;
+            innerSelectionPlaceholder = currentProgress.chapter;
+            firstSelectionValue = currentProgress.book.split("wiki:")[1];
+          } catch (e) {
+            console.error("Error parsing progress JSON:", e);
+          }
+        }
+
+        // Initialize Select2 after fetching progress
+        initializeSelect2();
       },
+      error: function (xhr, status, error) {
+        console.log("Error fetching progress:", error);
+        // Initialize Select2 even if there's an error
+        initializeSelect2();
+      }
     });
 
-    $('#chapter-select').select2({
-      dropdownAutoWidth: true,
-      placeholder: innerSelectionPlaceholder,
-      ajax: {
-        url: function (params) {
-          if (!params.term)
-            return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + innerDefaultSearch + "&subwiki=" + firstSelectionValue;
-          else
-            return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&subwiki=" + firstSelectionValue;
+    function initializeSelect2() {
+      $('#book-select').select2({
+        dropdownAutoWidth: true,
+        placeholder: outerSelectionPlaceholder,
+        ajax: {
+          url: function (params) {
+            if (!params.term)
+              return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + outerDefaultSearch + "&wiki=" + baseWiki;
+            else
+              return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&wiki=" + baseWiki;
+          },
+          processResults: function (data) {
+            return {
+              results: data.map(val => ({ "id": val, "text": val }))
+            };
+          },
         },
-        processResults: function (data) {
-          let ret = [];
-          data.forEach(function (val) {
-            ret.push({ "id": val, "text": val });
-          });
-          return { results: ret };
+      });
+
+      $('#chapter-select').select2({
+        dropdownAutoWidth: true,
+        placeholder: innerSelectionPlaceholder,
+        ajax: {
+          url: function (params) {
+            if (!params.term)
+              return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + innerDefaultSearch + "&subwiki=" + firstSelectionValue;
+            else
+              return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&subwiki=" + firstSelectionValue;
+          },
+          processResults: function (data) {
+            return {
+              results: data.map(val => ({ "id": val, "text": val }))
+            };
+          },
         },
-      },
-    });
+      });
+
+      // Set initial values if we have them
+      if (currentProgress.book) {
+        $('#book-select').append(new Option(currentProgress.book, currentProgress.book, true, true)).trigger('change');
+        $('#chapter-select').prop('disabled', false);
+      }
+      if (currentProgress.chapter) {
+        $('#chapter-select').append(new Option(currentProgress.chapter, currentProgress.chapter, true, true)).trigger('change');
+      }
+    }
 
     $('#book-select').on('select2:select', function (e) {
-      $('#chapter-select').val(null).trigger('change').prop('disabled', true);
-      firstSelectionMade = true;
-      firstSelectionValue = $('#book-select').val().split("wiki:")[1];
-      $('#chapter-select').prop('disabled', false);
-      $('#chapter-select').trigger('change');
+      $('#chapter-select').val(null).trigger('change').prop('disabled', false);
+      firstSelectionValue = e.params.data.id.split("wiki:")[1];
+      currentProgress.book = e.params.data.id;
+
+      currentProgress.chapter = ''; // Reset chapter when book changes
     });
 
-    // When a chapter or episode is selected, send progress to the server
     $('#chapter-select').on('select2:select', function (e) {
-      const progress = e.params.data.id;
+      currentProgress.chapter = e.params.data.id;
+      saveProgress();
+    });
 
+    function saveProgress() {
+      console.log(currentProgress)
       $.ajax({
-        url: "_plugin/saveprogress/", // ISSUE WITH URL REVERSING. HARD CODED TEMPORARILY
+        url: "_plugin/saveprogress/",
         type: "POST",
         data: {
-          'wiki_id': baseWiki,  // Use baseWiki as the wiki_id
-          'progress': progress,
-          'csrfmiddlewaretoken': '{{ csrf_token }}' // Include CSRF token for security
+          'wiki_id': baseWiki,
+          'progress': JSON.stringify(currentProgress),
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
         },
         success: function (response) {
           if (response.status === 'success') {
@@ -114,8 +151,8 @@
           console.log('Error occurred while updating user progress');
         }
       });
-    });
 
+    }
   });
 </script>
 {% endaddtoblock %}
@@ -123,3 +160,4 @@
 {% addtoblock "css" %}
 <link rel="stylesheet" href="{% static 'wiki/select2/css/select2.min.css' %}" type="text/css" />
 {% endaddtoblock %}
+
