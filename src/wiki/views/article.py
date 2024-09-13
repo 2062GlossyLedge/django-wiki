@@ -111,7 +111,7 @@ class Create(FormView, ArticleMixin):
 
     def form_valid(self, form):
         try:
-            if form.cleaned_data["is_book"] == True:
+            if "is_book" in form.cleaned_data and form.cleaned_data["is_book"] == True:
                 matches = models.URLPath.objects.can_read(self.request.user)
                 media = str(self.urlpath).split("/")[1]
                 fandom = str(self.urlpath).split("/")[0]
