@@ -71,11 +71,6 @@ class ArticleMarkdown(markdown.Markdown):
                 progress_data = json.loads(user_progress.progress)
                 user_location = progress_data['chapter']
 
-                print(user_location)
-                print(user_location)
-                print(user_location)
-                print(user_location)
-
                 noSpoilerText = removeSpoilerContent(text, user_location)
             except json.JSONDecodeError:
                 # If progress is not valid JSON, don't remove spoilers
