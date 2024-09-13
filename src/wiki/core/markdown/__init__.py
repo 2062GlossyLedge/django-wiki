@@ -5,6 +5,7 @@ from wiki.conf import settings
 from wiki.core.plugins import registry as plugin_registry
 from wiki.core.utils import removeSpoilerContent
 from wiki.core.utils import wikiContentCleanup
+from wiki.models.account import UserProgress
 
 class ArticleMarkdown(markdown.Markdown):
     def __init__(self, article, articleUrl='', preview=False, user=None, *args, **kwargs):
@@ -35,10 +36,12 @@ class ArticleMarkdown(markdown.Markdown):
         # store source in instance, for extensions which might need it
         self.source = text
         current_url = self.articleUrl
+        print(current_url)
+        #print(UserProgress.objects.get(user=self.user, wiki_id=current_url).progress)
         # Remove spoiler content!
         noSpoilerText = text
         if self.user is not None:
-            noSpoilerText = removeSpoilerContent(text, "wiki:/one-piece/tv/season1000/episode1000")  #Get location from self.user instead of hard value. If statement so only filter if a location is chosen. 
+            noSpoilerText = removeSpoilerContent(text, "wiki:/one-piece/tv/season1000/episode1000")  #Get location from self.user instead of hard value. If statement so only filter if a location is chosen.
         noSpoilerText = wikiContentCleanup(noSpoilerText)
         html = super().convert(noSpoilerText, *args, **kwargs)
         if settings.MARKDOWN_SANITIZE_HTML:

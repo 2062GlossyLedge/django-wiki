@@ -3,6 +3,7 @@ from django.views import View
 from ..models.account import UserProgress
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class SaveUserProgressView(View):
     def post(self, request, *args, **kwargs):
@@ -33,3 +34,15 @@ class SaveUserProgressView(View):
             "wiki_id": wiki_id,
             "progress": user_progress.progress
         }, status=200)
+
+class UserProgressView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        wiki_id = request.GET.get('wiki_id', None)
+        if wiki_id:
+            try:
+                progress = UserProgress.objects.get(user=request.user, wiki_id=wiki_id)
+                return JsonResponse({'progress': progress.progress, 'wiki': progress.wiki_id}, status=200)
+            except UserProgress.DoesNotExist:
+                # Return a specific response when no progress is found
+                return JsonResponse({'progress': None, 'wiki': wiki_id}, status=200)
+        return JsonResponse({'error': 'wiki_id not provided'}, status=400)
