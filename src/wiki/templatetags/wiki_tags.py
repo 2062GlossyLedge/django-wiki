@@ -227,7 +227,8 @@ def progress_process(value):
 
         # Process book (assuming it might contain a path-like structure)
         book_parts = chapter.split('/')
-        book_processed = book_parts[-2] + ' ' + book_parts[-1] if len(book_parts) > 1 else book
+
+        book_processed = book_parts[-2].replace('book', 'Book ').replace('season', 'Season ') + ' ' + book_parts[-1].replace('episode', 'Episode ').replace('chapter', 'Chapter ') if len(book_parts) > 1 else book
 
         # Combine processed book and chapter
         return f"{book_processed}".strip()
@@ -245,7 +246,7 @@ def progress_process(value):
 def before_colon(value):
     if isinstance(value, str):
         splt = value.split('/')
-        return splt[1] + ' ' + splt[2]
+        return splt[1].replace('-', ' ') + ' ' + splt[2]
     return value
 
 from wiki.models.account import UserProfile
