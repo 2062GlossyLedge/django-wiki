@@ -8,6 +8,7 @@ from . import editors
 from . import models
 
 from wiki.models.account import UserProfile
+from wiki.models.account import UserProgress
 
 
 class ArticleObjectAdmin(GenericTabularInline):
@@ -108,3 +109,4 @@ admin.site.register(models.URLPath, URLPathAdmin)
 admin.site.register(models.Article, ArticleAdmin)
 admin.site.register(models.ArticleRevision, ArticleRevisionAdmin)
 admin.site.register(UserProfile)
+admin.site.register(UserProgress)
