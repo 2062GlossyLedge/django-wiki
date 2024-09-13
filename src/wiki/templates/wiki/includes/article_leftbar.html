@@ -121,7 +121,7 @@
       $('#chapter-select').val(null).trigger('change').prop('disabled', false);
       firstSelectionValue = e.params.data.id.split("wiki:")[1];
       currentProgress.book = e.params.data.id;
-      console.log(e.params.data.id)
+
       currentProgress.chapter = ''; // Reset chapter when book changes
     });
 
@@ -151,6 +151,7 @@
           console.log('Error occurred while updating user progress');
         }
       });
+
     }
   });
 </script>

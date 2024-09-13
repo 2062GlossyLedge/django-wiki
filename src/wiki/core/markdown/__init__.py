@@ -36,7 +36,25 @@ class ArticleMarkdown(markdown.Markdown):
     def convert(self, text, *args, **kwargs):
         # store source in instance, for extensions which might need it
         self.source = text
-        current_url = self.articleUrl
+
+        def get_base_wiki_path(pathname):
+            # Define possible substrings to look for
+            base_path_options = ['/book/', '/tv/']
+
+            # Initialize base wiki path variable
+            base_wiki = ''
+
+            # Iterate through each option to find the first match
+            for option in base_path_options:
+                index = pathname.find(option)
+                if index != -1:
+                    base_wiki = pathname[:index + len(option)]
+                    break
+
+            # Fallback to the full pathname if no match
+            return base_wiki or pathname
+
+        current_url = get_base_wiki_path(self.articleUrl)
         # Attempt to get user progress, but handle case where it doesn't exist
         user_progress = None
         if self.user is not None:
@@ -52,6 +70,11 @@ class ArticleMarkdown(markdown.Markdown):
             try:
                 progress_data = json.loads(user_progress.progress)
                 user_location = progress_data['chapter']
+
+                print(user_location)
+                print(user_location)
+                print(user_location)
+                print(user_location)
 
                 noSpoilerText = removeSpoilerContent(text, user_location)
             except json.JSONDecodeError:
