@@ -141,13 +141,14 @@
           'csrfmiddlewaretoken': '{{ csrf_token }}'
         },
         success: function (response) {
-          if (response.status === 'success') {
-            console.log('User progress updated successfully');
+            if (response.message) {
+              console.log('User progress updated successfully');
+              window.location.reload();
           } else {
-            console.log(response);
-          }
+              console.log(response);
+          } 
         },
-        error: function () {
+        error: function () { 
           console.log('Error occurred while updating user progress');
         }
       });
