@@ -19,7 +19,14 @@ class WikiSite:
     """
 
     def __init__(self, name="wiki"):
-        from wiki.views import accounts, article, deleted_list, home, sidebar
+        from wiki.views import (
+            accounts,
+            article,
+            deleted_list,
+            home,
+            sidebar,
+            privileges,
+        )
 
         self.name = name
 
@@ -32,6 +39,11 @@ class WikiSite:
 
         # chatbot view
         self.chatbot_view = getattr(self, "chatbot_view", sidebar.Chatbot.as_view())
+
+        # privileges view
+        self.privileges_view = getattr(
+            self, "privileges_view", privileges.Privileges.as_view()
+        )
 
         # basic views
         self.article_view = getattr(self, "article_view", article.ArticleView.as_view())
@@ -103,7 +115,13 @@ class WikiSite:
         urlpatterns += self.get_revision_urls()
         urlpatterns += self.get_article_urls()
         urlpatterns += self.get_plugin_urls()
-        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/saveprogress/$', SaveUserProgressView.as_view(), name='save_user_progress'),
+        urlpatterns += (
+            re_path(
+                r"^(?P<path>.+/|)_plugin/saveprogress/$",
+                SaveUserProgressView.as_view(),
+                name="save_user_progress",
+            ),
+        )
         # This ALWAYS has to be the last of all the patterns since
         # the paths in theory could wrongly match other targets.
         urlpatterns += self.get_article_path_urls()
@@ -116,6 +134,7 @@ class WikiSite:
     def get_root_urls(self):
         urlpatterns = [
             re_path(r"^homepage/$", self.homepage_view, name="homepage"),
+            re_path(r"^privileges/$", self.privileges_view, name="privileges"),
             re_path(r"^$", self.article_view, name="root", kwargs={"path": ""}),
             re_path(r"^create-root/$", self.root_view, name="root_create"),
             re_path(r"^missing-root/$", self.root_missing_view, name="root_missing"),

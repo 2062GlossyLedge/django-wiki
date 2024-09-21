@@ -1,0 +1,70 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block wiki_contents %}
+
+<head>
+    <link rel='stylesheet' href="{%static 'wiki/css/privilegeDashboard.css' %}">
+</head>
+
+<h1>Privileges</h1>
+<table id="privileges-table">
+    <thead class="neither">
+        <th><strong>Privilege</strong></th>
+        <th><strong>Status</strong></th>
+        <th><strong>Timeout Period</strong></th>
+        <th><strong>Incidents Remaining</strong></th>
+        <th><strong>Incident Events</strong></th>
+
+
+    </thead>
+    <tbody>
+        {%for privilege in privileges%}
+
+        <tr>
+            <td>{{privilege.name}}</td>
+            <td>{{privilege.status}}</td>
+
+
+
+            {%if privilege.status == 'Bad'%}
+            <td>{{privilege.penalty_length}} day{{privilege.penalty_length|pluralize}}</td>
+            {%else%}
+            <td>N/A</td>
+            {%endif%}
+
+            <td>{{privilege.numOfIncidents}}/{{privilege.totalIncidents}} incidents
+                remaining</td>
+
+            {%if privilege.status == 'Bad'%}
+
+            <td>
+                {%for incidentEvent in privilege.incidentEvents%}
+                <ol>
+                    <li>
+                        <ol>
+                            <li>Spoiler written in {{incidentEvent.article_title}}</li>
+                            <li>on {{incidentEvent.date}} </li>
+                            <li>by {{incidentEvent.admin}}</li>
+                            <li>
+                                <a href="{% url 'wiki:history' path=incidentEvent.article_history_link %}">Article
+                                    History</a>
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+                {%endfor%}
+            </td>
+            {%else%}
+            <td>N/A</td>
+            {%endif%}
+
+
+        </tr>
+
+        {%endfor%}
+    </tbody>
+
+</table>
+
+{% endblock %}
