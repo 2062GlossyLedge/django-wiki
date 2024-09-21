@@ -128,6 +128,7 @@
     $('#chapter-select').on('select2:select', function (e) {
       currentProgress.chapter = e.params.data.id;
       saveProgress();
+      resetCache();
     });
 
     function saveProgress() {
@@ -138,6 +139,7 @@
         data: {
           'wiki_id': baseWiki,
           'progress': JSON.stringify(currentProgress),
+          'curr_page': window.location.pathname,
           'csrfmiddlewaretoken': '{{ csrf_token }}'
         },
         success: function (response) {
@@ -152,8 +154,29 @@
           console.log('Error occurred while updating user progress');
         }
       });
-
     }
+    function resetCache() {
+        console.log(currentProgress)
+        $.ajax({
+          url: "_plugin/resetcache/",
+          type: "POST",
+          data: {
+            'wiki_id': baseWiki,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+          },
+          success: function (response) {
+              if (response.message) {
+                console.log('Cache cleared successfully');
+            } else {
+                console.log(response);
+            } 
+          },
+          error: function () { 
+            console.log('Error occurred while updating resetting cache');
+          }
+        });
+  
+      }
   });
 </script>
 {% endaddtoblock %}

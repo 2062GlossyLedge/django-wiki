@@ -4,12 +4,14 @@ from ..models.account import UserProgress
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from ..models import URLPath
 
 class SaveUserProgressView(View):
     def post(self, request, *args, **kwargs):
         # Extract wiki_id and progress from the POST request
         wiki_id = request.POST.get('wiki_id')
         progress = request.POST.get('progress')
+        curr_page = request.POST.get('curr_page')
 
         # Ensure the user is authenticated
         if not request.user.is_authenticated:
@@ -21,7 +23,19 @@ class SaveUserProgressView(View):
             wiki_id=wiki_id,
             defaults={'progress': progress}
         )
-
+        reformatedPage = curr_page.strip().strip('/')
+        splitIntoSlugs = reformatedPage.split('/')
+        numSlugs = len(splitIntoSlugs)
+        
+        filter_args = {
+            'slug': splitIntoSlugs[-1],
+            'level': numSlugs,
+        }
+        for i in range(2, numSlugs + 1):  
+            filter_args[f'parent{"__parent" * (i - 2)}__slug'] = splitIntoSlugs[-i]
+        curPageUrlPath = URLPath.objects.get(**filter_args)
+        curPageUrlPath.article.clear_cache()
+        
         # Respond with appropriate success message
         if created:
             message = "Progress successfully created."
@@ -46,3 +60,33 @@ class UserProgressView(LoginRequiredMixin, View):
                 # Return a specific response when no progress is found
                 return JsonResponse({'progress': None, 'wiki': wiki_id}, status=200)
         return JsonResponse({'error': 'wiki_id not provided'}, status=400)
+
+class ResetCacheView(View):
+    def post(self, request, *args, **kwargs):
+        # Extract wiki_id and progress from the POST request
+        wiki_id = request.POST.get('wiki_id')
+
+        # Directly get page
+        
+        reformatedId = wiki_id.strip().strip('/')
+        splitIntoSlugs = reformatedId.split('/')
+        numSlugs = len(splitIntoSlugs)
+        
+        filter_args = {
+            'slug': splitIntoSlugs[1],
+            'parent__slug': splitIntoSlugs[0],
+            'level': numSlugs
+        }
+        
+        baseWikiPath = URLPath.objects.get(**filter_args)
+        for descendent in baseWikiPath.article.descendant_objects():
+                        descendent.article.clear_cache()
+        
+        # Respond with appropriate success message
+        message = "Cache for " + wiki_id + " cleared."
+
+        return JsonResponse({
+            "message": message,
+            "user": request.user.username,
+            "wiki_id": wiki_id,
+        }, status=200)
