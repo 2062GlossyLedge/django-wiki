@@ -1,6 +1,11 @@
+ h2 {
+     margin-top: 4rem;
+ }
+
  table {
      border-collapse: collapse;
      width: 100%;
+     margin-top: 1rem;
  }
 
  th,

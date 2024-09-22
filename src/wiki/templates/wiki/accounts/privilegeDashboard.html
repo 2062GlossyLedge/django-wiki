@@ -3,11 +3,16 @@
 
 {% block wiki_contents %}
 
+{% addtoblock "js" %}
+<script src="{% static 'wiki/js/privilegeDashboard.js' %}"></script>
+{% endaddtoblock %}
+
+
 <head>
     <link rel='stylesheet' href="{%static 'wiki/css/privilegeDashboard.css' %}">
 </head>
 
-<h1>Privileges</h1>
+<h2>Privileges</h2>
 <table id="privileges-table">
     <thead class="neither">
         <th><strong>Privilege</strong></th>
@@ -66,5 +71,47 @@
     </tbody>
 
 </table>
+
+<h2>Rubric</h2>
+<table id="rubric-table">
+    <thead>
+        <tr>
+            <th>Privileges</th>
+            <th>Infraction description</th>
+            <th>Number of allowed infractions before losing privilege</th>
+            <th>Timeout to lose 1 infraction</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Commenting</td>
+            <td>Commenting a spoiler</td>
+            <td>5</td>
+            <td>3 days</td>
+        </tr>
+        <tr>
+            <td>Editing</td>
+            <td>Adding a spoiler</td>
+            <td>5</td>
+            <td>3 days</td>
+        </tr>
+        <tr>
+            <td>Spoil flagging</td>
+            <td>Flagging text that is not a spoiler</td>
+            <td>10</td>
+            <td>3 days</td>
+        </tr>
+        <tr>
+            <td>Creating and deleting wiki pages</td>
+            <td>Create duplicate or fake wikis</td>
+            <td>1</td>
+            <td>3 days</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+
 
 {% endblock %}
