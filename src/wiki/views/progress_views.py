@@ -66,25 +66,21 @@ class ResetCacheView(View):
         # Extract wiki_id and progress from the POST request
         wiki_id = request.POST.get('wiki_id')
 
-        # Directly get page
-        
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "User is not authenticated"}, status=403)
         reformatedId = wiki_id.strip().strip('/')
         splitIntoSlugs = reformatedId.split('/')
         numSlugs = len(splitIntoSlugs)
-        
         filter_args = {
             'slug': splitIntoSlugs[1],
             'parent__slug': splitIntoSlugs[0],
             'level': numSlugs
         }
-        
         baseWikiPath = URLPath.objects.get(**filter_args)
         for descendent in baseWikiPath.article.descendant_objects():
-                        descendent.article.clear_cache()
-        
+            descendent.article.clear_cache()
         # Respond with appropriate success message
         message = "Cache for " + wiki_id + " cleared."
-
         return JsonResponse({
             "message": message,
             "user": request.user.username,
