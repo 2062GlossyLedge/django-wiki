@@ -1,7 +1,5 @@
 from django.views.generic import TemplateView
 from django.utils.decorators import method_decorator
-from wiki.models.account import UserProfile
-
 
 from django.shortcuts import redirect, render
 from openai import OpenAI
@@ -14,7 +12,7 @@ class Homepage(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # show the 4 most recently visited wiki pages to authenticated users
+        # show the max 5 most recently visited wiki pages to authenticated users
         if self.request.user.is_authenticated:
 
             UserProfile.objects.get_or_create(user=self.request.user)

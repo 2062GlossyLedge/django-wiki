@@ -1,0 +1,117 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block wiki_contents %}
+
+{% addtoblock "js" %}
+<script src="{% static 'wiki/js/privilegeDashboard.js' %}"></script>
+{% endaddtoblock %}
+
+
+<head>
+    <link rel='stylesheet' href="{%static 'wiki/css/privilegeDashboard.css' %}">
+</head>
+
+<h2>Privileges</h2>
+<table id="privileges-table">
+    <thead class="neither">
+        <th><strong>Privilege</strong></th>
+        <th><strong>Status</strong></th>
+        <th><strong>Timeout Period</strong></th>
+        <th><strong>Incidents Remaining</strong></th>
+        <th><strong>Incident Events</strong></th>
+
+
+    </thead>
+    <tbody>
+        {%for privilege in privileges%}
+
+        <tr>
+            <td>{{privilege.name}}</td>
+            <td>{{privilege.status}}</td>
+
+
+
+            {%if privilege.status == 'Bad'%}
+            <td>{{privilege.penalty_length}} day{{privilege.penalty_length|pluralize}}</td>
+            {%else%}
+            <td>N/A</td>
+            {%endif%}
+
+            <td>{{privilege.numOfIncidents}}/{{privilege.totalIncidents}} incidents
+                remaining</td>
+
+            {%if privilege.status == 'Bad'%}
+
+            <td>
+                {%for incidentEvent in privilege.incidentEvents%}
+                <ol>
+                    <li>
+                        <ol>
+                            <li>Spoiler written in {{incidentEvent.article_title}}</li>
+                            <li>on {{incidentEvent.date}} </li>
+                            <li>by {{incidentEvent.admin}}</li>
+                            <li>
+                                <a href="{% url 'wiki:history' path=incidentEvent.article_history_link %}">Article
+                                    History</a>
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+                {%endfor%}
+            </td>
+            {%else%}
+            <td>N/A</td>
+            {%endif%}
+
+
+        </tr>
+
+        {%endfor%}
+    </tbody>
+
+</table>
+
+<h2>Rubric</h2>
+<table id="rubric-table">
+    <thead>
+        <tr>
+            <th>Privileges</th>
+            <th>Infraction description</th>
+            <th>Number of allowed infractions before losing privilege</th>
+            <th>Timeout to lose 1 infraction</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Commenting</td>
+            <td>Commenting a spoiler</td>
+            <td>5</td>
+            <td>3 days</td>
+        </tr>
+        <tr>
+            <td>Editing</td>
+            <td>Adding a spoiler</td>
+            <td>5</td>
+            <td>3 days</td>
+        </tr>
+        <tr>
+            <td>Spoil flagging</td>
+            <td>Flagging text that is not a spoiler</td>
+            <td>10</td>
+            <td>3 days</td>
+        </tr>
+        <tr>
+            <td>Creating and deleting wiki pages</td>
+            <td>Create duplicate or fake wikis</td>
+            <td>1</td>
+            <td>3 days</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+
+
+{% endblock %}

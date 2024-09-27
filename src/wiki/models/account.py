@@ -57,9 +57,18 @@ class UserProfile(models.Model):
 
 class UserProgress(models.Model):
     wiki_id = models.CharField(max_length=255)  # String field for wiki_id
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="progresses")  # Foreign key to the User model
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="progresses"
+    )  # Foreign key to the User model
     progress = models.CharField(max_length=255)  # String field for progress
 
     def __str__(self):
         return f"{self.user.username} - {self.wiki_id} - {self.progress}"
 
+
+class Privileges(models.Model):
+    pass
+
+
+class InfractionEvent(models.Model):
+    pass
