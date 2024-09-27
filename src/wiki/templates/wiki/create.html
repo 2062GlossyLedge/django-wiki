@@ -50,8 +50,13 @@
         
       $("#id_is_book").change(function () {
           if ($(this).is(":checked")) {
-            console.log(window.location.href.split("/"));
-            $("label[for='id_title").text("Title of Book");
+            if(window.location.href.split("/")[4] == "tv") {
+              $("label[for='id_title").text("Title of Season");
+            } 
+            else {
+              $("label[for='id_title").text("Title of Book");
+            }
+
             $("#id_content, label[for='id_content']").hide();
 
             $("#id_num_chapters").attr("required", "required");

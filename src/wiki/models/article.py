@@ -223,7 +223,7 @@ class Article(models.Model):
             content = self.current_revision.content
         return mark_safe(
             article_markdown(
-                content, self, preview=preview_content is not None, user=user
+                content, self, self.get_absolute_url(), preview=preview_content is not None, user=user
             )
         )
 

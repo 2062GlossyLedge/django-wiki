@@ -6,6 +6,7 @@ from django.utils.module_loading import import_string
 from wiki.conf import settings
 from wiki.core.plugins import registry
 from wiki.views.progress_views import SaveUserProgressView
+from wiki.views.progress_views import UserProgressView
 
 
 class WikiSite:
@@ -115,13 +116,8 @@ class WikiSite:
         urlpatterns += self.get_revision_urls()
         urlpatterns += self.get_article_urls()
         urlpatterns += self.get_plugin_urls()
-        urlpatterns += (
-            re_path(
-                r"^(?P<path>.+/|)_plugin/saveprogress/$",
-                SaveUserProgressView.as_view(),
-                name="save_user_progress",
-            ),
-        )
+        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/saveprogress/$', SaveUserProgressView.as_view(), name='save_user_progress'),
+        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/getprogress/$', UserProgressView.as_view(), name='get_user_progress'),
         # This ALWAYS has to be the last of all the patterns since
         # the paths in theory could wrongly match other targets.
         urlpatterns += self.get_article_path_urls()

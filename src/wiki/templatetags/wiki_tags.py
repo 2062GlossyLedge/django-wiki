@@ -1,3 +1,4 @@
+import json
 import re
 from urllib.parse import quote as urlquote
 
@@ -215,17 +216,37 @@ def starts_with(value, arg):
     return value.startswith(arg)
 
 @register.filter(name='progress_process')
-def before_colon(value):
-    if isinstance(value, str):
-        splt = value.split('/')
-        return splt[-2] + ' ' + splt[-1]
-    return value
+def progress_process(value):
+    try:
+        # Parse the JSON string
+        progress_dict = json.loads(value)
+
+        # Extract book and chapter
+        book = progress_dict.get('book', '')
+        chapter = progress_dict.get('chapter', '')
+
+        # Process book (assuming it might contain a path-like structure)
+        book_parts = chapter.split('/')
+
+        book_processed = book_parts[-2].replace('book', 'Book ').replace('season', 'Season ') + ' ' + book_parts[-1].replace('episode', 'Episode ').replace('chapter', 'Chapter ') if len(book_parts) > 1 else book
+
+        # Combine processed book and chapter
+        return f"{book_processed}".strip()
+    except json.JSONDecodeError:
+        # If JSON parsing fails, fall back to the original string processing
+        if isinstance(value, str):
+            splt = value.split('/')
+            return splt[-2] + ' ' + splt[-1] if len(splt) > 1 else value
+        return value
+    except Exception as e:
+        # Handle any other unexpected errors
+        return f"Error processing progress: {str(e)}"
 
 @register.filter(name='media_process')
 def before_colon(value):
     if isinstance(value, str):
         splt = value.split('/')
-        return splt[1] + ' ' + splt[2]
+        return splt[1].replace('-', ' ') + ' ' + splt[2]
     return value
 
 from wiki.models.account import UserProfile
