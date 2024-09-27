@@ -1,7 +1,7 @@
 {% load i18n sekizai_tags static %}
 
 <div id="progress-select">
-  <h4>{% trans "Filter Page by Current Progress" %}</h4>
+  <h4 id="progress-header">{% trans "Filter Page by Current Progress" %}</h4>
   <select id="book-select" style="width: 200px;"></select>
   <select id="chapter-select" disabled style="width: 200px;"></select>
 </div>
@@ -36,6 +36,11 @@
     let outerDefaultSearch = isBookWiki ? "Book" : "Season";
     let innerSelectionPlaceholder = isBookWiki ? "Select Chapter" : "Select Episode";
     let innerDefaultSearch = isBookWiki ? "Chapter" : "Episode";
+    let defaultBook = isBookWiki ? "book1" : "season1"
+    let defaultChapter = isBookWiki ? "book1/chapter1" : "season1/episode1"
+    let defaultBookIntro = isBookWiki ? "Book 1 : wiki:" : "Season 1 : wiki:"
+    let defaultChapterIntro = isBookWiki ? "Chapter 1 : wiki:" : "Episode 1 : wiki:"
+    let signedIn = true
 
     // Object to store current selections
     let currentProgress = {
@@ -63,8 +68,17 @@
         // Initialize Select2 after fetching progress
         initializeSelect2();
       },
-      error: function (xhr, status, error) {
-        console.log("Error fetching progress:", error);
+      error: function (xhr, status, error) { 
+        if (error == "Not Found"){  // User not logged in
+            console.log("Error fetching progress:", error);
+            // Change the message in the <h4> tag
+            $('#progress-header').text("{% trans 'Log In to Filter by Current Progress.' %}");
+            
+            // Disable both selects
+            $('#book-select').prop('disabled', true);
+            $('#chapter-select').prop('disabled', true);
+            signedIn = false
+        } 
         // Initialize Select2 even if there's an error
         initializeSelect2();
       }
@@ -112,9 +126,15 @@
         $('#book-select').append(new Option(currentProgress.book, currentProgress.book, true, true)).trigger('change');
         $('#chapter-select').prop('disabled', false);
       }
+      else{
+        $('#book-select').append(new Option(defaultBookIntro + baseWiki + defaultBook, defaultBookIntro + baseWiki + defaultBook, true, true)).trigger('change');
+      } 
       if (currentProgress.chapter) {
         $('#chapter-select').append(new Option(currentProgress.chapter, currentProgress.chapter, true, true)).trigger('change');
       }
+      else{
+        $('#chapter-select').append(new Option(defaultChapterIntro + baseWiki + defaultChapter, defaultChapterIntro + baseWiki + defaultChapter, true, true)).trigger('change');
+      } 
     }
 
     $('#book-select').on('select2:select', function (e) {
@@ -128,6 +148,7 @@
     $('#chapter-select').on('select2:select', function (e) {
       currentProgress.chapter = e.params.data.id;
       saveProgress();
+      resetCache();
     });
 
     function saveProgress() {
@@ -138,21 +159,41 @@
         data: {
           'wiki_id': baseWiki,
           'progress': JSON.stringify(currentProgress),
+          'curr_page': window.location.pathname,
           'csrfmiddlewaretoken': '{{ csrf_token }}'
         },
         success: function (response) {
-          if (response.status === 'success') {
-            console.log('User progress updated successfully');
+            if (response.message) {
+              console.log('User progress updated successfully');
+              window.location.reload();
           } else {
-            console.log(response);
-          }
+              console.log(response);
+          } 
         },
-        error: function () {
+        error: function () { 
           console.log('Error occurred while updating user progress');
         }
       });
-
     }
+    function resetCache() {
+        console.log(currentProgress)
+        $.ajax({
+          url: "_plugin/resetcache/",
+          type: "POST",
+          data: {
+            'wiki_id': baseWiki,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+          },
+          success: function (response) {
+              if (response.message) {
+                console.log('Cache cleared successfully');
+            } else {
+                console.log(response);
+            } 
+          },
+        });
+  
+      }
   });
 </script>
 {% endaddtoblock %}

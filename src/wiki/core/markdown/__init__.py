@@ -70,11 +70,12 @@ class ArticleMarkdown(markdown.Markdown):
             try:
                 progress_data = json.loads(user_progress.progress)
                 user_location = progress_data['chapter']
-
                 noSpoilerText = removeSpoilerContent(text, user_location)
             except json.JSONDecodeError:
                 # If progress is not valid JSON, don't remove spoilers
                 pass
+        else:
+            noSpoilerText = removeSpoilerContent(text, "wiki:/default/book/book1/chapter1")
 
         noSpoilerText = wikiContentCleanup(noSpoilerText)
         html = super().convert(noSpoilerText, *args, **kwargs)
