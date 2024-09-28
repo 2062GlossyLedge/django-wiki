@@ -7,8 +7,7 @@ from mptt.admin import MPTTModelAdmin
 from . import editors
 from . import models
 
-from wiki.models.account import UserProfile
-from wiki.models.account import UserProgress
+from wiki.models.account import UserProfile, UserProgress, Privilege, InfractionEvent
 
 
 class ArticleObjectAdmin(GenericTabularInline):
@@ -110,3 +109,13 @@ admin.site.register(models.Article, ArticleAdmin)
 admin.site.register(models.ArticleRevision, ArticleRevisionAdmin)
 admin.site.register(UserProfile)
 admin.site.register(UserProgress)
+
+
+@admin.register(InfractionEvent)
+class InfractionEventAdmin(admin.ModelAdmin):
+    list_display = ("privilege", "article_title", "date", "admin_user")
+    list_filter = ("date", "admin_user")
+    search_fields = ("article_title", "privilege__user__username")
+
+
+admin.site.register(Privilege)

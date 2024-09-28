@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import JSONField
 from collections import deque
+from datetime import datetime, timedelta
 
 
 class UserProfile(models.Model):
@@ -24,33 +25,6 @@ class UserProfile(models.Model):
         self.urls = self.urls[:5]
         self.save()
 
-    # attempt at using a queue to avoid duplicates
-    # def save_url(self, url):
-
-    #     if self.urls is None:
-    #         self.urls = []
-
-    # # Create a deque with max length of 4
-    # url_queue = deque(self.urls)
-
-    # # If the URL already exists, remove it from the queue
-    # if url in url_queue:
-    #     url_queue.remove(url)
-
-    # # Insert the new URL at the end
-    # url_queue.append(url)
-
-    # # Check if the queue size is bigger than 5
-    # if len(url_queue) > 5:
-    #     # Remove the oldest URL from the queue
-    #     url_queue.popleft()
-
-    # print(url_queue)
-
-    # # Convert the deque back to a list and save
-    # self.urls = list(url_queue).reverse()
-    # self.save()
-
     def __str__(self):
         return self.user.username
 
@@ -66,9 +40,59 @@ class UserProgress(models.Model):
         return f"{self.user.username} - {self.wiki_id} - {self.progress}"
 
 
-class Privileges(models.Model):
-    pass
+class Privilege(models.Model):
+    STATUS_CHOICES = [
+        ("ACTIVE", "Active"),
+        ("SUSPENDED", "Suspended"),
+    ]
+
+    # one to many relationship with User
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="privileges")
+    name = models.CharField(max_length=100)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="ACTIVE")
+    penalty_length = models.DurationField()
+    penalty_start = models.DateTimeField(null=True, blank=True)
+    infractions = models.PositiveIntegerField(default=0)
+    total_allowed_infractions = models.PositiveIntegerField(default=3)
+
+    def save(self, *args, **kwargs):
+        # If the number of infractions exceeds the total allowed infractions, suspend the privilege
+        if self.infractions >= self.total_allowed_infractions:
+            self.status = "SUSPENDED"
+            self.penalty_start = models.DateTimeField(auto_now_add=True)
+        if self.penalty_start is not None:
+            if self.penalty_start + self.penalty_length < datetime.now():
+                self.status = "ACTIVE"
+                self.infractions.all().delete()
+        super().save(*args, **kwargs)
+
+    @property
+    def get_timeout_length(self):
+        if self.penalty_start:
+            current_time = datetime.now()
+            timeout_length = self.penalty_start + self.penalty_length - current_time
+            return timeout_length if timeout_length > timedelta(0) else timedelta(0)
+        return None
 
 
 class InfractionEvent(models.Model):
-    pass
+    # one to many relationship with Privilege
+    privilege = models.ForeignKey(
+        Privilege, on_delete=models.CASCADE, related_name="infraction_events"
+    )
+
+    article_title = models.CharField(max_length=200)
+    date = models.DateTimeField(auto_now_add=True)
+    admin_user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="administered_infractions",
+    )
+    article_history_link = models.URLField(max_length=500)
+
+    def save(self, *args, **kwargs):
+        # Increment the infractions count of the associated Privilege
+        self.privilege.infractions += 1
+        self.privilege.save()
+        super().save(*args, **kwargs)

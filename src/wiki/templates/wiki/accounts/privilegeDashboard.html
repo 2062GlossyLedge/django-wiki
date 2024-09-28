@@ -13,7 +13,8 @@
 </head>
 
 <h2>Privileges</h2>
-<table id="privileges-table">
+{% comment %}
+<!-- <table id="privileges-table">
     <thead class="neither">
         <th><strong>Privilege</strong></th>
         <th><strong>Status</strong></th>
@@ -70,6 +71,40 @@
         {%endfor%}
     </tbody>
 
+</table> -->
+{% endcomment %}
+<table class="privileges-table">
+    <thead>
+        <tr>
+            <th>Privilege</th>
+            <th>Status</th>
+            <th>Timeout Length</th>
+            <th>Infractions</th>
+            <th>Infraction Events</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for privilege in privileges %}
+        <tr>
+            <td>{{ privilege.name }}</td>
+            <td>{{ privilege.get_status_display }}</td>
+            <td>{{ privilege.get_timeout_length}}</td>
+            <td>{{ privilege.infractions}}</td>
+            <td>
+                <ul>
+                    {% for event in privilege.infraction_events.all %}
+                    <li>
+                        {{ event.date|date:"Y-m-d H:i" }} - {{ event.article_title }}
+                        <a href="{{ event.article_history_link }}" target="_blank">(History)</a>
+                    </li>
+                    {% empty %}
+                    <li>No infractions</li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
 <h2>Rubric</h2>
