@@ -29,20 +29,34 @@
     --background-color: var(--white);
     --text-color: var(--black);
 
-    --link-color: #bb86fc; 
-    --link-hover-color: #784dac; 
+    --link-color: #c26451; 
+    --link-hover-color: #5F3229; 
     --link-disabled-color: #3e3e3e; 
 
     --table-background-color: #f5f5f5;
 
-    --button-background: #1f1f1f; 
+    --button-background: #c26451; 
+    --button-hover-background: #5F3229; 
     --button-text-color: #ffffff; 
+
+    --submit-button-background: #28a745; 
+    --submit-button-hover-background: #23833a; 
+
+    --outline-button: #343837;
+    --outline-button-hover-text: #ffffff;
+
+
+    --control-label-color: #784dac;
 
     --card-background-color: #ffffff;
 
+    --toc-background-color: #e9e9e9;
+
     --secondary: #343837;
     --success: #19647e;
-    --info: #03719C;
+
+    --info: #784dac;
+
     --warning: #fa9f42;
     --danger: #721817;
     --light: #f8f9fa;
@@ -60,16 +74,29 @@ body.dark-mode {
     --background-color: #121212; 
     --text-color: #ffffff; 
     
-    --link-color: #a33924; 
-    --link-hover-color: #5F3229; 
+    --link-color: #c26451; 
+    --link-hover-color: #de735d; 
     --link-disabled-color: #3e3e3e; 
 
     --card-background-color: #505050;
 
-    --button-background: #1f1f1f; 
+    --button-background: #c26451; 
+    --button-hover-background: #de735d; 
     --button-text-color: #ffffff; 
 
+    --submit-button-background: #28a745; 
+    --submit-button-hover-background: #23833a; 
+
+    --outline-button: #e9e9e9;
+    --outline-button-hover-text: #000000;
+
+    --control-label-color: #5F3229;
+
     --table-background-color: #4e4e4e;
+
+    --toc-background-color: #2a2a2a;
+
+    --info: #c26451
 }
 
 *,
@@ -1809,7 +1836,7 @@ pre code {
 .wiki-article table {
     width: 100%;
     margin-bottom: 1rem;
-    color: #212529
+    color: var(--text-color)
 }
 
 .table th,
@@ -2624,7 +2651,7 @@ textarea.form-control.is-valid {
 
 .was-validated .custom-control-input:valid~.custom-control-label,
 .custom-control-input.is-valid~.custom-control-label {
-    color: #19647e
+    color: var(--control-label-color)
 }
 
 .was-validated .custom-control-input:valid~.custom-control-label::before,
@@ -2981,14 +3008,14 @@ fieldset:disabled a.btn {
 
 .btn-primary {
     color: var(--button-text-color);;
-    background-color: var(--button-background);
-    border-color: var(--button-background);
+    background-color: var(--submit-button-background);
+    border-color: var(--submit-button-background);
 }
 
 .btn-primary:hover {
     color: #fff;
-    background-color: #0c786e;
-    border-color: #0b6d63
+    background-color: var(--submit-button-hover-background);
+    border-color: var(--submit-button-hover-background)
 }
 
 .btn-primary:focus,
@@ -3112,14 +3139,14 @@ fieldset:disabled a.btn {
 
 .btn-info {
     color: #fff;
-    background-color: #03719C;
-    border-color: #03719C
+    background-color: var(--button-background);
+    border-color: var(--button-background)
 }
 
 .btn-info:hover {
     color: #fff;
-    background-color: #025676;
-    border-color: #024d6a
+    background-color: var(--button-hover-background);
+    border-color: var(--button-hover-background)
 }
 
 .btn-info:focus,
@@ -3133,8 +3160,8 @@ fieldset:disabled a.btn {
 .btn-info.disabled,
 .btn-info:disabled {
     color: #fff;
-    background-color: #03719C;
-    border-color: #03719C
+    background-color: var(--info);
+    border-color: var(--info)
 }
 
 .btn-info:not(:disabled):not(.disabled):active,
@@ -3364,14 +3391,14 @@ fieldset:disabled a.btn {
 }
 
 .btn-outline-secondary {
-    color: #343837;
-    border-color: #343837
+    color: var(--outline-button);
+    border-color: var(--outline-button)
 }
 
 .btn-outline-secondary:hover {
-    color: #fff;
-    background-color: #343837;
-    border-color: #343837
+    color: var(--outline-button-hover-text);
+    background-color: var(--outline-button);
+    border-color: var(--outline-button)
 }
 
 .btn-outline-secondary:focus,
@@ -3440,14 +3467,14 @@ fieldset:disabled a.btn {
 }
 
 .btn-outline-info {
-    color: #03719C;
-    border-color: #03719C
+    color: var(--info);
+    border-color: var(--info)
 }
 
 .btn-outline-info:hover {
     color: #fff;
-    background-color: #03719C;
-    border-color: #03719C
+    background-color: var(--info);
+    border-color: var(--info)
 }
 
 .btn-outline-info:focus,
@@ -3457,7 +3484,7 @@ fieldset:disabled a.btn {
 
 .btn-outline-info.disabled,
 .btn-outline-info:disabled {
-    color: #03719C;
+    color: var(--info);
     background-color: transparent
 }
 
@@ -3466,8 +3493,8 @@ fieldset:disabled a.btn {
 .show>.btn-outline-info.dropdown-toggle,
 .wiki-article div.toc .show>.btn-outline-info.toctitle {
     color: #fff;
-    background-color: #03719C;
-    border-color: #03719C
+    background-color: var(--info);
+    border-color: var(--info)
 }
 
 .btn-outline-info:not(:disabled):not(.disabled):active:focus,
@@ -6144,7 +6171,7 @@ a.badge-success.focus {
 
 .badge-info {
     color: #fff;
-    background-color: #03719C
+    background-color: var(--info)
 }
 
 a.badge-info:hover,
@@ -7715,7 +7742,7 @@ button.bg-success:focus {
 }
 
 .bg-info {
-    background-color: #03719C !important
+    background-color: var(--info) !important
 }
 
 a.bg-info:hover,
@@ -7832,7 +7859,7 @@ button.bg-dark:focus {
 }
 
 .border-info {
-    border-color: #03719C !important
+    border-color: var(--info) !important
 }
 
 .border-warning {
@@ -11440,7 +11467,7 @@ a.text-success:focus {
 }
 
 .text-info {
-    color: #03719C !important
+    color: var(--info) !important
 }
 
 a.text-info:hover,
@@ -11947,7 +11974,7 @@ dd {
 }
 
 .bg-dark {
-    background: #03719C
+    background: var(--info)
 }
 
 .wiki-article .thumbnail {
@@ -11993,7 +12020,7 @@ h1#article-title {
 .wiki-label label {
     font-size: 16px;
     font-weight: normal;
-    color: #03719C
+    color: var(--info)
 }
 
 .controls ul {
@@ -12012,7 +12039,7 @@ h1#article-title {
     display: inline-block;
     position: sticky;
     top: 0;
-    background-color: white;
+    background-color: var(--toc-background-color);
 }
 
 .wiki-article div.toc .nav-header,
@@ -12078,7 +12105,7 @@ h1#article-title {
 .wiki-article .codehilitetable {
     max-width: 700px;
     max-height: 150px;
-    background-color: #f5f5f5;
+    background-color: var(--table-background-color);
     border-color: #ccc;
     border-radius: 4px;
     border-collapse: separate;
@@ -12186,7 +12213,7 @@ input[type=file] {
     display: block;
     width: 18px;
     height: 2px;
-    background-color: #f5f5f5;
+    background-color: var(--table-background-color);
     border-radius: 1px 1px 1px 1px;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
     margin-top: 3px
@@ -12317,7 +12344,7 @@ input[type=file] {
     padding: 19px 15px 20px 0;
     margin-top: 20px;
     margin-bottom: 20px;
-    background-color: #f5f5f5;
+    background-color: var(--table-background-color);
     border-top: 1px solid #e5e5e5;
     float: none
 }
