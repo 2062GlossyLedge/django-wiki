@@ -50,28 +50,42 @@ class Privilege(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="privileges")
     name = models.CharField(max_length=100)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="ACTIVE")
-    penalty_length = models.DurationField()
-    penalty_start = models.DateTimeField(null=True, blank=True)
+    # penalty_length = models.PositiveIntegerField(default=3)
+    penalty_start = models.DateField(null=True, blank=True)
+    penalty_end = models.DateTimeField(null=True, blank=True)
+
     infractions = models.PositiveIntegerField(default=0)
     total_allowed_infractions = models.PositiveIntegerField(default=3)
 
     def save(self, *args, **kwargs):
-        # If the number of infractions exceeds the total allowed infractions, suspend the privilege
-        if self.infractions >= self.total_allowed_infractions:
-            self.status = "SUSPENDED"
-            self.penalty_start = models.DateTimeField(auto_now_add=True)
-        if self.penalty_start is not None:
-            if self.penalty_start + self.penalty_length < datetime.now():
-                self.status = "ACTIVE"
-                self.infractions.all().delete()
+        if self.status == "ACTIVE":
+            # If the number of infractions exceeds the total allowed infractions, suspend the privilege
+            if self.infractions >= self.total_allowed_infractions:
+                self.status = "SUSPENDED"
+                self.penalty_start = datetime.now()
+                # self.penalty_end = self.penalty_start + self.penalty_length
+        if self.status == "SUSPENDED":
+            if self.penalty_start is not None:
+
+                if datetime.date(self.penalty_start) + timedelta(
+                    days=3
+                ) > datetime.date(datetime.now()):
+                    self.status = "ACTIVE"
+                    InfractionEvent.objects.filter(privilege=self).delete()
+                    self.infractions = 0
         super().save(*args, **kwargs)
 
     @property
     def get_timeout_length(self):
+        if (
+            self.status == "ACTIVE"
+            and self.infractions <= self.total_allowed_infractions
+        ):
+            return None
         if self.penalty_start:
             current_time = datetime.now()
-            timeout_length = self.penalty_start + self.penalty_length - current_time
-            return timeout_length if timeout_length > timedelta(0) else timedelta(0)
+            timeout_length = datetime.date(self.penalty_start) + timedelta(days=3)
+            return timeout_length
         return None
 
 
