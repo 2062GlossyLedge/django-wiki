@@ -7,11 +7,11 @@ $(document).ready(function() {
   // Change color on hover
    $("#flag-spoilers-button").mouseenter(function() {
   
-      $(this).css("color", "black"); 
+      $(this).css("color", "#5F3229"); 
     });
 
     $("#flag-spoilers-button").mouseleave(function() {
-      $(this).css("color", "#0c9c8c");
+      $(this).css("color", "#c26451");
     });
 
   let flagging = false
