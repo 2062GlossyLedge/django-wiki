@@ -19,17 +19,17 @@ class Privileges(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         privilege_types = [
-            "commenting",
-            "editing",
-            "spoiler flagging",
-            "wiki creation and deletion",
+            "Commenting",
+            "Editing",
+            "Spoiler flagging",
+            "Wiki creation",
         ]
 
         for priv_type in privilege_types:
             priv = Privilege.objects.get_or_create(
                 user=self.request.user,
                 name=priv_type,
-                defaults={"status": "ACTIVE", "penalty_length": timedelta(days=3)},
+                defaults={"status": "ACTIVE"},
             )
 
         context["privileges"] = self.get_queryset()

@@ -57,24 +57,25 @@ class Privilege(models.Model):
     infractions = models.PositiveIntegerField(default=0)
     total_allowed_infractions = models.PositiveIntegerField(default=3)
 
+    # Override the save method to check if the privilege should be suspended or reactivated
     def save(self, *args, **kwargs):
         if self.status == "ACTIVE":
             # If the number of infractions exceeds the total allowed infractions, suspend the privilege
             if self.infractions >= self.total_allowed_infractions:
                 self.status = "SUSPENDED"
                 self.penalty_start = datetime.now()
-                # self.penalty_end = self.penalty_start + self.penalty_length
         if self.status == "SUSPENDED":
             if self.penalty_start is not None:
-
+                # If the penalty start date is more than 3 days ago, reactivate the privilege
                 if datetime.date(self.penalty_start) + timedelta(
                     days=3
-                ) > datetime.date(datetime.now()):
+                ) < datetime.date(datetime.now()):
                     self.status = "ACTIVE"
                     InfractionEvent.objects.filter(privilege=self).delete()
                     self.infractions = 0
         super().save(*args, **kwargs)
 
+    # Get the timeout length for the privilege
     @property
     def get_timeout_length(self):
         if (
@@ -83,7 +84,6 @@ class Privilege(models.Model):
         ):
             return None
         if self.penalty_start:
-            current_time = datetime.now()
             timeout_length = datetime.date(self.penalty_start) + timedelta(days=3)
             return timeout_length
         return None

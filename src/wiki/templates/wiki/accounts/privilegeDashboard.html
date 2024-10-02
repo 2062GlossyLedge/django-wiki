@@ -78,8 +78,8 @@
         <tr>
             <th>Privilege</th>
             <th>Status</th>
-            <th>Timeout Length</th>
-            <th>Infractions</th>
+            <th>Privilege Regain Date</th>
+            <th>Total Infractions</th>
             <th>Infraction Events</th>
         </tr>
     </thead>
@@ -91,7 +91,8 @@
             <td>{{ privilege.get_timeout_length}}</td>
             <td>{{ privilege.infractions}}</td>
             <td>
-                <ul>
+
+                <ol>
                     {% for event in privilege.infraction_events.all %}
                     <li>
                         {{ event.date|date:"Y-m-d H:i" }} - {{ event.article_title }}
@@ -100,7 +101,10 @@
                     {% empty %}
                     <li>No infractions</li>
                     {% endfor %}
-                </ul>
+
+                </ol>
+
+
             </td>
         </tr>
         {% endfor %}
@@ -112,34 +116,34 @@
     <thead>
         <tr>
             <th>Privileges</th>
-            <th>Infraction description</th>
-            <th>Number of allowed infractions before losing privilege</th>
-            <th>Timeout to lose 1 infraction</th>
+            <th>Infraction Description</th>
+            <th>Total Infractions Before Losing Privilege</th>
+            <th>Timeout Length</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>Commenting</td>
             <td>Commenting a spoiler</td>
-            <td>5</td>
+            <td>3</td>
             <td>3 days</td>
         </tr>
         <tr>
             <td>Editing</td>
-            <td>Adding a spoiler</td>
-            <td>5</td>
+            <td>Adding a spoiler or deleting approved content</td>
+            <td>3</td>
             <td>3 days</td>
         </tr>
         <tr>
             <td>Spoil flagging</td>
             <td>Flagging text that is not a spoiler</td>
-            <td>10</td>
+            <td>3</td>
             <td>3 days</td>
         </tr>
         <tr>
-            <td>Creating and deleting wiki pages</td>
-            <td>Create duplicate or fake wikis</td>
-            <td>1</td>
+            <td>Creating wiki pages</td>
+            <td>Creating duplicate or fake wikis</td>
+            <td>3</td>
             <td>3 days</td>
         </tr>
     </tbody>
