@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import JSONField
 from collections import deque
+from datetime import datetime, timedelta
 
 
 class UserProfile(models.Model):
@@ -24,33 +25,6 @@ class UserProfile(models.Model):
         self.urls = self.urls[:5]
         self.save()
 
-    # attempt at using a queue to avoid duplicates
-    # def save_url(self, url):
-
-    #     if self.urls is None:
-    #         self.urls = []
-
-    # # Create a deque with max length of 4
-    # url_queue = deque(self.urls)
-
-    # # If the URL already exists, remove it from the queue
-    # if url in url_queue:
-    #     url_queue.remove(url)
-
-    # # Insert the new URL at the end
-    # url_queue.append(url)
-
-    # # Check if the queue size is bigger than 5
-    # if len(url_queue) > 5:
-    #     # Remove the oldest URL from the queue
-    #     url_queue.popleft()
-
-    # print(url_queue)
-
-    # # Convert the deque back to a list and save
-    # self.urls = list(url_queue).reverse()
-    # self.save()
-
     def __str__(self):
         return self.user.username
 
@@ -66,9 +40,73 @@ class UserProgress(models.Model):
         return f"{self.user.username} - {self.wiki_id} - {self.progress}"
 
 
-class Privileges(models.Model):
-    pass
+class Privilege(models.Model):
+    STATUS_CHOICES = [
+        ("ACTIVE", "Active"),
+        ("SUSPENDED", "Suspended"),
+    ]
+
+    # one to many relationship with User
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="privileges")
+    name = models.CharField(max_length=100)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="ACTIVE")
+    # penalty_length = models.PositiveIntegerField(default=3)
+    penalty_start = models.DateField(null=True, blank=True)
+    penalty_end = models.DateTimeField(null=True, blank=True)
+
+    infractions = models.PositiveIntegerField(default=0)
+    total_allowed_infractions = models.PositiveIntegerField(default=3)
+
+    # Override the save method to check if the privilege should be suspended or reactivated
+    def save(self, *args, **kwargs):
+        if self.status == "ACTIVE":
+            # If the number of infractions exceeds the total allowed infractions, suspend the privilege
+            if self.infractions >= self.total_allowed_infractions:
+                self.status = "SUSPENDED"
+                self.penalty_start = datetime.now()
+        if self.status == "SUSPENDED":
+            if self.penalty_start is not None:
+                # If the penalty start date is more than 3 days ago, reactivate the privilege
+                if datetime.date(self.penalty_start) + timedelta(
+                    days=3
+                ) < datetime.date(datetime.now()):
+                    self.status = "ACTIVE"
+                    InfractionEvent.objects.filter(privilege=self).delete()
+                    self.infractions = 0
+        super().save(*args, **kwargs)
+
+    # Get the timeout length for the privilege
+    @property
+    def get_timeout_length(self):
+        if (
+            self.status == "ACTIVE"
+            and self.infractions <= self.total_allowed_infractions
+        ):
+            return None
+        if self.penalty_start:
+            timeout_length = datetime.date(self.penalty_start) + timedelta(days=3)
+            return timeout_length
+        return None
 
 
 class InfractionEvent(models.Model):
-    pass
+    # one to many relationship with Privilege
+    privilege = models.ForeignKey(
+        Privilege, on_delete=models.CASCADE, related_name="infraction_events"
+    )
+
+    article_title = models.CharField(max_length=200)
+    date = models.DateTimeField(auto_now_add=True)
+    admin_user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="administered_infractions",
+    )
+    article_history_link = models.URLField(max_length=500)
+
+    def save(self, *args, **kwargs):
+        # Increment the infractions count of the associated Privilege
+        self.privilege.infractions += 1
+        self.privilege.save()
+        super().save(*args, **kwargs)

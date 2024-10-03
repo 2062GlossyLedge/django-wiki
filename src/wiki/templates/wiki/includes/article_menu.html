@@ -18,7 +18,8 @@
   </a>
 </li>
 
-{% if article|can_write:user and not article.current_revision.locked %}
+
+{% if article|can_write:user and not article.current_revision.locked and Editing_status == "ACTIVE" %}
 <li class="nav-item">
   <a href="{% url 'wiki:edit' article_id=article.id path=urlpath.path %}"
     class="px-3 nav-link{% if selected == 'edit'%} active{% endif %}">
@@ -66,12 +67,16 @@
     <span class="hidden-xs">{% trans "Settings" %}</span>
   </a>
 </li>
+{% if spoiler_flagging_status == "ACTIVE" %}
 <li class="nav-item">
   <a id='flag-spoilers-button' class="px-3 nav-link">
     <span class="fa fa-flag"></span>
     <span class="hidden-xs">{% trans "Flag Spoilers" %}</span>
   </a>
+
 </li>
+{% endif %}
+
 {% endif %}
 
 {% endwith %}

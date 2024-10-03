@@ -13,7 +13,8 @@
 </head>
 
 <h2>Privileges</h2>
-<table id="privileges-table">
+{% comment %}
+<!-- <table id="privileges-table">
     <thead class="neither">
         <th><strong>Privilege</strong></th>
         <th><strong>Status</strong></th>
@@ -70,6 +71,44 @@
         {%endfor%}
     </tbody>
 
+</table> -->
+{% endcomment %}
+<table class="privileges-table">
+    <thead>
+        <tr>
+            <th>Privilege</th>
+            <th>Status</th>
+            <th>Privilege Regain Date</th>
+            <th>Total Infractions</th>
+            <th>Infraction Events</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for privilege in privileges %}
+        <tr>
+            <td>{{ privilege.name }}</td>
+            <td>{{ privilege.get_status_display }}</td>
+            <td>{{ privilege.get_timeout_length}}</td>
+            <td>{{ privilege.infractions}}</td>
+            <td>
+
+                <ol>
+                    {% for event in privilege.infraction_events.all %}
+                    <li>
+                        {{ event.date|date:"Y-m-d H:i" }} - {{ event.article_title }}
+                        <a href="{{ event.article_history_link }}" target="_blank">(History)</a>
+                    </li>
+                    {% empty %}
+                    <li>No infractions</li>
+                    {% endfor %}
+
+                </ol>
+
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
 <h2>Rubric</h2>
@@ -77,34 +116,34 @@
     <thead>
         <tr>
             <th>Privileges</th>
-            <th>Infraction description</th>
-            <th>Number of allowed infractions before losing privilege</th>
-            <th>Timeout to lose 1 infraction</th>
+            <th>Infraction Description</th>
+            <th>Total Infractions Before Losing Privilege</th>
+            <th>Timeout Length</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>Commenting</td>
             <td>Commenting a spoiler</td>
-            <td>5</td>
+            <td>3</td>
             <td>3 days</td>
         </tr>
         <tr>
             <td>Editing</td>
-            <td>Adding a spoiler</td>
-            <td>5</td>
+            <td>Adding a spoiler or deleting approved content</td>
+            <td>3</td>
             <td>3 days</td>
         </tr>
         <tr>
             <td>Spoil flagging</td>
             <td>Flagging text that is not a spoiler</td>
-            <td>10</td>
+            <td>3</td>
             <td>3 days</td>
         </tr>
         <tr>
-            <td>Creating and deleting wiki pages</td>
-            <td>Create duplicate or fake wikis</td>
-            <td>1</td>
+            <td>Creating wiki pages</td>
+            <td>Creating duplicate or fake wikis</td>
+            <td>3</td>
             <td>3 days</td>
         </tr>
     </tbody>
