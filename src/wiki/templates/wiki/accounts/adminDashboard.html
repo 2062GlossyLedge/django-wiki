@@ -1,0 +1,50 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block wiki_contents %}
+
+{% addtoblock "js" %}
+<script src="{% static 'wiki/js/privilegeDashboard.js' %}"></script>
+{% endaddtoblock %}
+
+
+<head>
+    <link rel='stylesheet' href="{%static 'wiki/css/adminDashboard.css' %}">
+</head>
+
+<h2>Reports</h2>
+<table id="reports-table">
+    <thead class="neither">
+        <th><strong>Date</strong></th>
+        <th><strong>User</strong></th>
+        <th><strong>Wiki</strong></th>
+        <th><strong>Content</strong></th>
+        <th><strong>Reason For Report</strong></th>
+        <th><strong>Accept Report</strong></th>
+
+
+    </thead>
+    <tbody>
+        {%for report in reports%}
+
+        <tr>
+            <td>{{report.date}}</td>
+            <td>{{report.user}}</td>
+            <td>{{report.wiki}}</td>
+            <td>{{report.content}}</td>
+            <td>{{report.reason}}</td>
+            <td>
+                <button class="rep_btn approve">Approve</button>
+                <button class="rep_btn deny">Deny</button>
+            </td>
+        </tr>
+
+        {%endfor%}
+    </tbody>
+</table>
+
+
+
+
+
+{% endblock %}
