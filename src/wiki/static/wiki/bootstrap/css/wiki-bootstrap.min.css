@@ -29,18 +29,18 @@
     --background-color: var(--white);
     --text-color: var(--black);
 
-    --link-color: #c26451; 
-    --link-hover-color: #5F3229; 
-    --link-disabled-color: #3e3e3e; 
+    --link-color: #c26451;
+    --link-hover-color: #5F3229;
+    --link-disabled-color: #3e3e3e;
 
     --table-background-color: #f5f5f5;
 
-    --button-background: #c26451; 
-    --button-hover-background: #5F3229; 
-    --button-text-color: #ffffff; 
+    --button-background: #c26451;
+    --button-hover-background: #5F3229;
+    --button-text-color: #ffffff;
 
-    --submit-button-background: #28a745; 
-    --submit-button-hover-background: #23833a; 
+    --submit-button-background: #28a745;
+    --submit-button-hover-background: #23833a;
 
     --outline-button: #343837;
     --outline-button-hover-text: #ffffff;
@@ -74,21 +74,21 @@
 }
 
 body.dark-mode {
-    --background-color: #121212; 
-    --text-color: #ffffff; 
-    
-    --link-color: #c26451; 
-    --link-hover-color: #de735d; 
-    --link-disabled-color: #3e3e3e; 
+    --background-color: #121212;
+    --text-color: #ffffff;
+
+    --link-color: #c26451;
+    --link-hover-color: #de735d;
+    --link-disabled-color: #3e3e3e;
 
     --card-background-color: #505050;
 
-    --button-background: #c26451; 
-    --button-hover-background: #de735d; 
-    --button-text-color: #ffffff; 
+    --button-background: #c26451;
+    --button-hover-background: #de735d;
+    --button-text-color: #ffffff;
 
-    --submit-button-background: #28a745; 
-    --submit-button-hover-background: #23833a; 
+    --submit-button-background: #28a745;
+    --submit-button-hover-background: #23833a;
 
     --outline-button: #e9e9e9;
     --outline-button-hover-text: #000000;
@@ -3012,7 +3012,8 @@ fieldset:disabled a.btn {
 }
 
 .btn-primary {
-    color: var(--button-text-color);;
+    color: var(--button-text-color);
+    ;
     background-color: var(--submit-button-background);
     border-color: var(--submit-button-background);
 }
@@ -3365,7 +3366,7 @@ fieldset:disabled a.btn {
 .btn-outline-primary:hover {
     color: #fff;
     background-color: var(--button-background);
-    border-color:  var(--button-background);
+    border-color: var(--button-background);
 }
 
 .btn-outline-primary:focus,
@@ -3375,7 +3376,7 @@ fieldset:disabled a.btn {
 
 .btn-outline-primary.disabled,
 .btn-outline-primary:disabled {
-    color:  var(--button-background);
+    color: var(--button-background);
     background-color: transparent
 }
 
@@ -3385,7 +3386,7 @@ fieldset:disabled a.btn {
 .wiki-article div.toc .show>.btn-outline-primary.toctitle {
     color: #fff;
     background-color: var(--button-background);
-    border-color:  var(--button-background);
+    border-color: var(--button-background);
 }
 
 .btn-outline-primary:not(:disabled):not(.disabled):active:focus,
@@ -18735,4 +18736,27 @@ input[type=file] {
     padding: 1rem;
     background-color: #f7f7f9;
     -ms-overflow-style: -ms-autohiding-scrollbar
+}
+
+.spoiler-banner {
+    border: 2px solid #5c1b1b;
+    background-color: #000;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.caution-sign {
+    font-size: 2em;
+    color: red;
+}
+
+.banner-text {
+    color: white;
 }

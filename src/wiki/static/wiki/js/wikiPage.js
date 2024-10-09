@@ -1,17 +1,16 @@
 $(document).ready(function () {
     // Create toggle button when toc is closed
-    let tocTitleClosed = $("<button id='toctitleclosed'>Contents</button>")
-    let tocTitle = $('.toctitle');
+    let flagToggled = $("<span class='f-s-t-c'>Page Flagged for Spoilers</span>")
+    let flag = $('#f-s-t');
 
     // Toggle between open and closed states
-    $(document).on('click', '.toctitle', function () {
-        $(this).replaceWith(tocTitleClosed);
-        $(".list-group").toggle();
+    $(document).on('click', '#f-s-t', function () {
+        $(this).replaceWith(flagToggled);
+
     });
 
-    $(document).on('click', '#toctitleclosed', function () {
-        $(this).replaceWith(tocTitle);
-        $(".list-group").toggle();
+    $(document).on('click', '#f-s-t-c', function () {
+        $(this).replaceWith(flag);
     });
 
 });
