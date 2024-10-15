@@ -1,9 +1,11 @@
 {% load i18n %}
+{% if has_potential_spoilers %}
 <div class="spoiler-banner">
   <span class="caution-sign">⚠️</span>
-  <span class="banner-text">Possible Spoilers On This Page!</span>
+  <span class="banner-text">POTENTIAL SPOILERS ON THIS PAGE</span>
   <span class="caution-sign">⚠️</span>
 </div>
+{% endif %}
 {% if urlpath %}
 <div id="article-breadcrumbs" class="row">
   <nav aria-label="breadcrumb">

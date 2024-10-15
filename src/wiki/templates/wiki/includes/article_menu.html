@@ -67,11 +67,30 @@
     <span class="hidden-xs">{% trans "Settings" %}</span>
   </a>
 </li>
+
 <li class="nav-item">
-  <a id='flag-spoilers-button' class="px-3 nav-link">
-    <span class="fa fa-flag"></span>
-    <span class="f-s-t">{% trans "Flag Spoilers" %}</span>
-  </a>
+  <form method="post">
+    {% csrf_token %}
+
+    {% if not has_potential_spoilers %}
+    <a id='flag-spoilers-button' class="px-3 nav-link">
+      <span class="fa fa-flag"></span>
+      <label class="flag-spoilers-button-off-label" for="flag-spoilers-button-off"><span class="f-s-t">Flag
+          Spoilers</span></label>
+      <button id="flag-spoilers-button-off" name="flag-spoilers-button-off" class="hidden-xs">
+
+    </a>
+
+    {% else %}
+    <a id='flag-spoilers-button' class="px-3 nav-link">
+      <span class="fa fa-flag"></span>
+      <label class="flag-spoilers-button-on-label" for="flag-spoilers-button-on"><span class="f-s-t">Page flagged for
+          spoilers</span></label>
+      <button id="flag-spoilers-button-on" name="flag-spoilers-button-on" class="hidden-xs">
+    </a>
+    {% endif %}
+  </form>
+
 
 </li>
 

@@ -3,6 +3,7 @@ from django.utils.decorators import method_decorator
 
 from django.shortcuts import redirect, render
 from wiki.models.account import Privilege, InfractionEvent
+from wiki.models import Article
 from datetime import timedelta
 
 
@@ -34,4 +35,12 @@ class Privileges(TemplateView):
 
         context["privileges"] = self.get_queryset()
 
+        # access all articles that have potential spoilers
+        articles = Article.objects.filter(has_potential_spoilers=True)
+        context["articles"] = articles
+        print(articles)
+
+        for article in articles:
+            print(article.id)
+            print(article.current_revision.title)
         return context

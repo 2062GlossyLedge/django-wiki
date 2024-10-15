@@ -48,6 +48,7 @@ class ArticleView(ArticleMixin, TemplateView):
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
+        print(article.id)
         return super().dispatch(request, article, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -88,7 +89,32 @@ class ArticleView(ArticleMixin, TemplateView):
             )
             kwargs["Wiki_creation_status"] = wikiCreationPrivilege.status
 
+        kwargs["has_potential_spoilers"] = self.article.has_potential_spoilers
+
         return ArticleMixin.get_context_data(self, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # flags page for spoilers
+        if "flag-spoilers-button-off" in request.POST:
+            print(self.article.id)
+            print("flag-spoilers-button-off")
+            currArticle = Article.objects.get(id=self.article.id)
+            currArticle.has_potential_spoilers = True
+            currArticle.save()
+            kwargs["has_potential_spoilers"] = True
+            return redirect("wiki:get", article_id=self.article.id)
+
+        elif "flag-spoilers-button-on" in request.POST:
+            print(self.article.id)
+            print("flag-spoilers-button-on")
+            currArticle = Article.objects.get(id=self.article.id)
+            currArticle.has_potential_spoilers = False
+            currArticle.save()
+            kwargs["has_potential_spoilers"] = False
+            return redirect("wiki:get", article_id=self.article.id)
+
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
 
 
 class Create(FormView, ArticleMixin):
