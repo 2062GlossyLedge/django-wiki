@@ -96,8 +96,7 @@ class ArticleView(ArticleMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         # flags page for spoilers
         if "flag-spoilers-button-off" in request.POST:
-            print(self.article.id)
-            print("flag-spoilers-button-off")
+
             currArticle = Article.objects.get(id=self.article.id)
             currArticle.has_potential_spoilers = True
             currArticle.save()
@@ -105,8 +104,7 @@ class ArticleView(ArticleMixin, TemplateView):
             return redirect("wiki:get", article_id=self.article.id)
 
         elif "flag-spoilers-button-on" in request.POST:
-            print(self.article.id)
-            print("flag-spoilers-button-on")
+       
             currArticle = Article.objects.get(id=self.article.id)
             currArticle.has_potential_spoilers = False
             currArticle.save()
