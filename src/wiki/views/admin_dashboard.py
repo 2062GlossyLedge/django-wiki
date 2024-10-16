@@ -34,3 +34,7 @@ class AdminDashboard(TemplateView):
         }
         return context
 
+    def submit_report(self, revision_id):
+        print("success")
+        return 'history'
+
