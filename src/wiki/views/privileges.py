@@ -38,6 +38,5 @@ class Privileges(TemplateView):
         # access all articles that have potential spoilers
         articles = Article.objects.filter(has_potential_spoilers=True)
         context["articles"] = articles
-        print(articles)
 
         return context

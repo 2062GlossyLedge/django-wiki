@@ -48,7 +48,6 @@ class ArticleView(ArticleMixin, TemplateView):
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
-        print(article.id)
         return super().dispatch(request, article, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -104,7 +103,7 @@ class ArticleView(ArticleMixin, TemplateView):
             return redirect("wiki:get", article_id=self.article.id)
 
         elif "flag-spoilers-button-on" in request.POST:
-       
+
             currArticle = Article.objects.get(id=self.article.id)
             currArticle.has_potential_spoilers = False
             currArticle.save()
