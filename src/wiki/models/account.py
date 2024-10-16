@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import JSONField
 from collections import deque
 from datetime import datetime, timedelta
+from django.shortcuts import redirect
 
 
 class UserProfile(models.Model):
@@ -50,9 +51,7 @@ class Privilege(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="privileges")
     name = models.CharField(max_length=100)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="ACTIVE")
-    # penalty_length = models.PositiveIntegerField(default=3)
     penalty_start = models.DateField(null=True, blank=True)
-    penalty_end = models.DateTimeField(null=True, blank=True)
 
     infractions = models.PositiveIntegerField(default=0)
     total_allowed_infractions = models.PositiveIntegerField(default=3)
@@ -63,13 +62,13 @@ class Privilege(models.Model):
             # If the number of infractions exceeds the total allowed infractions, suspend the privilege
             if self.infractions >= self.total_allowed_infractions:
                 self.status = "SUSPENDED"
-                self.penalty_start = datetime.now()
+                self.penalty_start = datetime.date(datetime.now())
         if self.status == "SUSPENDED":
             if self.penalty_start is not None:
                 # If the penalty start date is more than 3 days ago, reactivate the privilege
-                if datetime.date(self.penalty_start) + timedelta(
-                    days=3
-                ) < datetime.date(datetime.now()):
+                if self.penalty_start + timedelta(days=3) < datetime.date(
+                    datetime.now()
+                ):
                     self.status = "ACTIVE"
                     InfractionEvent.objects.filter(privilege=self).delete()
                     self.infractions = 0
@@ -78,13 +77,15 @@ class Privilege(models.Model):
     # Get the timeout length for the privilege
     @property
     def get_timeout_length(self):
+        self.save()
+
         if (
             self.status == "ACTIVE"
             and self.infractions <= self.total_allowed_infractions
         ):
             return None
         if self.penalty_start:
-            timeout_length = datetime.date(self.penalty_start) + timedelta(days=3)
+            timeout_length = self.penalty_start + timedelta(days=3)
             return timeout_length
         return None
 
@@ -96,7 +97,7 @@ class InfractionEvent(models.Model):
     )
 
     article_title = models.CharField(max_length=200)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateField(auto_now_add=True)
     admin_user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

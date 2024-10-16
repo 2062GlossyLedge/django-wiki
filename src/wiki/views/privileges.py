@@ -40,7 +40,4 @@ class Privileges(TemplateView):
         context["articles"] = articles
         print(articles)
 
-        for article in articles:
-            print(article.id)
-            print(article.current_revision.title)
         return context

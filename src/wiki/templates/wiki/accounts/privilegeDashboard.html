@@ -47,7 +47,7 @@
                 <ol>
                     {% for event in privilege.infraction_events.all %}
                     <li>
-                        {{ event.date|date:"Y-m-d H:i" }} - {{ event.article_title }}
+                        {{ event.date|date:"Y-m-d" }} - {{ event.article_title }}
                         <a href="{{ event.article_history_link }}" target="_blank">(History)</a>
                     </li>
                     {% empty %}
