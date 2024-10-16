@@ -1,0 +1,38 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block wiki_contents %}
+
+<head>
+    <link rel='stylesheet' href="{% static 'wiki/css/homepage.css' %}">
+</head>
+
+<body>
+    <div class="homepage-container">
+        {% comment %} <div class="image-container">
+            <img src="{% static 'wiki/img/full_logo.png' %}" alt="WikiWard Logo">
+        </div> {% endcomment %}
+
+        <div class="content-container">
+            <h2>Welcome to the WikiWard Help Page</h2>
+            <p>WikiWard is a spoiler-free wiki platform where you can explore content for your favorite shows, books, and series without the fear of spoilers.</p>
+
+            <h3>How It Works</h3>
+            <ul>
+                <li>As you browse through the wiki, you can specify your progress in the series by selecting where you are.</li>
+                <li>Based on your selection, we will filter the content to show only what is relevant and spoiler-free.</li>
+                <li>Your progress is saved in your user profile, so it persists across different pages and sessions.</li>
+            </ul>
+
+        </div>
+
+        <div class="buttons-container">
+            <button class="button"><a href="{% url 'wiki:root' %}">Return to Root Wiki</a></button>
+        </div>
+    </div>
+
+    <p>{{ response }}</p>
+
+</body>
+
+{% endblock %}

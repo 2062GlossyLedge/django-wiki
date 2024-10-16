@@ -32,3 +32,6 @@ class Homepage(TemplateView):
                 context["urls_dict"] = urls_dict
 
         return context
+
+class HelpPage(TemplateView):
+    template_name = "wiki/help.html"
