@@ -451,15 +451,15 @@ class ArticleRevision(BaseRevisionMixin, models.Model):
         unique_together = ("article", "revision_number")
 
 class Report(models.Model):
-    revision_id = models.ForeignKey('wiki.ArticleRevision', on_delete=models.CASCADE)
-    article_id = models.ForeignKey('wiki.Article', on_delete=models.CASCADE)
+    revision_id = models.IntegerField
+    article_id = models.IntegerField
     revision_num = models.IntegerField()
     report_type = models.CharField(max_length=255)
     date = models.DateTimeField(auto_now_add=True)
     current_page = models.CharField(max_length=255)
-    
+
     def __str__(self):
-        return f"Report by {self.user} on revision {self.revision.revision_number} of {self.article.title}"
+        return f"Report on revision {self.revision_num} of article {self.article_id}"
 
 ######################################################
 # SIGNAL HANDLERS
