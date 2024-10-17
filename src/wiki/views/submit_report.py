@@ -4,6 +4,7 @@ from ..models.account import UserProgress
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from ..models.article import Report
 
 from ..models import URLPath
 from .. import models
@@ -18,11 +19,15 @@ class SubmitReportView(View):
         article_id = request.POST.get('article_id')
         date = datetime.now().replace(microsecond=0)
 
-        revision = get_object_or_404(
-                models.ArticleRevision, article=article_id, id=revision_id
-            )
-        print(revision.content)
-        print(revision.user)
+        # Create a new report instance and save it
+        report = Report.objects.create(
+            revision_id=revision_id,
+            revision_num = revision_num,
+            article=article_id,
+            report_type=revision_type,
+            current_page=curr_page,
+            date=date
+        )
 
         return JsonResponse({
             "message": "Success"
