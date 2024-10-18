@@ -194,7 +194,7 @@
         <th><strong>Wiki</strong></th>
         <th><strong>Content</strong></th>
         <th><strong>Reason For Report</strong></th>
-        <th><strong>Accept Report</strong></th>
+        <th><strong>Decision</strong></th>
 
 
     </thead>
@@ -224,7 +224,7 @@
             </td>
             <td>{{report.reason}}</td>
             <td>
-                <button class="rep_btn approve" onclick="sendReport('Valid', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); return false;"> Valid </button>
+                <button class="rep_btn approve" onclick="sendReport('Valid', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); return false;"> Valid Change </button>
                 <button class="rep_btn deny" onclick="sendReport('Infraction', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); return false;"> Infraction </button>
             </td>
         </tr>
