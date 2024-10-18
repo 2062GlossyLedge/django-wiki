@@ -12,67 +12,19 @@
     <link rel='stylesheet' href="{%static 'wiki/css/privilegeDashboard.css' %}">
 </head>
 
+<h2>Articles Flagged for Potential Spoilers</h2>
+<ul>
+    {% for article in articles %}
+    <li>
+        - {{ article.current_revision.title }}: <a href="{% url 'wiki:get' path=article.get_absolute_url_property %}"
+            target="_blank">{{article.get_absolute_url_property}}</a>
+
+    </li>
+    {% endfor %}
+</ul>
+
 <h2>Privileges</h2>
-{% comment %}
-<!-- <table id="privileges-table">
-    <thead class="neither">
-        <th><strong>Privilege</strong></th>
-        <th><strong>Status</strong></th>
-        <th><strong>Timeout Period</strong></th>
-        <th><strong>Incidents Remaining</strong></th>
-        <th><strong>Incident Events</strong></th>
 
-
-    </thead>
-    <tbody>
-        {%for privilege in privileges%}
-
-        <tr>
-            <td>{{privilege.name}}</td>
-            <td>{{privilege.status}}</td>
-
-
-
-            {%if privilege.status == 'Bad'%}
-            <td>{{privilege.penalty_length}} day{{privilege.penalty_length|pluralize}}</td>
-            {%else%}
-            <td>N/A</td>
-            {%endif%}
-
-            <td>{{privilege.numOfIncidents}}/{{privilege.totalIncidents}} incidents
-                remaining</td>
-
-            {%if privilege.status == 'Bad'%}
-
-            <td>
-                {%for incidentEvent in privilege.incidentEvents%}
-                <ol>
-                    <li>
-                        <ol>
-                            <li>Spoiler written in {{incidentEvent.article_title}}</li>
-                            <li>on {{incidentEvent.date}} </li>
-                            <li>by {{incidentEvent.admin}}</li>
-                            <li>
-                                <a href="{% url 'wiki:history' path=incidentEvent.article_history_link %}">Article
-                                    History</a>
-                            </li>
-                        </ol>
-                    </li>
-                </ol>
-                {%endfor%}
-            </td>
-            {%else%}
-            <td>N/A</td>
-            {%endif%}
-
-
-        </tr>
-
-        {%endfor%}
-    </tbody>
-
-</table> -->
-{% endcomment %}
 <table class="privileges-table">
     <thead>
         <tr>
@@ -95,7 +47,7 @@
                 <ol>
                     {% for event in privilege.infraction_events.all %}
                     <li>
-                        {{ event.date|date:"Y-m-d H:i" }} - {{ event.article_title }}
+                        {{ event.date|date:"Y-m-d" }} - {{ event.article_title }}
                         <a href="{{ event.article_history_link }}" target="_blank">(History)</a>
                     </li>
                     {% empty %}

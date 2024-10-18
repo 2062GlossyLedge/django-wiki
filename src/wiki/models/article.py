@@ -31,6 +31,14 @@ __all__ = [
 class Article(models.Model):
     objects = managers.ArticleManager()
 
+    has_potential_spoilers = models.BooleanField(
+        default=False,
+        verbose_name=_("has potential spoilers"),
+        help_text=_(
+            "If this is checked, the article will be marked as containing potential spoilers. This is a hint to the reader that the article may contain spoilers."
+        ),
+    )
+
     current_revision = models.OneToOneField(
         "ArticleRevision",
         verbose_name=_("current revision"),
@@ -76,15 +84,11 @@ class Article(models.Model):
         on_delete=models.SET_NULL,
     )
 
-    group_read = models.BooleanField(
-        default=True, verbose_name=_("group read access")
-    )
+    group_read = models.BooleanField(default=True, verbose_name=_("group read access"))
     group_write = models.BooleanField(
         default=True, verbose_name=_("group write access")
     )
-    other_read = models.BooleanField(
-        default=True, verbose_name=_("others read access")
-    )
+    other_read = models.BooleanField(default=True, verbose_name=_("others read access"))
     other_write = models.BooleanField(
         default=True, verbose_name=_("others write access")
     )
@@ -127,9 +131,7 @@ class Article(models.Model):
                 )
             else:
                 objects = obj.content_object.get_children().filter(**kwargs)
-            for child in objects.order_by(
-                "articles__article__current_revision__title"
-            ):
+            for child in objects.order_by("articles__article__current_revision__title"):
                 cnt += 1
                 if max_num and cnt > max_num:
                     return
@@ -173,9 +175,7 @@ class Article(models.Model):
             self.save()
         revisions = self.articlerevision_set.all()
         try:
-            new_revision.revision_number = (
-                revisions.latest().revision_number + 1
-            )
+            new_revision.revision_number = revisions.latest().revision_number + 1
         except ArticleRevision.DoesNotExist:
             new_revision.revision_number = 0
         new_revision.article = self
@@ -291,6 +291,10 @@ class Article(models.Model):
     def get_absolute_url(self):
         return reverse("wiki:get", kwargs=self.get_url_kwargs())
 
+    @property
+    def get_absolute_url_property(self):
+        return reverse("wiki:get", kwargs=self.get_url_kwargs())
+
 
 class ArticleForObject(models.Model):
     objects = managers.ArticleFkManager()
@@ -319,7 +323,6 @@ class ArticleForObject(models.Model):
 
 
 class BaseRevisionMixin(models.Model):
-
     """This is an abstract model used as a mixin: Do not override any of the
     core model methods but respect the inheritor's freedom to do so itself."""
 
@@ -335,9 +338,7 @@ class BaseRevisionMixin(models.Model):
         editable=False,
     )
 
-    ip_address = IPAddressField(
-        _("IP address"), blank=True, null=True, editable=False
-    )
+    ip_address = IPAddressField(_("IP address"), blank=True, null=True, editable=False)
     user = models.ForeignKey(
         django_settings.AUTH_USER_MODEL,
         verbose_name=_("user"),
@@ -392,7 +393,6 @@ class BaseRevisionMixin(models.Model):
 
 
 class ArticleRevision(BaseRevisionMixin, models.Model):
-
     """This is where main revision data is stored. To make it easier to
     copy, do NEVER create m2m relationships."""
 

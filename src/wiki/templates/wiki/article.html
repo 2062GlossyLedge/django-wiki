@@ -5,6 +5,8 @@
 {% block wiki_pagetitle %}{{ article.current_revision.title }}{% endblock %}
 
 {% block wiki_breadcrumbs %}
+
+
 {% include "wiki/includes/breadcrumbs.html" %}
 {% endblock %}
 
@@ -35,6 +37,7 @@
 
 <div id="article-container">
   <nav id="article-menu" class="navbar navbar-expand-md nav-pills">
+
 
     <ul class="navbar-nav w-75">
       <li class="float-left nav-item" id="article-title-li">
@@ -70,5 +73,6 @@
 
 {% comment %} {% block wiki_footer_prepend %}
 <p style="margin-bottom: 10px;">
-    <em>{% trans "This article was last modified:" %} {{ article.current_revision.modified}}</em></p>
+  <em>{% trans "This article was last modified:" %} {{ article.current_revision.modified}}</em>
+</p>
 {% endblock %} {% endcomment %}
