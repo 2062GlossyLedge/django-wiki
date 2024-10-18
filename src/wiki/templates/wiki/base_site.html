@@ -68,6 +68,13 @@
                 {% trans "Account Settings" %}
               </a>
               {% endif %}
+
+              {% if user.is_superuser %}
+              <a class="dropdown-item" href="{% url 'wiki:admin_dashboard' %}">
+                <i class="fa fa-key"></i>
+                {% trans "Admin Dashboard"%}
+              </a>
+              {%endif %}
               <a class="dropdown-item" href="{% url 'wiki:privileges' %}">
                 <i class="fa fa-crown"></i>
                 {% trans "Privilege Dashboard"%}

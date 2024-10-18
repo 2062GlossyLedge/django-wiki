@@ -7,7 +7,7 @@ from mptt.admin import MPTTModelAdmin
 from . import editors
 from . import models
 
-from wiki.models.account import UserProfile, UserProgress, Privilege, InfractionEvent
+from wiki.models.account import UserProfile, UserProgress, Privilege, InfractionEvent, Report
 
 
 class ArticleObjectAdmin(GenericTabularInline):
@@ -109,6 +109,7 @@ admin.site.register(models.Article, ArticleAdmin)
 admin.site.register(models.ArticleRevision, ArticleRevisionAdmin)
 admin.site.register(UserProfile)
 admin.site.register(UserProgress)
+admin.site.register(Report)
 
 
 @admin.register(InfractionEvent)

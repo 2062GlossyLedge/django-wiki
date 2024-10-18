@@ -18,6 +18,7 @@ from wiki.conf import settings
 from wiki.core import permissions
 from wiki.core.markdown import article_markdown
 from wiki.decorators import disable_signal_for_loaddata
+from django.contrib.auth.models import User 
 
 __all__ = [
     "Article",
@@ -448,7 +449,6 @@ class ArticleRevision(BaseRevisionMixin, models.Model):
         get_latest_by = "revision_number"
         ordering = ("created",)
         unique_together = ("article", "revision_number")
-
 
 ######################################################
 # SIGNAL HANDLERS
