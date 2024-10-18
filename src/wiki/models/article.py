@@ -18,6 +18,7 @@ from wiki.conf import settings
 from wiki.core import permissions
 from wiki.core.markdown import article_markdown
 from wiki.decorators import disable_signal_for_loaddata
+from django.contrib.auth.models import User 
 
 __all__ = [
     "Article",
@@ -214,7 +215,7 @@ class Article(models.Model):
             ("grant", _("Can assign permissions to other users")),
         )
 
-    def render(self, preview_content=None, user=None):
+    def render(self, preview_content=None, user=None, local_progress=None):
         if not self.current_revision:
             return ""
         if preview_content:
@@ -223,11 +224,7 @@ class Article(models.Model):
             content = self.current_revision.content
         return mark_safe(
             article_markdown(
-                content,
-                self,
-                self.get_absolute_url(),
-                preview=preview_content is not None,
-                user=user,
+                content, self, self.get_absolute_url(), preview=preview_content is not None, user=user, local_progress=local_progress
             )
         )
 
@@ -251,7 +248,7 @@ class Article(models.Model):
         # https://github.com/django-wiki/django-wiki/issues/1065
         return slugify(key_raw, allow_unicode=True)
 
-    def get_cached_content(self, user=None):
+    def get_cached_content(self, user=None, local_progress=None):
         """Returns cached version of rendered article.
 
         The cache contains one "per-article" entry plus multiple
@@ -274,7 +271,8 @@ class Article(models.Model):
             if cached_content is not None:
                 return mark_safe(cached_content)
 
-        cached_content = self.render(user=user)
+        
+        cached_content = self.render(user=user,local_progress=local_progress)
         cached_items.append(cache_content_key)
         cache.set(cache_key, cached_items, settings.CACHE_TIMEOUT)
         cache.set(cache_content_key, cached_content, settings.CACHE_TIMEOUT)
@@ -452,7 +450,6 @@ class ArticleRevision(BaseRevisionMixin, models.Model):
         get_latest_by = "revision_number"
         ordering = ("created",)
         unique_together = ("article", "revision_number")
-
 
 ######################################################
 # SIGNAL HANDLERS

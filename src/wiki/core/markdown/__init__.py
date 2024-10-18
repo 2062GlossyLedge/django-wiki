@@ -9,7 +9,7 @@ from wiki.core.utils import wikiContentCleanup
 from wiki.models.account import UserProgress
 
 class ArticleMarkdown(markdown.Markdown):
-    def __init__(self, article, articleUrl='', preview=False, user=None, *args, **kwargs):
+    def __init__(self, article, articleUrl='', preview=False, user=None, local_progress=None, *args, **kwargs):
         kwargs.update(settings.MARKDOWN_KWARGS)
         kwargs["extensions"] = self.get_markdown_extensions()
         super().__init__(*args, **kwargs)
@@ -18,6 +18,7 @@ class ArticleMarkdown(markdown.Markdown):
         self.preview = preview
         self.user = user
         self.source = None
+        self.local_progress = local_progress
 
     def core_extensions(self):
         """List of core extensions found in the mdx folder"""
@@ -36,7 +37,6 @@ class ArticleMarkdown(markdown.Markdown):
     def convert(self, text, *args, **kwargs):
         # store source in instance, for extensions which might need it
         self.source = text
-
         def get_base_wiki_path(pathname):
             # Define possible substrings to look for
             base_path_options = ['/book/', '/tv/']
@@ -75,7 +75,12 @@ class ArticleMarkdown(markdown.Markdown):
                 # If progress is not valid JSON, don't remove spoilers
                 pass
         else:
-            noSpoilerText = removeSpoilerContent(text, "wiki:/default/book/book1/chapter1")
+            if self.local_progress:
+                cookie_progress = json.loads(self.local_progress)
+                user_location = cookie_progress['chapter'].split(":", 1)[1].strip()
+                noSpoilerText = removeSpoilerContent(text, user_location)
+            else:
+                noSpoilerText = removeSpoilerContent(text, "wiki:/default/book/book1/chapter1")
 
         noSpoilerText = wikiContentCleanup(noSpoilerText)
         html = super().convert(noSpoilerText, *args, **kwargs)

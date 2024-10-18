@@ -48,7 +48,8 @@
 
     --control-label-color: #784dac;
 
-    --card-background-color: #ffffff;
+    --card-background-color: #F8F9FA;
+    --card-text-color: #282828;
 
     --toc-background-color: #e9e9e9;
 
@@ -81,7 +82,8 @@ body.dark-mode {
     --link-hover-color: #de735d;
     --link-disabled-color: #3e3e3e;
 
-    --card-background-color: #505050;
+    --card-background-color: #aaaaaa;
+    --card-text-color: #000000;
 
     --button-background: #c26451;
     --button-hover-background: #de735d;
@@ -1841,7 +1843,7 @@ pre code {
 .wiki-article table {
     width: 100%;
     margin-bottom: 1rem;
-    color: var(--text-color)
+    color: var(#313131)
 }
 
 .table th,
@@ -5730,7 +5732,8 @@ input[type="button"].btn-block {
     background-color: var(--card-background-color);
     background-clip: border-box;
     border: 1px solid rgba(0, 0, 0, 0.125);
-    border-radius: .25rem
+    border-radius: .25rem;
+    color: var(--card-text-color)
 }
 
 .card>hr {
@@ -5764,6 +5767,7 @@ input[type="button"].btn-block {
     flex: 1 1 auto;
     min-height: 1px;
     padding: 1.25rem
+    var(--text-color)
 }
 
 .card-title {
@@ -7781,7 +7785,7 @@ button.bg-danger:focus {
 }
 
 .bg-light {
-    background-color: #f8f9fa !important
+    background-color: var(--card-background-color) !important
 }
 
 a.bg-light:hover,

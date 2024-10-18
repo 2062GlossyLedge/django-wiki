@@ -13,7 +13,9 @@ from wiki.models.account import (
     Privilege,
     InfractionEvent,
     RecentlyVisitedWikiPages,
+    Report
 )
+
 
 
 class ArticleObjectAdmin(GenericTabularInline):
@@ -115,6 +117,7 @@ admin.site.register(models.Article, ArticleAdmin)
 admin.site.register(models.ArticleRevision, ArticleRevisionAdmin)
 admin.site.register(UserProfile)
 admin.site.register(UserProgress)
+admin.site.register(Report)
 
 
 @admin.register(InfractionEvent)

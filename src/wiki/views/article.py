@@ -104,6 +104,12 @@ class ArticleView(ArticleMixin, TemplateView):
                 user=self.request.user, name="Wiki creation"
             )
             kwargs["Wiki_creation_status"] = wikiCreationPrivilege.status
+            
+            user_progress = self.request.COOKIES.get('user_progress', None)
+            if user_progress:
+                kwargs["user_progress"] = user_progress
+            else:
+                kwargs["user_progress"] = ''
 
         kwargs["has_potential_spoilers"] = self.article.has_potential_spoilers
 
