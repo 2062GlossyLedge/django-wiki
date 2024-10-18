@@ -20,7 +20,7 @@ class SubmitReportView(View):
         date = datetime.now().replace(microsecond=0)
         
         if not Report.objects.filter(revision_id = revision_id, article_id = article_id).exists():
-            report = Report.objects.create(
+            report = Report.objects.get_or_create(
                 revision_id = revision_id,
                 revision_num = revision_num,
                 article_id=article_id,
@@ -43,7 +43,7 @@ class ApproveReportView(View):
         if approval == 'Infraction':
             userObj = User.objects.get_or_create(username=user)
             privilege = Privilege.objects.get_or_create(name="Editing", user=userObj[0])
-            infraction = InfractionEvent.objects.create(
+            infraction = InfractionEvent.objects.get_or_create(
                 privilege = privilege[0],
                 article_title = wiki,
                 admin_user = self.request.user,
