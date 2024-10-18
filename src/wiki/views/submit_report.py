@@ -4,7 +4,7 @@ from ..models.account import UserProgress
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
-from ..models.account import Report, InfractionEvent
+from ..models.account import Report, InfractionEvent, Privilege, User
 
 from ..models import URLPath
 from .. import models
@@ -38,15 +38,17 @@ class ApproveReportView(View):
         user = request.POST.get('user')
         wiki = request.POST.get('article')
         approval = request.POST.get('approval')
+        print("Wiki", wiki)
 
         if approval == 'Infraction':
-            pass
-            # infraction = InfractionEvent.objects.create(
-            #     privilege = "Editing",
-            #     article_title = wiki,
-            #     admin_user = user,
-            #     article_history_link = wiki + "/_history/"
-            # )
+            userObj = User.objects.get_or_create(username=user)
+            privilege = Privilege.objects.get_or_create(name="Editing", user=userObj[0])
+            infraction = InfractionEvent.objects.create(
+                privilege = privilege[0],
+                article_title = wiki,
+                admin_user = self.request.user,
+                article_history_link = "http://localhost:8000"+ wiki + "_history/"
+            )
 
         report = Report.objects.get(
             revision_id = request.POST.get('revision_id'),
