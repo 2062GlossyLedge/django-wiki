@@ -65,10 +65,6 @@ class ArticleView(ArticleMixin, TemplateView):
             # Get the current URL
             current_url = self.request.path_info
 
-            # Save the URL
-            # user_activity.save_url(current_url)
-            # get all urls of the user ...
-
             # add url to recently visited urls
             RecentlyVisitedWikiPages.objects.get_or_create(
                 user=self.request.user, url=current_url
@@ -88,8 +84,6 @@ class ArticleView(ArticleMixin, TemplateView):
 
             # Get the updated list of recently visited urls (limited to 5)
             recently_visited_urls = recently_visited_urls[:5]
-
-            # recently_visited_urls.save()
 
             # query for status of privileges
 
