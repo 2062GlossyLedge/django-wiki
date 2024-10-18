@@ -10,21 +10,17 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     profile_image = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
 
-    urls = JSONField(default=list, null=True, blank=True)  # Store URLs as JSON
+    def __str__(self):
+        return self.user.username
 
-    # show the 4 most recently visited wiki pages
-    def save_url(self, url):
 
-        if self.urls is None:
-            self.urls = []
-
-        if url in self.urls:
-            self.urls.remove(url)
-
-        if url not in self.urls:
-            self.urls.insert(0, url)
-        self.urls = self.urls[:5]
-        self.save()
+# A user can have multiple recently visited wiki pages
+class RecentlyVisitedWikiPages(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="recently_visited_wiki_pages"
+    )
+    url = models.URLField(max_length=255, null=True, blank=True)
+    visited_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.username

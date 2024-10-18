@@ -3,7 +3,7 @@ from django.utils.decorators import method_decorator
 
 from django.shortcuts import redirect, render
 from openai import OpenAI
-from wiki.models.account import UserProfile
+from wiki.models.account import UserProfile, Privilege, RecentlyVisitedWikiPages
 
 
 class Homepage(TemplateView):
@@ -17,7 +17,10 @@ class Homepage(TemplateView):
 
             UserProfile.objects.get_or_create(user=self.request.user)
 
-            urls = UserProfile.objects.get(user=self.request.user).urls
+            # get all urls of the user
+            urls = RecentlyVisitedWikiPages.objects.order_by("-visited_at").values_list(
+                "url", flat=True
+            )
 
             if urls is None:
                 urls = []

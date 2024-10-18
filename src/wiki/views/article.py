@@ -37,7 +37,7 @@ from wiki.core.utils import object_to_json_response
 from wiki.decorators import get_article
 from wiki.models.article import Article, ArticleRevision
 from wiki.views.mixins import ArticleMixin
-from wiki.models.account import UserProfile, Privilege
+from wiki.models.account import UserProfile, Privilege, RecentlyVisitedWikiPages
 
 
 log = logging.getLogger(__name__)
@@ -66,7 +66,30 @@ class ArticleView(ArticleMixin, TemplateView):
             current_url = self.request.path_info
 
             # Save the URL
-            user_activity.save_url(current_url)
+            # user_activity.save_url(current_url)
+            # get all urls of the user ...
+
+            # add url to recently visited urls
+            RecentlyVisitedWikiPages.objects.get_or_create(
+                user=self.request.user, url=current_url
+            )
+
+            # Get all recently visited urls
+            recently_visited_urls = RecentlyVisitedWikiPages.objects.filter(
+                user=self.request.user
+            ).order_by("-visited_at")
+
+            # If user has more than 5 URLs saved, remove the oldest ones
+            if recently_visited_urls.count() > 5:
+                urls_to_delete = recently_visited_urls[5:]
+                RecentlyVisitedWikiPages.objects.filter(
+                    id__in=urls_to_delete.values_list("id", flat=True)
+                ).delete()
+
+            # Get the updated list of recently visited urls (limited to 5)
+            recently_visited_urls = recently_visited_urls[:5]
+
+            # recently_visited_urls.save()
 
             # query for status of privileges
 
