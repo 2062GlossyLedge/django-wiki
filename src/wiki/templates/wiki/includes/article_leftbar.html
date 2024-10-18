@@ -29,7 +29,7 @@
       return baseWiki || pathname;
     }
 
-    let firstSelectionValue = '';
+    
     let baseWiki = getBaseWikiPath(window.location.pathname);
     const isBookWiki = baseWiki.includes('/book/');
     let outerSelectionPlaceholder = isBookWiki ? "Select Book" : "Select Season";
@@ -41,6 +41,7 @@
     let defaultBookIntro = isBookWiki ? "Book 1 : wiki:" : "Season 1 : wiki:"
     let defaultChapterIntro = isBookWiki ? "Chapter 1 : wiki:" : "Episode 1 : wiki:"
     let signedIn = true
+    let firstSelectionValue = baseWiki + defaultBook;
 
     // Object to store current selections
     let currentProgress = {
@@ -157,7 +158,7 @@
       $('#chapter-select').val(null).trigger('change').prop('disabled', false);
       firstSelectionValue = e.params.data.id.split("wiki:")[1];
       currentProgress.book = e.params.data.id;
-
+      console.log(firstSelectionValue)
       currentProgress.chapter = ''; // Reset chapter when book changes
     });
 
