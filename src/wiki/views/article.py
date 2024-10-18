@@ -123,7 +123,7 @@ class ArticleView(ArticleMixin, TemplateView):
             currArticle.has_potential_spoilers = True
             currArticle.save()
             kwargs["has_potential_spoilers"] = True
-            return redirect("wiki:get", article_id=self.article.id)
+            return redirect("wiki:get", path=self.urlpath.path)
 
         elif "flag-spoilers-button-on" in request.POST:
 
@@ -131,7 +131,7 @@ class ArticleView(ArticleMixin, TemplateView):
             currArticle.has_potential_spoilers = False
             currArticle.save()
             kwargs["has_potential_spoilers"] = False
-            return redirect("wiki:get", article_id=self.article.id)
+            return redirect("wiki:get", path=self.urlpath.path)
 
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
