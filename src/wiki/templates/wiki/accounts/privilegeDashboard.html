@@ -12,16 +12,6 @@
     <link rel='stylesheet' href="{%static 'wiki/css/privilegeDashboard.css' %}">
 </head>
 
-<h2>Articles Flagged for Potential Spoilers</h2>
-<ul>
-    {% for article in articles %}
-    <li>
-        - {{ article.current_revision.title }}: <a href="{% url 'wiki:get' path=article.get_absolute_url_property %}"
-            target="_blank">{{article.get_absolute_url_property}}</a>
-
-    </li>
-    {% endfor %}
-</ul>
 
 <h2>Privileges</h2>
 
