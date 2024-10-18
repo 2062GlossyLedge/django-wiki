@@ -110,3 +110,15 @@ class InfractionEvent(models.Model):
         self.privilege.infractions += 1
         self.privilege.save()
         super().save(*args, **kwargs)
+
+class Report(models.Model):
+    revision_id = models.IntegerField()
+    article_id = models.IntegerField()
+    revision_num = models.IntegerField()
+    report_type = models.CharField(max_length=255)
+    date = models.DateTimeField(auto_now_add=True)
+    current_page = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.revision_id} - {self.article_id} - {self.report_type} - {self.current_page}"
+

@@ -142,8 +142,8 @@
                 <button class="btn btn-secondary" onclick="reportDropdown('dropdown{{ revision.id }}'); event.preventDefault()">Report</button>
                 <div id="dropdown{{ revision.id }}" class="dropdown-content">
                   <a href="#" onclick="sendReport({{ revision.id }}, 'Spoiler', {{ article.id }}, {{ revision.revision_number }}); return false;">Spoiler</a>
-                  <a href="#about">About</a>
-                  <a href="#contact">Contact</a>
+                  <a href="#" onclick="sendReport({{ revision.id }}, 'Innacurate Info', {{ article.id }}, {{ revision.revision_number }}); return false;">Innacurate Info</a>
+                  <a href="#" onclick="sendReport({{ revision.id }}, 'Inappropriate', {{ article.id }}, {{ revision.revision_number }}); return false;">Inappropriate</a>
                 </div>
               </div>
 

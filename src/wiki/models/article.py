@@ -450,17 +450,6 @@ class ArticleRevision(BaseRevisionMixin, models.Model):
         ordering = ("created",)
         unique_together = ("article", "revision_number")
 
-class Report(models.Model):
-    revision_id = models.IntegerField
-    article_id = models.IntegerField
-    revision_num = models.IntegerField()
-    report_type = models.CharField(max_length=255)
-    date = models.DateTimeField(auto_now_add=True)
-    current_page = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f"Report on revision {self.revision_num} of article {self.article_id}"
-
 ######################################################
 # SIGNAL HANDLERS
 ######################################################
