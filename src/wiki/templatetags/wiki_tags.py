@@ -47,10 +47,11 @@ def article_for_object(context, obj):
 
 @register.inclusion_tag("wiki/includes/render.html", takes_context=True)
 def wiki_render(context, article, preview_content=None):
+    user_progress = context.get('user_progress')  # Access user_progress from the context
     if preview_content:
         content = article.render(preview_content=preview_content)
     elif article.current_revision:
-        content = article.get_cached_content(user=context.get("user"))
+        content = article.get_cached_content(user=context.get("user"), local_progress=user_progress)
     else:
         content = None
 
@@ -59,6 +60,7 @@ def wiki_render(context, article, preview_content=None):
             "article": article,
             "content": content,
             "preview": preview_content is not None,
+            "user_progress": user_progress, 
             "plugins": plugin_registry.get_plugins(),
             "STATIC_URL": django_settings.STATIC_URL,
             "CACHE_TIMEOUT": settings.CACHE_TIMEOUT,

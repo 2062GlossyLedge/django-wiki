@@ -41,6 +41,9 @@ class WikiSite:
             self, "root_missing_view", article.MissingRootView.as_view()
         )
 
+        # help view
+        self.help_view = getattr(self, "help_view", home.HelpPage.as_view())
+
         # chatbot view
         self.chatbot_view = getattr(self, "chatbot_view", sidebar.Chatbot.as_view())
 
@@ -139,6 +142,7 @@ class WikiSite:
 
     def get_root_urls(self):
         urlpatterns = [
+            re_path(r"^help/$", self.help_view, name="help"),
             re_path(r"^homepage/$", self.homepage_view, name="homepage"),
             re_path(r"^privileges/$", self.privileges_view, name="privileges"),
             re_path(r"^admin_dashboard/$", self.admin_view, name="admin_dashboard"),

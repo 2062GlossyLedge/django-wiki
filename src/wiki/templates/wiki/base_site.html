@@ -45,6 +45,9 @@
           <li class="nav-item">
             <a class="nav-link" href="https://github.com/django-wiki/django-wiki" target="_blank">About</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'wiki:help' %}">{% trans "Help" %}</a>
+          </li>
         </ul>
         {% endblock %}
         {% if user.is_authenticated %}
@@ -135,10 +138,10 @@
           {% endspaceless %}
           <div class="input-group-append">
             <button class="btn btn-outline-light my-sm-0" type="submit"><span class="fa fa-search"></span></button>
-          </div>  
+          </div>
         </form>
       <button id="darkModeToggle" class="btn btn-md btn-outline-light">Toggle Dark Mode</button>
-    </div>    
+    </div>
     </div>
     </div>
   </nav>

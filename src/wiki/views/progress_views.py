@@ -65,9 +65,6 @@ class ResetCacheView(View):
     def post(self, request, *args, **kwargs):
         # Extract wiki_id and progress from the POST request
         wiki_id = request.POST.get('wiki_id')
-
-        if not request.user.is_authenticated:
-            return JsonResponse({"error": "User is not authenticated"}, status=403)
         reformatedId = wiki_id.strip().strip('/')
         splitIntoSlugs = reformatedId.split('/')
         numSlugs = len(splitIntoSlugs)
