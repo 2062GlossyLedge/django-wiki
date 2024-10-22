@@ -107,7 +107,14 @@
                 } 
                 else {
                     currentProgress.book = defaultBookIntro + baseWiki + defaultBook;
+                    currentProgress.chapter = defaultChapterIntro + baseWiki + defaultChapter;
                     firstSelectionValue = baseWiki + defaultBook;
+
+                    saveProgressLocally();
+                    resetCache();
+                    setTimeout(function() {
+                        window.location.reload(true);
+                    }, 100); 
                 }
                 } catch (e) {
                     console.error("Error parsing stored progress JSON:", e);
@@ -191,7 +198,6 @@
       }
       resetCache();
       setTimeout(function() {
-        window.location.reload(true);
         window.location.reload(true);
       }, 100); // Reloading twice and slightly delaying makes it use new webpage
     });
