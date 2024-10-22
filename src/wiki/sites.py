@@ -5,9 +5,7 @@ from django.utils.functional import LazyObject
 from django.utils.module_loading import import_string
 from wiki.conf import settings
 from wiki.core.plugins import registry
-from wiki.views.progress_views import SaveUserProgressView
-from wiki.views.progress_views import UserProgressView
-from wiki.views.progress_views import ResetCacheView
+from wiki.views.progress_views import SaveUserProgressView, UserProgressView, ResetCacheView, ResetCacheViewArticle
 from wiki.views.submit_report import SubmitReportView, ApproveReportView
 
 
@@ -129,6 +127,7 @@ class WikiSite:
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/saveprogress/$', SaveUserProgressView.as_view(), name='save_user_progress'),
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/getprogress/$', UserProgressView.as_view(), name='get_user_progress'),
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/resetcache/$', ResetCacheView.as_view(), name='reset_cache'),
+        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/resetcachearticle/$', ResetCacheViewArticle.as_view(), name='reset_cache_article'),
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/submit_report/$', SubmitReportView.as_view(), name='submit_report'),
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/approve_report/$', ApproveReportView.as_view(), name='approve_report'),
         # This ALWAYS has to be the last of all the patterns since
