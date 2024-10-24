@@ -83,3 +83,35 @@ class ResetCacheView(View):
             "user": request.user.username,
             "wiki_id": wiki_id,
         }, status=200)
+        
+class ResetCacheViewArticle(View):
+    def post(self, request, *args, **kwargs):
+        # Extract the current page (article path) from the POST request
+        curr_page = request.POST.get('curr_page')
+
+        # Ensure the current page is provided
+        if not curr_page:
+            return JsonResponse({"error": "Current page is required"}, status=400)
+
+        # Reformat the page path by removing leading and trailing slashes
+        reformatedPage = curr_page.strip().strip('/')
+        splitIntoSlugs = reformatedPage.split('/')
+        numSlugs = len(splitIntoSlugs)
+
+        # Build filter arguments to query the URLPath of the current page
+        filter_args = {
+            'slug': splitIntoSlugs[-1],
+            'level': numSlugs,
+        }
+        for i in range(2, numSlugs + 1):
+            filter_args[f'parent{"__parent" * (i - 2)}__slug'] = splitIntoSlugs[-i]
+
+        curPageUrlPath = URLPath.objects.get(**filter_args)
+        curPageUrlPath.article.clear_cache()
+
+        # Respond with a success message
+        message = "Cache for the current article cleared."
+        return JsonResponse({
+            "message": message,
+            "curr_page": curr_page,
+        }, status=200)
