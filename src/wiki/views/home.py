@@ -18,8 +18,10 @@ class Homepage(TemplateView):
             UserProfile.objects.get_or_create(user=self.request.user)
 
             # get all urls of the user
-            urls = RecentlyVisitedWikiPages.objects.order_by("-visited_at").values_list(
-                "url", flat=True
+            urls = (
+                RecentlyVisitedWikiPages.objects.filter(user=self.request.user)
+                .order_by("-visited_at")
+                .values_list("url", flat=True)
             )
 
             if urls is None:
@@ -35,6 +37,7 @@ class Homepage(TemplateView):
                 context["urls_dict"] = urls_dict
 
         return context
+
 
 class HelpPage(TemplateView):
     template_name = "wiki/help.html"
