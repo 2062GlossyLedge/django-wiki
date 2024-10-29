@@ -515,7 +515,7 @@ h6,
 }
 
 hr {
-    margin-top: 1rem;
+    margin-top: 5 rem;
     margin-bottom: 1rem;
     border: 0;
     border-top: 1px solid rgba(0, 0, 0, 0.1)
@@ -5766,8 +5766,7 @@ input[type="button"].btn-block {
 .card-body {
     flex: 1 1 auto;
     min-height: 1px;
-    padding: 1.25rem
-    var(--text-color)
+    padding: 1.25rem var(--text-color)
 }
 
 .card-title {
