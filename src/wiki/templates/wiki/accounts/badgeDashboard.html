@@ -1,0 +1,82 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block wiki_contents %}
+
+{% addtoblock "js" %}
+<script src="{% static 'wiki/js/badgeDashboard.js' %}"></script>
+{% endaddtoblock %}
+
+<head>
+    <link rel="stylesheet" href="{% static 'wiki/css/badgeDashboard.css' %}">
+</head>
+
+<div class="container my-4">
+
+    <h2>Badges</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Badge</th>
+                <th>Level</th>
+                <th>Contributions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for badge in badges %}
+            <tr>
+                <td>{{ badge.badge_id }}</td>
+                <td>{{ badge.get_level_display }}</td>
+                <td>{{ badge.num_things }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Badge Levels</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Badge</th>
+                <th>Level</th>
+                <th>Required Contributions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Contributor</td>
+                <td>Normal</td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>Contributor</td>
+                <td>Silver</td>
+                <td>10</td>
+            </tr>
+            <tr>
+                <td>Contributor</td>
+                <td>Gold</td>
+                <td>20</td>
+            </tr>
+            <tr>
+                <td>Editor</td>
+                <td>Normal</td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>Editor</td>
+                <td>Silver</td>
+                <td>15</td>
+            </tr>
+            <tr>
+                <td>Editor</td>
+                <td>Gold</td>
+                <td>30</td>
+            </tr>
+            <!-- Add rows for other badges as needed -->
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

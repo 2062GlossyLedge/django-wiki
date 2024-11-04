@@ -27,6 +27,7 @@ class WikiSite:
             home,
             sidebar,
             privileges,
+            badges,
             admin_dashboard
         )
 
@@ -48,6 +49,11 @@ class WikiSite:
         # privileges view
         self.privileges_view = getattr(
             self, "privileges_view", privileges.Privileges.as_view()
+        )
+        
+        #badges view
+        self.badges_view = getattr(
+            self, "badges_view", badges.Badges.as_view()
         )
 
         self.admin_view = getattr(
@@ -144,6 +150,7 @@ class WikiSite:
             re_path(r"^help/$", self.help_view, name="help"),
             re_path(r"^homepage/$", self.homepage_view, name="homepage"),
             re_path(r"^privileges/$", self.privileges_view, name="privileges"),
+            re_path(r"^badges/$", self.badges_view, name="badges"),
             re_path(r"^admin_dashboard/$", self.admin_view, name="admin_dashboard"),
             re_path(r"^$", self.article_view, name="root", kwargs={"path": ""}),
             re_path(r"^create-root/$", self.root_view, name="root_create"),

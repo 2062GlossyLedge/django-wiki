@@ -70,6 +70,10 @@
                 <i class="fa fa-cog"></i>
                 {% trans "Account Settings" %}
               </a>
+              <a class="dropdown-item" href="{% url 'wiki:badges' %}">
+                <i class="fa fa-medal"></i>
+                {% trans "User Badges"%}
+              </a>
               {% endif %}
 
               {% if user.is_superuser %}
