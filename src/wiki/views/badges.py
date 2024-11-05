@@ -17,10 +17,18 @@ class Badges(LoginRequiredMixin, TemplateView):
         
         # Define badge types
         badge_types = [
+            "Reader",
             "Contributor",
             "Editor",
             "Reviewer",
             "Moderator",
+            "Explorer",
+            "Survivor",
+            "Gourmand",
+            "Painter",
+            "Guardian",
+            "Commenter",
+            "Reporter"
         ]
 
         # Initialize each badge type if not already created for the user
