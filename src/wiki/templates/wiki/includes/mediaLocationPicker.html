@@ -27,8 +27,8 @@
         }
 
 
-        console.log(selectedBookUrl);
-        console.log(selectedChapterUrl);
+        //console.log(selectedBookUrl);
+        console.log('chapter selected', selectedChapterUrl);
 
         // $('#book-select').select2({
         //   dropdownAutoWidth: true,
@@ -78,28 +78,21 @@
         // Store the value to be displayed
         let addedValue = "";
 
-        // Update the value to add to the page on click of citation_add_citation_button
-        // $('#citations_page_title_query').on('select2:select', function (e) {
-        //     addedValue = ">> ADD YOUR CONTRIBUTION HERE [*](wiki:" + e.params.data.id.split("wiki:")[1] + ")";
-        // });
-
-        // $("#citation_add_citation_button").on("click", function () {
-        //   $('#id_content').insertAtCaret(addedValue);
-        // });
-
         //sends a post request telling what location the user is in in their media 
         function tryMediaLocPostReq() {
-            console.log(selectedBookUrl);
-            console.log(selectedChapterUrl);
             if (selectedChapterUrl
             ) {
+                // e.preventDefault();
                 console.log(69)
-                $.post("{% url 'wiki:get' article_id=article.id path=urlpath.path%}", {
+                $.post("/agnosticChatbot/", {
                     // 'selected-book-url': selectedBookUrl,
                     'selected-chapter-url': selectedChapterUrl,
                     'csrfmiddlewaretoken': '{{ csrf_token }}'
                 }, function (response) {
-                    //console.log(response);
+                    console.log('selected ch:', selectedChapterUrl);
+
+
+                    //c onsole.log('response', response);
                 });
             }
         }

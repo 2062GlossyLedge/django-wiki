@@ -38,11 +38,19 @@ class AgnosticChatbot(TemplateView):
 
         return kwargs
 
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        print("GET request received")
+        return self.render_to_response(context)
+
     def post(self, request, *args, **kwargs):
         # breakpoint()
         context = self.get_context_data(**kwargs)
         session = self.request.session.get("urlPath", "") + str(request.user)
         selected_chapter_url = None
+        print("POST request received")
+        ("POST data:", request.POST)  # Check what's in the POST data
+        print("POST keys:", request.POST.keys())  # Check the keys specifically
 
         if "selected-chapter-url" in request.POST:
             # selected book url not needed since location picker for book doesn't affect ch picker
@@ -51,17 +59,19 @@ class AgnosticChatbot(TemplateView):
             urlPath = selected_chapter_url.split("wiki:")[1]
             self.request.session["chapter_selected"] = True
             self.request.session["urlPath"] = urlPath
+            print("chapter selected tyo")
 
         # prompt chatbot
         elif "prompt" in request.POST:
 
             user_message = request.POST.get("prompt", "")
 
+            # print(self.request.session["urlPath"])
+
             # When location is set, handle without llm knowledge. Use custom url
             if request.session.get(
                 "spoiler_free_button_state", "on"
-            ) == "on" and self.request.session.get("chapter_selected", False):
-                print("yo")
+            ) == "on" and self.request.session.get("chapter_selected", True):
                 self.chatbot.handle_message_given_location(
                     user_message,
                     self.request.session.get("urlPath", ""),
@@ -71,6 +81,7 @@ class AgnosticChatbot(TemplateView):
 
             # check if spoiler free button is toggled, if so, use the chatbot without LLM knowledge
             elif request.session.get("spoiler_free_button_state", "off") == "off":
+                print("no location")
                 self.chatbot.handle_message_given_no_location(
                     user_message,
                     self.request.session.get("urlPath", ""),

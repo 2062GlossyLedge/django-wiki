@@ -38,8 +38,9 @@ os.environ["GOOGLE_API_KEY"] = env("GOOGLE_API_KEY")
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
 
-# llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0.1)
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0.1)
 # from langchain_google_vertexai import ChatVertexAI
+
 # import vertexai
 # from vertexai.preview import reasoning_engines
 
@@ -51,9 +52,9 @@ os.environ["LANGCHAIN_API_KEY"] = env("LANGCHAIN_API_KEY")
 
 # llm = ChatVertexAI(model="gemini-pro", temperature=0.1)
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+# from langchain_google_genai import ChatGoogleGenerativeAI
 
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro-latest")
+# llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro-latest")
 
 # llm = reasoning_engines.LangchainAgent(model="gemini-pro")
 
@@ -165,7 +166,7 @@ class Chatbot:
 
             docsDict[urlPath] = docs
 
-            # print(docs)
+            print("docs", docs)
 
             if docs[0].page_content == "\n":
                 docs[0].page_content = "No content found"
@@ -185,17 +186,17 @@ class Chatbot:
                 # collection name is the the url without that "/" and .
                 collection_name=urlPath.replace("/", ""),
             )
-            vectorstoreDict[urlPath] = vectorstore
-            print(vectorstoreDict)
+        vectorstoreDict[urlPath] = vectorstore
+        print(vectorstoreDict)
 
         # print(vectorstoreDict[urlPath]._collection)
 
         # Delete chroma db instances
 
-        print(vectorstore._collection.peek())
-        print("count before", vectorstore._collection.count())
-        vectorstore._collection.delete(vectorstore._collection.peek()["ids"])
-        print("count after", vectorstore._collection.count())
+        # print(vectorstore._collection.peek())
+        # print("count before", vectorstore._collection.count())
+        # vectorstore._collection.delete(vectorstore._collection.peek()["ids"])
+        # print("count after", vectorstore._collection.count())
 
         # Retrieve and generate using the relevant snippets of the wiki page.
         retriever = vectorstore.as_retriever(
@@ -502,6 +503,7 @@ class Chatbot:
         Returns:
             list: chat history
         """
+
         session_id0 = SQLChatMessageHistory(
             session_id=session,
             connection_string="sqlite:///sqlite.db",
