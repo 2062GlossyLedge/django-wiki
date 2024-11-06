@@ -27,6 +27,7 @@ class WikiSite:
             home,
             sidebar,
             privileges,
+            activity,
             admin_dashboard
         )
 
@@ -48,6 +49,10 @@ class WikiSite:
         # privileges view
         self.privileges_view = getattr(
             self, "privileges_view", privileges.Privileges.as_view()
+        )
+
+        self.activity_view = getattr(
+            self, "activity_view", activity.ActivityView.as_view()
         )
 
         self.admin_view = getattr(
@@ -144,6 +149,7 @@ class WikiSite:
             re_path(r"^help/$", self.help_view, name="help"),
             re_path(r"^homepage/$", self.homepage_view, name="homepage"),
             re_path(r"^privileges/$", self.privileges_view, name="privileges"),
+            re_path(r"^activity/$", self.activity_view, name="activity"),
             re_path(r"^admin_dashboard/$", self.admin_view, name="admin_dashboard"),
             re_path(r"^$", self.article_view, name="root", kwargs={"path": ""}),
             re_path(r"^create-root/$", self.root_view, name="root_create"),

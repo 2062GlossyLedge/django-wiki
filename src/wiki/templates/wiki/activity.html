@@ -1,0 +1,84 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block wiki_contents %}
+
+{% addtoblock "js" %}
+<script src="{% static 'wiki/js/activity.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endaddtoblock %}
+
+<head>
+    <link rel='stylesheet' href="{% static 'wiki/css/activity.css' %}">
+</head>
+
+<h2>Activity Overview</h2>
+
+<!-- Dropdown for Wiki Selection -->
+<div class="wiki-selection">
+    <label for="wikiSelect">Select Wiki:</label>
+    <select id="wikiSelect">
+        {% for wiki in wiki_list %}
+        <option value="{{ wiki.id }}">{{ wiki.title }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- Graph Section -->
+<div class="activity-graph">
+    <canvas id="activityChart" width="400" height="200"></canvas>
+</div>
+
+<script>
+    // Placeholder activity data structure
+    const initialActivityData = {
+        labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],  // Placeholder dates
+        data: [5, 3, 6, 4, 7]  // Placeholder edit counts
+    };
+
+    // Initialize Chart.js with placeholder data
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    const activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: initialActivityData.labels,
+            datasets: [{
+                label: 'Number of Edits',
+                data: initialActivityData.data,
+                borderColor: '#00A7E3',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { beginAtZero: true },
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Function to fetch new data based on selected wiki
+    function updateGraphData(wikiId) {
+        // Simulating fetching new data for demonstration
+        const newActivityData = {
+            labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],  // Example dates
+            data: [Math.floor(Math.random() * 10), 4, 7, Math.floor(Math.random() * 10), 8]  // Example edit data
+        };
+
+        // Update chart data
+        activityChart.data.labels = newActivityData.labels;
+        activityChart.data.datasets[0].data = newActivityData.data;
+        activityChart.update();
+    }
+
+    // Event listener for dropdown change
+    document.getElementById('wikiSelect').addEventListener('change', function() {
+        const selectedWikiId = this.value;
+        updateGraphData(selectedWikiId);
+    });
+
+</script>
+
+{% endblock %}
