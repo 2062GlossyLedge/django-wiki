@@ -122,6 +122,7 @@ class Chatbot:
 
         return previous_chapters_urls
 
+    # Scrapes the wiki page of that chapter and the chapters before it
     def scrape_chapters(self, url_path):
         previous_chapters_urls = self.get_previous_chapters(url_path)
         print(previous_chapters_urls)
@@ -154,7 +155,8 @@ class Chatbot:
         # breakpoint()
 
         # "and_below" to signify it holds all wikis of chapters below it to uniquely id docs held in doctDict and Chroma db
-        urlPath = urlPath + "and-below"
+        # urlPath = urlPath + "and-below"
+
         # find if vectorstroe already holds contents of wiki page, else  scrape and create a new vectorstore if the URL hasn't been scraped yetf
         if urlPath in vectorstoreDict:
             vectorstore = vectorstoreDict[urlPath]
@@ -162,14 +164,23 @@ class Chatbot:
             print("saved")
 
         else:
-            docs = self.scrape_chapters(urlPath.replace("and-below", ""))
+            # docs = self.scrape_chapters(urlPath.replace("and-below", ""))
 
-            docsDict[urlPath] = docs
-
-            print("docs", docs)
+            # Scrape the wiki page
+            loader = WebBaseLoader(
+                web_paths=("http://localhost:8000/" + urlPath,),
+                bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
+            )
+            docs = loader.load()
 
             if docs[0].page_content == "\n":
                 docs[0].page_content = "No content found"
+
+            docsDict[urlPath] = docs
+
+            print(urlPath)
+
+            print("docs", docs)
 
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=1000, chunk_overlap=200
@@ -187,7 +198,7 @@ class Chatbot:
                 collection_name=urlPath.replace("/", ""),
             )
         vectorstoreDict[urlPath] = vectorstore
-        print(vectorstoreDict)
+        print("vector store dict", vectorstoreDict)
 
         # print(vectorstoreDict[urlPath]._collection)
 
@@ -203,22 +214,24 @@ class Chatbot:
             search_type="similarity", search_kwargs={"k": 6}
         )
 
-        # prompt = hub.pull("rlm/rag-prompt")
+        prompt = hub.pull("rlm/rag-prompt")
         # prompt = dict()
         # prompt["prompt"] = (
         #     "you are a helpful assistant. Use the context to answer the questions. If you don't know the answer, say you dont know. Answer using 5 sentences"
         # )
 
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                (
-                    "system",
-                    "you are a helpful assistant. Use the context to answer the questions. If you don't know the answer, say you dont know. Answer using 5 sentences",
-                ),
-                # ("human", "{input}"),
-                ("human", userPrompt),
-            ]
-        )
+        # Not sure why, but having this be the prompt doesn't give the wiki page content to the ai
+
+        # prompt = ChatPromptTemplate.from_messages(
+        #     [
+        #         (
+        #             "system",
+        #             "you are a helpful assistant. Use the context to answer the questions. If you don't know the answer, say you dont know. Answer using 5 sentences",
+        #         ),
+        #         ("human", "{input}"),
+        #         ("human", userPrompt),
+        #     ]
+        # )
 
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)

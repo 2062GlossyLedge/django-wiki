@@ -43,6 +43,7 @@ testproject/testproject/settings/local.py
 testproject/testproject/media/*
 testproject/chroma_db
 
+chroma_db/
 
 # Installer logs
 pip-log.txt

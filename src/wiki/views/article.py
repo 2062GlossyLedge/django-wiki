@@ -1255,3 +1255,88 @@ class ProgressPathSearch(View):
             ]
 
         return object_to_json_response(matches)
+
+
+# def handle_message_without_llm_knowledge(self, userPrompt, urlPath, session):
+#     """chatbot response to user input
+
+#     Args:
+#         userPrompt (str): user prompt
+
+#     Returns:
+#         str: chatbot response
+#     """
+#     global vectorstoreDict
+#     # breakpoint()
+
+#     # find if vectorstroe already holds contents of wiki page, else  scrape and create a new vectorstore if the URL hasn't been scraped yet
+#     if urlPath in vectorstoreDict:
+
+#         vectorstore = vectorstoreDict[urlPath]
+#         docs = docsDict[urlPath]
+
+#         if docs[0].page_content == "\n":
+#             docs[0].page_content = "No content found"
+
+#     else:
+#         # Scrape the wiki page
+#         loader = WebBaseLoader(
+#             web_paths=("http://localhost:8000/" + urlPath,),
+#             bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
+#         )
+#         docs = loader.load()
+
+#         if docs[0].page_content == "\n":
+#             docs[0].page_content = "No content found"
+
+#         docsDict[urlPath] = docs
+
+#         text_splitter = RecursiveCharacterTextSplitter(
+#             chunk_size=1000, chunk_overlap=200
+#         )
+#         splits = text_splitter.split_documents(docs)
+
+#         # create new vectore store
+
+#         vectorstore = Chroma.from_documents(
+#             documents=splits,
+#             embedding=OpenAIEmbeddings(),
+#             persist_directory="./chroma_db",
+#             # makes it so each stored db collection only holds document containing the contents of the single wiki page
+#             collection_name=urlPath.replace("/", ""),
+#         )
+#         vectorstoreDict[urlPath] = vectorstore
+
+#     # Retrieve and generate using the relevant snippets of the wiki page.
+#     retriever = vectorstore.as_retriever(
+#         search_type="similarity", search_kwargs={"k": 6}
+#     )
+
+#     prompt = hub.pull("rlm/rag-prompt")
+
+#     def format_docs(docs):
+#         return "\n\n".join(doc.page_content for doc in docs)
+
+#     rag_chain = (
+#         {"context": retriever | format_docs, "question": RunnablePassthrough()}
+#         | prompt
+#         | llm
+#         | StrOutputParser()
+#     )
+
+#     session_id1 = SQLChatMessageHistory(
+#         session_id=session,
+#         connection_string="sqlite:///sqlite.db",
+#     )
+
+#     # Add messages to the chat history
+
+#     userPromptMessage = HumanMessage(content=userPrompt)
+
+#     session_id1.add_user_message(userPromptMessage)
+
+#     response = rag_chain.invoke(userPrompt)
+
+#     responseMessage = AIMessage(content=response)
+#     session_id1.add_ai_message(responseMessage)
+#     return response
