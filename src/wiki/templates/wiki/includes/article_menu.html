@@ -2,7 +2,6 @@
 
 {% addtoblock "js" %}
 <script type="text/javascript" src="{% static 'wiki/js/article.js' %}">
-
 </script>
 {% endaddtoblock %}
 
@@ -68,6 +67,45 @@
   </a>
 </li>
 
+<script type="text/javascript">
+    function incrementReviewerBadge() {
+        $.ajax({
+            url: "_plugin/incrementbadge/",
+            type: "POST",
+            data: {
+                'badge_id': 'Reviewer',
+                'increment': 1,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (response) {
+                if (response.message) {
+                    console.log('Badges queried successfully');
+                } else {
+                    console.log(response);
+                }
+            },
+        });
+    }
+    function incrementGuardianBadge() {
+        $.ajax({
+            url: "_plugin/incrementbadge/",
+            type: "POST",
+            data: {
+                'badge_id': 'Guardian',
+                'increment': 1,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (response) {
+                if (response.message) {
+                    console.log('Badges queried successfully');
+                } else {
+                    console.log(response);
+                }
+            },
+        });
+    }
+</script>
+
 <li class="nav-item">
   {% if Spoiler_flagging_status == "ACTIVE" %}
   <form method="post">
@@ -76,19 +114,17 @@
 
 
     {% if not has_potential_spoilers and urlpath.parent.parent %}
-    <a id='flag-spoilers-button' class="px-3 nav-link">
+    <a id='flag-spoilers-button' class="px-3 nav-link" onclick="incrementReviewerBadge()">
       <span class="fa fa-flag"></span>
       <label class="flag-spoilers-button-off-label" for="flag-spoilers-button-off"><span class="f-s-t">Flag
           Spoilers</span></label>
       <button id="flag-spoilers-button-off" name="flag-spoilers-button-off" class="hidden-xs" hidden=true>
-
     </a>
 
     {% elif has_potential_spoilers and urlpath.parent.parent%}
-    <a id='flag-spoilers-button' class="px-3 nav-link">
+    <a id='flag-spoilers-button' class="px-3 nav-link" onclick="incrementGuardianBadge()">
       <span class="fa fa-flag"></span>
-      <label class="flag-spoilers-button-on-label" for="flag-spoilers-button-on"><span class="f-s-t">Page flagged for
-          spoilers</span></label>
+      <label class="flag-spoilers-button-on-label" for="flag-spoilers-button-on"><span class="f-s-t">Page flagged for spoilers</span></label>
       <button id="flag-spoilers-button-on" name="flag-spoilers-button-on" class="hidden-xs" hidden=true>
     </a>
     {% endif %}

@@ -4,11 +4,13 @@ from django.db.models import JSONField
 from collections import deque
 from datetime import datetime, timedelta
 from django.shortcuts import redirect
+from django.utils import timezone
 
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     profile_image = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
+    account_created = models.DateTimeField(default=timezone.now)  
 
     def __str__(self):
         return self.user.username

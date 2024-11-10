@@ -3,12 +3,9 @@
 
 {% block wiki_contents %}
 
-{% addtoblock "js" %}
-<script src="{% static 'wiki/js/badgeDashboard.js' %}"></script>
-{% endaddtoblock %}
 
 <head>
-    <link rel="stylesheet" href="{% static 'wiki/css/badgeDashboard.css' %}">
+    <link rel="stylesheet">
     <style>
         .badge-table {
             display: grid;
@@ -82,7 +79,7 @@
                     <br>
                     
                     {% if badge.badge_id == "Reader" %}
-                        Number Series in Progress: {{ badge.num_things }} <br>
+                        Number of Series in Progress: {{ badge.num_things }} <br>
                         {% if badge.get_level_display == "None" %}
                             Number to Unlock Badge: 1
                         {% elif badge.get_level_display == "Normal" %}
@@ -106,7 +103,7 @@
                         {% elif badge.get_level_display == "Normal" %}
                             Number to Unlock Silver: 100 
                         {% elif badge.get_level_display == "Silver"%}
-                            Number to Unlock Gold: 100
+                            Number to Unlock Gold: 1000
                         {% endif %}
                     {% elif badge.badge_id == "Reviewer" %}
                         Number of Pages Flagged for Spoilers: {{ badge.num_things }}<br>
@@ -120,11 +117,11 @@
                     {% elif badge.badge_id == "Moderator" %}
                         Number of Reports Reviewed: {{ badge.num_things }}<br>
                         {% if badge.get_level_display == "None" %}
-                            Number to Unlock Badge: 5
+                            Number to Unlock Badge: 1
                         {% elif badge.get_level_display == "Normal" %}
-                            Number to Unlock Silver: 20 
+                            Number to Unlock Silver: 10
                         {% elif badge.get_level_display == "Silver"%}
-                            Number to Unlock Gold: 100
+                            Number to Unlock Gold: 50
                         {% endif %}
                     {% elif badge.badge_id == "Explorer" %}
                         Number of Wikis Created: {{ badge.num_things }}<br>
@@ -145,16 +142,16 @@
                             Number to Unlock Gold: 1000
                         {% endif %}
                     {% elif badge.badge_id == "Gourmand" %}
-                        Number Chapters Read in One Series: {{ badge.num_things }}<br>
+                        Max Books/Seasons Completed in One Series: {{ badge.num_things }}<br>
                         {% if badge.get_level_display == "None" %}
-                            Number to Unlock Badge: 25
+                            Number to Unlock Badge: 3
                         {% elif badge.get_level_display == "Normal" %}
-                            Number to Unlock Silver: 100 
+                            Number to Unlock Silver: 5
                         {% elif badge.get_level_display == "Silver"%}
-                            Number to Unlock Gold: 500
+                            Number to Unlock Gold: 10
                         {% endif %}
                     {% elif badge.badge_id == "Painter" %}
-                        Number Images Uploaded: {{ badge.num_things }}<br>
+                        Number of Images Uploaded: {{ badge.num_things }}<br>
                         {% if badge.get_level_display == "None" %}
                             Number to Unlock Badge: 5
                         {% elif badge.get_level_display == "Normal" %}
@@ -163,16 +160,16 @@
                             Number to Unlock Gold: 100
                         {% endif %}
                     {% elif badge.badge_id == "Guardian" %}
-                        Number Spoiler Tags Added: {{ badge.num_things }}<br>
+                        Number of Spoiler Flagged Articles Fixed: {{ badge.num_things }}<br>
                         {% if badge.get_level_display == "None" %}
-                            Number to Unlock Badge: 10
+                            Number to Unlock Badge: 1
                         {% elif badge.get_level_display == "Normal" %}
-                            Number to Unlock Silver: 100 
+                            Number to Unlock Silver: 5
                         {% elif badge.get_level_display == "Silver"%}
-                            Number to Unlock Gold: 1000
+                            Number to Unlock Gold: 20
                         {% endif %}
                     {% elif badge.badge_id == "Commenter" %}
-                        Number Comments Made: {{ badge.num_things }}<br>
+                        Number of Comments Made: {{ badge.num_things }}<br>
                         {% if badge.get_level_display == "None" %}
                             Number to Unlock Badge: 10
                         {% elif badge.get_level_display == "Normal" %}
@@ -181,7 +178,7 @@
                             Number to Unlock Gold: 1000
                         {% endif %}
                     {% elif badge.badge_id == "Reporter" %}
-                        Number Users Reported: {{ badge.num_things }}<br>
+                        Number of Users Reported: {{ badge.num_things }}<br>
                         {% if badge.get_level_display == "None" %}
                             Number to Unlock Badge: 1
                         {% elif badge.get_level_display == "Normal" %}
