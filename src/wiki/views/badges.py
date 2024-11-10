@@ -143,11 +143,11 @@ class Badges(LoginRequiredMixin, TemplateView):
                 bookNumber = int(match.group(1) or match.group(2))
                 furthestBook = max(furthestBook, bookNumber)
         gourmandBadge.num_things = furthestBook
-        if gourmandBadge.num_things >= 20:
+        if gourmandBadge.num_things >= 10:
             gourmandBadge.level = "gold"
         elif gourmandBadge.num_things >= 5:
             gourmandBadge.level = "silver"
-        elif gourmandBadge.num_things >= 1:
+        elif gourmandBadge.num_things >= 3:
             gourmandBadge.level = "normal"
         gourmandBadge.save()
         
