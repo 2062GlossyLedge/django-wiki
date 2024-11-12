@@ -82,9 +82,6 @@ class AgnosticChatbot(TemplateView):
         context = self.get_context_data(**kwargs)
         session = self.request.session.get("urlPath", "") + str(request.user)
         selected_chapter_url = None
-        print("POST request received")
-        ("POST data:", request.POST)  # Check what's in the POST data
-        print("POST keys:", request.POST.keys())  # Check the keys specifically
 
         if "selected-chapter-url" in request.POST:
             # selected book url not needed since location picker for book doesn't affect ch picker

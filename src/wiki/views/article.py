@@ -140,8 +140,6 @@ class ArticleView(TemplateView, ArticleMixin):
         # flags page for spoilers
         if "flag-spoilers-button-off" in request.POST:
 
-            print("article id", self.article.id)
-
             currArticle = Article.objects.get(id=self.article.id)
             currArticle.has_potential_spoilers = True
             currArticle.save()

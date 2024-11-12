@@ -140,6 +140,7 @@ class Chatbot:
 
         return all_docs
 
+    # gets all the chapters article conternts up to selected chapter and writes them to a text file
     def process_all_chapters(self, urlPath):
         # Get all previous chapter URLs
         previous_chapters_urls = self.get_previous_chapters(urlPath)
@@ -156,7 +157,7 @@ class Chatbot:
             # Remove empty strings from path segments
             path_segments = [segment for segment in path_segments if segment]
 
-            print(f"Processing path segments: {path_segments}")
+            # print(f"Processing path segments: {path_segments}")
 
             try:
                 # Find the root node first
@@ -167,7 +168,7 @@ class Chatbot:
                 for segment in path_segments[1:]:
                     current_path = current_path.get_children().get(slug=segment)
 
-                print(f"Found path: {current_path}")
+                # print(f"Found path: {current_path}")
 
                 # Get the article from the URL path
                 article = current_path.article
@@ -185,7 +186,7 @@ class Chatbot:
         with open("all_articles.txt", "w") as f:
             f.write("\n".join(all_articles_content))
 
-        print(f"Successfully processed {len(all_articles_content) // 3} articles")
+        # print(f"Successfully processed {len(all_articles_content) // 3} articles")
 
     def handle_message_given_location(
         self,
@@ -210,88 +211,13 @@ class Chatbot:
         if urlPath in vectorstoreDict:
             vectorstore = vectorstoreDict[urlPath]
             docs = docsDict[urlPath]
-            print("saved")
 
         else:
             # process all chapters up to the current chapter
             self.process_all_chapters(urlPath)
-            # docs = self.scrape_chapters(urlPath.replace("and-below", ""))
 
-            # Scrape the wiki page
-            # loader = WebBaseLoader(
-            #     web_paths=("http://localhost:8000/" + urlPath,),
-            #     bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
-            # )
-
-            # print("urlPath", urlPath)
-
-            # previous_chapters_urls = self.get_previous_chapters(urlPath)
-
-            # path_segments = urlPath.split("/")
-
-            # # remove empty string from path segments
-            # path_segments = [segment for segment in path_segments if segment]
-
-            # print("path segments", path_segments)
-
-            # try:
-            #     # Find the root node first
-            #     root = URLPath.objects.filter(slug=path_segments[0])[
-            #         0
-            #     ]  # 'harry-potter'
-
-            #     # Then traverse down the tree
-            #     current_path = root
-            #     for segment in path_segments[1:]:
-            #         current_path = current_path.get_children().get(slug=segment)
-
-            #     print(f"Found path: {current_path}")
-            # except URLPath.DoesNotExist:
-            #     print("Path not found")
-
-            # # get the url path from path segments
-
-            # # get the article from the url path
-            # article = current_path.article
-
-            # # put article content in text file
-            # with open("article.txt", "w") as f:
-            #     f.write(article.current_revision.content)
-
-            # # print("article", article.current_revision.content)
-
-            # # # get current user username
-            # # user = getpass.getuser()
-            # # userObj = User.objects.get_or_create(username=user)
-
-            # # print("userObj", userObj[0])
-
-            # # # convert urlpath string to json
-            # # urlPath
-
-            # # filteredContent = article.render(
-            # #     article.current_revision.content, userObj[0]
-            # # )
-
-            # # print("filtered content", filteredContent)
-
-            # # get the article  current revision
-            # # article = Article.objects.get( )[0].current_revision
-            # # article = URLPath.objects.filter(
-            # #     article=urlPath, id=0
-            # # ).article.current_revision
-            # print(urlPath)
-            # url_path = URLPath.objects.filter(slug=urlPath)[0].article.current_revision
-
-            # print(url_path)
-
-            # get article from urlpath and id
-            # article = URLPath.objects.get(article=urlPath).article.current_revision
-
-            # get the article content
-            # article_content = article.render()
-
-            # print("article content", article_content)
+            # to differentiate between the different wiki pages, add "and-below" to signify it holds all wikis of chapters below it to uniquely id docs held in doctDict and Chroma db
+            urlPath = urlPath + "and-below"
 
             loader = TextLoader("all_articles.txt")
 
@@ -301,10 +227,6 @@ class Chatbot:
                 docs[0].page_content = "No content found"
 
             docsDict[urlPath] = docs
-
-            # print(urlPath)
-
-            # print("docs", docs)
 
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=1000, chunk_overlap=200
@@ -322,7 +244,7 @@ class Chatbot:
                 collection_name=urlPath.replace("/", ""),
             )
         vectorstoreDict[urlPath] = vectorstore
-        print("vector store dict", vectorstoreDict)
+        # print("vector store dict", vectorstoreDict)
 
         # print(vectorstoreDict[urlPath]._collection)
 
