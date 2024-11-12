@@ -1,19 +1,24 @@
+import json
 import bleach
 import markdown
 from bleach.css_sanitizer import CSSSanitizer
 from wiki.conf import settings
 from wiki.core.plugins import registry as plugin_registry
-
+from wiki.core.utils import removeSpoilerContent
+from wiki.core.utils import wikiContentCleanup
+from wiki.models.account import UserProgress
 
 class ArticleMarkdown(markdown.Markdown):
-    def __init__(self, article, preview=False, user=None, *args, **kwargs):
+    def __init__(self, article, articleUrl='', preview=False, user=None, local_progress=None, *args, **kwargs):
         kwargs.update(settings.MARKDOWN_KWARGS)
         kwargs["extensions"] = self.get_markdown_extensions()
         super().__init__(*args, **kwargs)
         self.article = article
+        self.articleUrl = articleUrl
         self.preview = preview
         self.user = user
         self.source = None
+        self.local_progress = local_progress
 
     def core_extensions(self):
         """List of core extensions found in the mdx folder"""
@@ -32,7 +37,53 @@ class ArticleMarkdown(markdown.Markdown):
     def convert(self, text, *args, **kwargs):
         # store source in instance, for extensions which might need it
         self.source = text
-        html = super().convert(text, *args, **kwargs)
+        def get_base_wiki_path(pathname):
+            # Define possible substrings to look for
+            base_path_options = ['/book/', '/tv/']
+
+            # Initialize base wiki path variable
+            base_wiki = ''
+
+            # Iterate through each option to find the first match
+            for option in base_path_options:
+                index = pathname.find(option)
+                if index != -1:
+                    base_wiki = pathname[:index + len(option)]
+                    break
+
+            # Fallback to the full pathname if no match
+            return base_wiki or pathname
+
+        current_url = get_base_wiki_path(self.articleUrl)
+        # Attempt to get user progress, but handle case where it doesn't exist
+        user_progress = None
+        if self.user is not None:
+            try:
+                user_progress = UserProgress.objects.get(user=self.user, wiki_id=current_url)
+            except UserProgress.DoesNotExist:
+                # User doesn't have progress for this wiki, which is okay
+                pass
+
+        # Remove spoiler content only if user progress exists
+        noSpoilerText = text
+        if user_progress is not None:
+            try:
+                progress_data = json.loads(user_progress.progress)
+                user_location = progress_data['chapter']
+                noSpoilerText = removeSpoilerContent(text, user_location)
+            except json.JSONDecodeError:
+                # If progress is not valid JSON, don't remove spoilers
+                pass
+        else:
+            if self.local_progress:
+                cookie_progress = json.loads(self.local_progress)
+                user_location = cookie_progress['chapter'].split(":", 1)[1].strip()
+                noSpoilerText = removeSpoilerContent(text, user_location)
+            else:
+                noSpoilerText = removeSpoilerContent(text, "wiki:/default/book/book1/chapter1")
+
+        noSpoilerText = wikiContentCleanup(noSpoilerText)
+        html = super().convert(noSpoilerText, *args, **kwargs)
         if settings.MARKDOWN_SANITIZE_HTML:
             tags = settings.MARKDOWN_HTML_WHITELIST.union(
                 plugin_registry.get_html_whitelist()

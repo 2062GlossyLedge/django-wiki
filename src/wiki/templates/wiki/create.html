@@ -18,12 +18,28 @@
     $('[id^="chapter_"]').each(function() {
         $(this).remove(); // Remove the parent element of the duplicated field
     });
+  }
 
+  function removeLabels() {
+    $("#id_num_media").removeAttr("required");
+    $("#id_num_media, label[for='id_num_media'], #id_num_media_help_text").hide();
+    $("#id_num_media").val('');
+    removeDuplicatedFields();
+    $("#id_chapter_1, label[for='id_chapter_1']").hide();
   }
   (function($) {
 	  $(document).ready(function (){
+      let book = true;
       $("#id_num_media, label[for='id_num_media']").hide();
       $("#id_chapter_1, label[for='id_chapter_1']").hide();
+      $("#id_num_chapters, label[for='id_num_chapters'], #id_num_chapters_help_text").hide();
+      if(window.location.href.split("/")[4] == "tv") {
+        $("label[for='id_is_book").text("Add New Season");
+        $("label[for='id_num_chapters").text("Number Of Episodes");
+      }
+      if(window.location.href.split("/").length != 7) {
+        $("#id_is_book, label[for='id_is_book']").hide()
+      }
 		  $("#id_title").keyup(function () {
 			  var e = $("#id_slug")[0];
 			  if(!e._changed) {
@@ -31,44 +47,86 @@
 				  e.value = slug;
 			  }
 	      });
+        
+      $("#id_is_book").change(function () {
+          if ($(this).is(":checked")) {
+            if(window.location.href.split("/")[4] == "tv") {
+              $("label[for='id_title").text("Title of Season");
+            } 
+            else {
+              $("label[for='id_title").text("Title of Book");
+            }
+
+            $("#id_content, label[for='id_content']").hide();
+
+            $("#id_num_chapters").attr("required", "required");
+            $("#id_num_chapters, label[for='id_num_chapters'], #id_num_chapters_help_text").show();
+          } else {
+              $("#id_num_chapters").removeAttr("required");
+              $("#id_num_chapters, label[for='id_num_chapters'], #id_num_chapters_help_text").hide();
+
+              $("label[for='id_title").text("Title");
+              $("#id_content, label[for='id_content']").show();
+          }
+      });
+
       $("#id_media").change(function () {
         if ($(this).val()) {
           if ($(this).val() == "Book") {
+            book = true;
+            removeLabels();
             $("#id_num_media").attr("required", "required");
             $("label[for='id_num_media").text("Number of Books");
             $("label[for='id_chapter_1").text("Number of Chapters For Each Book");
             $("#id_num_media, label[for='id_num_media'], #id_num_media_help_text").show();
+            if (window.location.href.split("/").length == 6 || document.getElementById('id_is_book').checked) {
+              $("#id_slug")[0].value = "book";
+            }
           }
           else {
+            book = false;
+            removeLabels();
             $("#id_num_media").attr("required", "required");
             $("label[for='id_num_media").text("Number of Seasons");
             $("label[for='id_chapter_1").text("Number of Episodes For Each Season");
             $("#id_num_media, label[for='id_num_media'], #id_num_media_help_text").show();
+            if (window.location.href.split("/").length == 6 || document.getElementById('id_is_book').checked) {
+              $("#id_slug")[0].value = "tv";
+            }
           }
         }
         else {
-          $("#id_num_media").removeAttr("required");
-          $("#id_num_media, label[for='id_num_media'], #id_num_media_help_text").hide();
-          $("#id_num_media").val('');
-          removeDuplicatedFields();
-          $("#id_chapter_1, label[for='id_chapter_1']").hide();
+          removeLabels();
         }
       });
-      $("#id_num_media").change(function () {
-        var numChapters = parseInt($(this).val());
-        if (numChapters > 0) {
-          $("#id_chapter_1, label[for='id_chapter_1']").show();
-          $("#id_chapter_1").attr("required", "required")
-          removeDuplicatedFields();
-          $("#additional_fields_container").empty();
-          for (var i = 2; i <= numChapters; i++) {
-            var numChaptersField = $('#id_chapter_1').clone();
-            numChaptersField.attr('id', 'chapter_' + i); // Remove ID to avoid duplication
-            numChaptersField.attr('name', 'chapter_' + i);
-            numChaptersField.find('input').val(''); // Clear input value
-            var container = $("<div></div>").appendTo($('#id_chapter_1').parent());
-            numChaptersField.appendTo(container);
-          }
+        $("#id_num_media").change(function () {
+          var numChapters = parseInt($(this).val());
+          if (numChapters > 0) {
+            $("#id_chapter_1, label[for='id_chapter_1']").show();
+            $("#id_chapter_1").attr("required", "required");
+            if (book) {
+              $("#id_chapter_1").attr("placeholder", "Book 1 chapters");
+            }
+            else {
+              $("#id_chapter_1").attr("placeholder", "Season 1 episodes");
+            }
+            removeDuplicatedFields();
+            $("#additional_fields_container").empty();
+            for (var i = 2; i <= numChapters; i++) {
+              var numChaptersField = $('#id_chapter_1').clone();
+              numChaptersField.attr('id', 'chapter_' + i); // Remove ID to avoid duplication
+              numChaptersField.attr('name', 'chapter_' + i);
+              numChaptersField.find('input').val(''); // Clear input value
+              if (book) {
+                numChaptersField.attr('placeholder', 'Book ' + i + ' chapters');
+              }
+              else {
+                numChaptersField.attr('placeholder', 'Season ' + i + ' episodes');
+              }
+              
+              var container = $("<div></div>").appendTo($('#id_chapter_1').parent());
+              numChaptersField.appendTo(container);
+            }
           $("#additional_fields_container").show();
         } else {
           $("#id_chapter_1, label[for='id_chapter_1']").hide();
@@ -87,7 +145,7 @@
   {% include "wiki/includes/editormedia.html" %}
   
   <h1 class="page-header">{% trans "Add new article" %}</h1>
-
+  
   <form method="POST" class="form-horizontal">
     {% wiki_form create_form %}
     

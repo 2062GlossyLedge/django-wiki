@@ -5,6 +5,9 @@ from django.db import models
 
 class CustomUser(AbstractUser):
     some_field = models.IntegerField(default=0)
+    profile_picture = models.ImageField(
+        upload_to="profile_pics/", blank=True, null=True
+    )
 
     custom_groups = models.ManyToManyField(
         "CustomGroup",

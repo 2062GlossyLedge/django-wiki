@@ -6,6 +6,7 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 import environ
 
+
 env = environ.Env()
 environ.Env.read_env()
 
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     "wiki.plugins.macros.apps.MacrosConfig",
     "wiki.plugins.attachments.apps.AttachmentsConfig",
     "wiki.plugins.notifications.apps.NotificationsConfig",
+    "wiki.plugins.userprogress.apps.UserProgressConfig",
     "wiki.plugins.editsection.apps.EditSectionConfig",
     "wiki.plugins.globalhistory.apps.GlobalHistoryConfig",
     "wiki.plugins.help.apps.HelpConfig",
@@ -47,8 +49,6 @@ INSTALLED_APPS = [
     "tailwind",
     "theme",
     "django_browser_reload",
-    # "django.contrib.staticfiles",
-    # "debug_toolbar",
 ]
 
 TAILWIND_APP_NAME = "theme"
@@ -93,6 +93,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "sekizai.context_processors.sekizai",
+                "wiki.templatetags.context_processors.profile_picture",
             ],
             "debug": DEBUG,
         },

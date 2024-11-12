@@ -6,9 +6,26 @@
 {% block wiki_contents %}
 <h1 class="page-header">{% trans "Account Settings" %}</h1>
 <form class="form-horizontal" action="" method="post">{% csrf_token %}
-    {% wiki_form form %}
-    <button type="submit" name="save_changes" class="btn btn-primary btn-lg">
-      {% trans "Update" %}
-    </button>
+  {{ delete_form.as_p }}
+  <label for="delete_account"></label>
+  <button type="submit" name="delete_account" class="btn btn-primary btn-lg">
+    {% trans "Confirm Account Deletion" %}
+  </button>
+</form>
+<hr>
+<form class="form-horizontal" action="" method="post">{% csrf_token %}
+  {{ update_form.as_p }}
+  <label for="update_account"></label>
+  <button type="submit" name="update_account" class="btn btn-primary btn-lg">
+    {% trans "Update" %}
+  </button>
+</form>
+<hr>
+<form class="form-horizontal" action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+  {{ img_form.as_p }}
+  <label for="update_img"></label>
+  <button type="submit" name="update_img" class="btn btn-primary btn-lg">
+    {% trans "Update Profile Picture" %}
+  </button>
 </form>
 {% endblock %}

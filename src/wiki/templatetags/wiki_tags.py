@@ -1,3 +1,4 @@
+import json
 import re
 from urllib.parse import quote as urlquote
 
@@ -46,10 +47,11 @@ def article_for_object(context, obj):
 
 @register.inclusion_tag("wiki/includes/render.html", takes_context=True)
 def wiki_render(context, article, preview_content=None):
+    user_progress = context.get('user_progress')  # Access user_progress from the context
     if preview_content:
         content = article.render(preview_content=preview_content)
     elif article.current_revision:
-        content = article.get_cached_content(user=context.get("user"))
+        content = article.get_cached_content(user=context.get("user"), local_progress=user_progress)
     else:
         content = None
 
@@ -58,6 +60,7 @@ def wiki_render(context, article, preview_content=None):
             "article": article,
             "content": content,
             "preview": preview_content is not None,
+            "user_progress": user_progress, 
             "plugins": plugin_registry.get_plugins(),
             "STATIC_URL": django_settings.STATIC_URL,
             "CACHE_TIMEOUT": settings.CACHE_TIMEOUT,
@@ -181,6 +184,8 @@ def is_locked(model):
     return model.current_revision and model.current_revision.locked
 
 
+
+
 @register.simple_tag(takes_context=True)
 def login_url(context):
     request = context["request"]
@@ -211,3 +216,56 @@ def wiki_settings(name):
 @register.filter
 def starts_with(value, arg):
     return value.startswith(arg)
+
+@register.filter(name='progress_process')
+def progress_process(value):
+    try:
+        # Parse the JSON string
+        progress_dict = json.loads(value)
+
+        # Extract book and chapter
+        book = progress_dict.get('book', '')
+        chapter = progress_dict.get('chapter', '')
+
+        # Process book (assuming it might contain a path-like structure)
+        book_parts = chapter.split('/')
+
+        book_processed = book_parts[-2].replace('book', 'Book ').replace('season', 'Season ') + ' ' + book_parts[-1].replace('episode', 'Episode ').replace('chapter', 'Chapter ') if len(book_parts) > 1 else book
+
+        # Combine processed book and chapter
+        return f"{book_processed}".strip()
+    except json.JSONDecodeError:
+        # If JSON parsing fails, fall back to the original string processing
+        if isinstance(value, str):
+            splt = value.split('/')
+            return splt[-2] + ' ' + splt[-1] if len(splt) > 1 else value
+        return value
+    except Exception as e:
+        # Handle any other unexpected errors
+        return f"Error processing progress: {str(e)}"
+
+@register.filter(name='media_process')
+def before_colon(value):
+    if isinstance(value, str):
+        splt = value.split('/')
+        return splt[1].replace('-', ' ') + ' ' + splt[2]
+    return value
+
+from wiki.models.account import UserProfile
+
+@register.filter
+def profile_picture(request):
+    if request.user.is_authenticated:
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+            profile_picture = (
+                user_profile.profile_image.url
+                if user_profile.profile_image
+                else "/path/to/default/profile_image.jpg"
+            )
+        except UserProfile.DoesNotExist:
+            profile_picture = "/path/to/default/profile_image.jpg"
+    else:
+        profile_picture = None
+
+    return {"profile_picture": profile_picture}

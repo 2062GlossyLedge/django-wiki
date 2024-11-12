@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "wiki.plugins.attachments.apps.AttachmentsConfig",
     "wiki.plugins.editsection.apps.EditSectionConfig",
     "wiki.plugins.notifications.apps.NotificationsConfig",
+    "wiki.plugins.userprogress.apps.UserProgressConfig",
     "wiki.plugins.images.apps.ImagesConfig",
     "wiki.plugins.citations.apps.CitationsConfig",
     "wiki.plugins.macros.apps.MacrosConfig",

@@ -16,20 +16,7 @@
             <img src="{% static 'wiki/img/full_logo.png' %}" alt="Centered Image">
         </div>
         <div class="dropdowns-container">
-            <!-- <div class="dropdown">
-                <select name="menu1" id="menu1">
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
-                </select>
-            </div>
-            <div class="dropdown">
-                <select name="menu2" id="menu2">
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
-                </select>
-            </div> -->
+
         </div>
         <div class="flex flex row">
             <div class="buttons-container flex">
@@ -40,6 +27,27 @@
                         Mentat</a></button>
             </div>
         </div>
+        {% if urls_dict %}
+        <div class="recent-wikis">
+
+            <h2>Recently Visited Pages</h2>
+
+            <div class="flex-container">
+                {% for url, wikiPage in urls_dict.items %}
+                <div class="card">
+                    <a href="{% url 'wiki:get' path=url %}">
+                        <div class="card-content">
+                            <h3>{{ wikiPage }}</h3>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {%endif%}
+
+        <br>
+
     </div>
 
     <!-- <div>

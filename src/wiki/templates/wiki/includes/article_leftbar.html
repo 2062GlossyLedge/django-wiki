@@ -1,86 +1,290 @@
 {% load i18n sekizai_tags static %}
 
 <div id="progress-select">
-  <h4>{% trans "Select Book/Season" %}</h4>
+  <h4 id="progress-header">{% trans "Filter Page by Current Progress" %}</h4>
   <select id="book-select" style="width: 200px;"></select>
-
-  <h4>{% trans "Select Chapter/Episode" %}</h4>
   <select id="chapter-select" style="width: 200px;"></select>
 </div>
 
-
-
 {% addtoblock "js" %}
-<script type="text/javascript" src="{% static 'wiki/select2/js/select2.min.js' %}"></script>{% endaddtoblock %}
+<script type="text/javascript" src="{% static 'wiki/select2/js/select2.min.js' %}"></script>
+{% endaddtoblock %}
+
 {% addtoblock "js" %}
 <script type="text/javascript">
   $(document).ready(function () {
-    let selectedBookUrl = localStorage.getItem('selectedBookUrl');
-    let selectedChapterUrl = localStorage.getItem('selectedChapterUrl');
+    function getBaseWikiPath(pathname) {
+      const basePathOptions = ['/book/', '/tv/'];
+      let baseWiki = '';
 
-    if (selectedBookUrl) {
-      $('#book-select').val(selectedBookUrl).trigger('change');
+      basePathOptions.some(option => {
+        const index = pathname.indexOf(option);
+        if (index !== -1) {
+          baseWiki = pathname.substring(0, index + option.length);
+          return true;
+        }
+        return false;
+      });
+
+      return baseWiki || pathname;
     }
 
-    if (selectedChapterUrl) {
-      $('#chapter-select').val(selectedChapterUrl).trigger('change');
+    function extractBookProgress(chapterProgress) {
+      const regex = /(.*) : (.*\/(book|tv)\/(book\d+|season\d+))/;
+      const match = chapterProgress.match(regex);
+      if (match) {
+        const urlPart = match[2]; // "wiki:/anywiki/book/book#" or "wiki:/anywiki/tv/season#"
+        const basePart = match[4]; // "book#" or "season#"
+
+        const label = basePart.startsWith('book') ? 'Book' : 'Season';
+        const number = basePart.replace(/[^0-9]/g, ''); // Extract the number
+
+        return `${label} ${number} : ${urlPart}`;
+      }
+      return null;
     }
 
 
-    console.log(selectedBookUrl);
-    console.log(selectedChapterUrl);
+    let baseWiki = getBaseWikiPath(window.location.pathname);
+    const isBookWiki = baseWiki.includes('/book/');
+    let outerSelectionPlaceholder = isBookWiki ? "Select Book" : "Select Season";
+    let outerDefaultSearch = isBookWiki ? "Book" : "Season";
+    let innerSelectionPlaceholder = isBookWiki ? "Select Chapter" : "Select Episode";
+    let innerDefaultSearch = isBookWiki ? "Chapter" : "Episode";
+    let defaultBook = isBookWiki ? "book1" : "season1"
+    let defaultChapter = isBookWiki ? "book1/chapter1" : "season1/episode1"
+    let defaultBookIntro = isBookWiki ? "Book 1 : wiki:" : "Season 1 : wiki:"
+    let defaultChapterIntro = isBookWiki ? "Chapter 1 : wiki:" : "Episode 1 : wiki:"
+    let signedIn = true
+    let firstSelectionValue = baseWiki + defaultBook;
 
-    $('#book-select').select2({
-      dropdownAutoWidth: true,
-      placeholder: "Type to search...",
-      ajax: {
-        url: function (params) {
-          return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
-        },
-        processResults: function (data) {
-          let ret = [];
-          data.forEach(function (val) {
-            ret.push({ "id": val, "text": val })
-          });
-          return { results: ret };
-        },
+    // Object to store current selections
+    let currentProgress = {
+      book: '',
+      chapter: ''
+    };
+
+    // Fetch the user's progress before initializing Select2
+    $.ajax({
+      url: "_plugin/getprogress/",
+      type: "GET",
+      data: { 'wiki_id': baseWiki },
+      success: function (response) {
+        if (response.progress) {
+          try {
+            signedIn = true
+            currentProgress = JSON.parse(response.progress);
+            if (currentProgress.book == "") {
+              currentProgress.book = extractBookProgress(currentProgress.chapter);
+            }
+            outerSelectionPlaceholder = currentProgress.book;
+            innerSelectionPlaceholder = currentProgress.chapter;
+            firstSelectionValue = currentProgress.book.split("wiki:")[1];
+          } catch (e) {
+            console.error("Error parsing progress JSON:", e);
+          }
+        }
+
+        // Initialize Select2 after fetching progress
+        initializeSelect2();
       },
+      error: function (xhr, status, error) {
+        if (error == "Not Found") {  // User not logged in
+          let storedProgress = localStorage.getItem('progress');
+          if (storedProgress) {
+            try {
+              // Perform check to see if it is the same wiki as first selection value 
+              storedProgressParsed = JSON.parse(storedProgress);
+              baseImport = getBaseWikiPath(storedProgressParsed.book);
+              wikiPath = baseImport.split("wiki:")[1].trim();
+              if (wikiPath == baseWiki) {
+                currentProgress = storedProgressParsed
+                outerSelectionPlaceholder = currentProgress.book;
+                innerSelectionPlaceholder = currentProgress.chapter;
+                firstSelectionValue = currentProgress.book.split("wiki:")[1];
+              }
+              else {
+                currentProgress.book = defaultBookIntro + baseWiki + defaultBook;
+                currentProgress.chapter = defaultChapterIntro + baseWiki + defaultChapter;
+                firstSelectionValue = baseWiki + defaultBook;
+
+                saveProgressLocally();
+                resetCachePage();
+                setTimeout(function () {
+                  window.location.reload(true);
+                }, 10);
+                resetCache();
+              }
+            } catch (e) {
+              console.error("Error parsing stored progress JSON:", e);
+            }
+          }
+          signedIn = false
+        }
+        // Initialize Select2 even if there's an error
+        initializeSelect2();
+      }
     });
 
-    $('#chapter-select').select2({
-      dropdownAutoWidth: true,
-      placeholder: selectedChapterUrl ? selectedChapterUrl : "Type to search...",
-      ajax: {
-        url: function (params) {
-          return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term
+    function initializeSelect2() {
+      $('#book-select').select2({
+        dropdownAutoWidth: true,
+        placeholder: outerSelectionPlaceholder,
+        ajax: {
+          url: function (params) {
+            if (!params.term)
+              return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + outerDefaultSearch + "&wiki=" + baseWiki;
+            else
+              return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&wiki=" + baseWiki;
+          },
+          processResults: function (data) {
+            return {
+              results: data.map(val => ({ "id": val, "text": val }))
+            };
+          },
         },
-        processResults: function (data) {
-          let ret = [];
-          data.forEach(function (val) {
-            ret.push({ "id": val, "text": val })
-          });
-          return { results: ret };
+      });
+
+      $('#chapter-select').select2({
+        dropdownAutoWidth: true,
+        placeholder: innerSelectionPlaceholder,
+        ajax: {
+          url: function (params) {
+            if (!params.term)
+              return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + innerDefaultSearch + "&subwiki=" + firstSelectionValue;
+            else
+              return "{% url 'wiki:citations_query_urlpath' path=urlpath.path article_id=article.id %}?query=" + params.term + "&subwiki=" + firstSelectionValue;
+          },
+          processResults: function (data) {
+            return {
+              results: data.map(val => ({ "id": val, "text": val }))
+            };
+          },
         },
-      },
+      });
+
+      // Set initial values if we have them
+      if (currentProgress.book) {
+        $('#book-select').append(new Option(currentProgress.book, currentProgress.book, true, true)).trigger('change');
+        $('#chapter-select').prop('disabled', false);
+      }
+      else {
+        $('#book-select').append(new Option(defaultBookIntro + baseWiki + defaultBook, defaultBookIntro + baseWiki + defaultBook, true, true)).trigger('change');
+      }
+      if (currentProgress.chapter) {
+        $('#chapter-select').append(new Option(currentProgress.chapter, currentProgress.chapter, true, true)).trigger('change');
+      }
+      else {
+        $('#chapter-select').append(new Option(defaultChapterIntro + baseWiki + defaultChapter, defaultChapterIntro + baseWiki + defaultChapter, true, true)).trigger('change');
+      }
+    }
+
+    $('#book-select').on('select2:select', function (e) {
+      $('#chapter-select').val(null).trigger('change').prop('disabled', false);
+      firstSelectionValue = e.params.data.id.split("wiki:")[1];
+      currentProgress.book = e.params.data.id;
+      console.log(firstSelectionValue)
+      currentProgress.chapter = ''; // Reset chapter when book changes
     });
 
-    // Store the value to be displayed
-    let addedValue = "";
+    $('#chapter-select').on('select2:select', function (e) {
+      currentProgress.chapter = e.params.data.id;
+      if (signedIn) {
+        saveProgress();
+      }
+      else {
+        saveProgressLocally();
+        resetCachePage();
+      }
+      setTimeout(function () {
+        window.location.reload(true);
+      }, 50); // Slightly delaying makes it use new webpage 
+      resetCache();
+    });
 
-    // Update the value to add to the page on click of citation_add_citation_button
-    // $('#citations_page_title_query').on('select2:select', function (e) {
-    //     addedValue = ">> ADD YOUR CONTRIBUTION HERE [*](wiki:" + e.params.data.id.split("wiki:")[1] + ")";
-    // });
+    function saveProgress() {
+      $.ajax({
+        url: "_plugin/saveprogress/",
+        type: "POST",
+        data: {
+          'wiki_id': baseWiki,
+          'progress': JSON.stringify(currentProgress),
+          'curr_page': window.location.pathname,
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+          if (response.message) {
+            console.log('User progress updated successfully');
+            window.location.reload();
+          } else {
+            console.log(response);
+          }
+        },
+        error: function () {
+          console.log('Error occurred while updating user progress');
+        }
+      });
+    }
 
-    // $("#citation_add_citation_button").on("click", function () {
-    //   $('#id_content').insertAtCaret(addedValue);
-    // });
+    function saveProgressLocally() {
+      try {
+        localStorage.setItem('progress', JSON.stringify(currentProgress));
+        setCookie('user_progress', JSON.stringify(currentProgress), 1); // Set the cookie to expire in 1 days
+      } catch (e) {
+        console.error('Error saving progress locally:', e);
+      }
+    }
 
+    // Helper function to set a cookie
+    function setCookie(name, value, days) {
+      var expires = "";
+      if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Convert days to milliseconds
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Strict";  // Set the cookie path
+    }
 
+    function resetCache() {
+      $.ajax({
+        url: "_plugin/resetcache/",
+        type: "POST",
+        data: {
+          'wiki_id': baseWiki,
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+          if (response.message) {
+            console.log('Cache cleared successfully');
+          } else {
+            console.log(response);
+          }
+        },
+      });
+    }
+
+    function resetCachePage() {
+      $.ajax({
+        url: "_plugin/resetcachearticle/",
+        type: "POST",
+        data: {
+          'curr_page': window.location.pathname,
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+          if (response.message) {
+            console.log('Cache cleared successfully');
+          } else {
+            console.log(response);
+          }
+        },
+      });
+    }
   });
-
 </script>
 {% endaddtoblock %}
+
 {% addtoblock "css" %}
 <link rel="stylesheet" href="{% static 'wiki/select2/css/select2.min.css' %}" type="text/css" />
 {% endaddtoblock %}

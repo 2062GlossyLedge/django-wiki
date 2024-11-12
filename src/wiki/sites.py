@@ -5,6 +5,13 @@ from django.utils.functional import LazyObject
 from django.utils.module_loading import import_string
 from wiki.conf import settings
 from wiki.core.plugins import registry
+from wiki.views.progress_views import (
+    SaveUserProgressView,
+    UserProgressView,
+    ResetCacheView,
+    ResetCacheViewArticle,
+)
+from wiki.views.submit_report import SubmitReportView, ApproveReportView
 
 
 class WikiSite:
@@ -18,20 +25,42 @@ class WikiSite:
     """
 
     def __init__(self, name="wiki"):
-        from wiki.views import accounts, article, deleted_list, home
+        from wiki.views import (
+            accounts,
+            article,
+            deleted_list,
+            home,
+            privileges,
+            admin_dashboard,
+        )
 
         self.name = name
 
         #  view of homepage
         self.homepage_view = getattr(self, "homepage_view", home.Homepage.as_view())
         self.root_view = getattr(self, "root_view", article.CreateRootView.as_view())
+
         self.root_missing_view = getattr(
             self, "root_missing_view", article.MissingRootView.as_view()
         )
 
+        # help view
+        self.help_view = getattr(self, "help_view", home.HelpPage.as_view())
+
         # agnostic chatbot view
         self.agnostic_Chatbot_view = getattr(
             self, "agnostic_Chatbot_view", home.AgnosticChatbot.as_view()
+        )
+        # help view
+        self.help_view = getattr(self, "help_view", home.HelpPage.as_view())
+
+        # privileges view
+        self.privileges_view = getattr(
+            self, "privileges_view", privileges.Privileges.as_view()
+        )
+
+        self.admin_view = getattr(
+            self, "admin_view", admin_dashboard.AdminDashboard.as_view()
         )
 
         # basic views
@@ -89,7 +118,7 @@ class WikiSite:
         self.login_view = getattr(self, "login_view", accounts.Login.as_view())
         self.logout_view = getattr(self, "logout_view", accounts.Logout.as_view())
         self.profile_update_view = getattr(
-            self, "profile_update_view", accounts.Update.as_view()
+            self, "profile_update_view", accounts.UserAccountView.as_view()
         )
 
         # deleted list view
@@ -104,6 +133,48 @@ class WikiSite:
         urlpatterns += self.get_revision_urls()
         urlpatterns += self.get_article_urls()
         urlpatterns += self.get_plugin_urls()
+        urlpatterns += (
+            re_path(
+                r"^(?P<path>.+/|)_plugin/saveprogress/$",
+                SaveUserProgressView.as_view(),
+                name="save_user_progress",
+            ),
+        )
+        urlpatterns += (
+            re_path(
+                r"^(?P<path>.+/|)_plugin/getprogress/$",
+                UserProgressView.as_view(),
+                name="get_user_progress",
+            ),
+        )
+        urlpatterns += (
+            re_path(
+                r"^(?P<path>.+/|)_plugin/resetcache/$",
+                ResetCacheView.as_view(),
+                name="reset_cache",
+            ),
+        )
+        urlpatterns += (
+            re_path(
+                r"^(?P<path>.+/|)_plugin/resetcachearticle/$",
+                ResetCacheViewArticle.as_view(),
+                name="reset_cache_article",
+            ),
+        )
+        urlpatterns += (
+            re_path(
+                r"^(?P<path>.+/|)_plugin/submit_report/$",
+                SubmitReportView.as_view(),
+                name="submit_report",
+            ),
+        )
+        urlpatterns += (
+            re_path(
+                r"^(?P<path>.+/|)_plugin/approve_report/$",
+                ApproveReportView.as_view(),
+                name="approve_report",
+            ),
+        )
 
         # This ALWAYS has to be the last of all the patterns since
         # the paths in theory could wrongly match other targets.
@@ -122,6 +193,10 @@ class WikiSite:
                 self.agnostic_Chatbot_view,
                 name="agnostic_chatbot",
             ),
+            re_path(r"^help/$", self.help_view, name="help"),
+            re_path(r"^homepage/$", self.homepage_view, name="homepage"),
+            re_path(r"^privileges/$", self.privileges_view, name="privileges"),
+            re_path(r"^admin_dashboard/$", self.admin_view, name="admin_dashboard"),
             re_path(r"^$", self.article_view, name="root", kwargs={"path": ""}),
             re_path(r"^create-root/$", self.root_view, name="root_create"),
             re_path(r"^missing-root/$", self.root_missing_view, name="root_missing"),
@@ -183,6 +258,7 @@ class WikiSite:
     def get_article_urls(self):
         urlpatterns = [
             # Paths decided by article_ids
+            # re_path(r"^chatbot/$", self.chatbot_view, name="chatbot"),
             re_path(r"^$", self.article_view, name="get"),
             re_path(r"^delete/$", self.article_delete_view, name="delete"),
             re_path(r"^deleted/$", self.article_deleted_view, name="deleted"),

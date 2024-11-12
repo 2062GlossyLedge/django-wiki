@@ -23,6 +23,7 @@ from django.views.generic import RedirectView
 from django.views.generic import TemplateView
 from django.views.generic import View
 from django.urls import reverse_lazy
+import re
 from wiki import editors
 from wiki import forms
 from wiki import models
@@ -36,6 +37,8 @@ from wiki.core.utils import object_to_json_response
 from wiki.decorators import get_article
 from wiki.models.article import Article, ArticleRevision
 from wiki.views.mixins import ArticleMixin
+from wiki.models.account import UserProfile, Privilege, RecentlyVisitedWikiPages
+
 from wiki.views.chatbot import Chatbot
 
 log = logging.getLogger(__name__)
@@ -56,12 +59,74 @@ class ArticleView(TemplateView, ArticleMixin):
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
+        print("article content", article.current_revision)
 
         return super().dispatch(request, article, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         kwargs["selected_tab"] = "view"
+
+        if self.request.user.is_authenticated:
+
+            # Tracks the user's page visits
+
+            # Get or create the user's activity log
+            user_activity, created = UserProfile.objects.get_or_create(
+                user=self.request.user
+            )
+
+            # Get the current URL
+            current_url = self.request.path_info
+
+            # add url to recently visited urls
+            RecentlyVisitedWikiPages.objects.get_or_create(
+                user=self.request.user, url=current_url
+            )
+
+            # Get all recently visited urls
+            recently_visited_urls = RecentlyVisitedWikiPages.objects.filter(
+                user=self.request.user
+            ).order_by("-visited_at")
+
+            # If user has more than 5 URLs saved, remove the oldest ones
+            if recently_visited_urls.count() > 5:
+                urls_to_delete = recently_visited_urls[5:]
+                RecentlyVisitedWikiPages.objects.filter(
+                    id__in=urls_to_delete.values_list("id", flat=True)
+                ).delete()
+
+            # Get the updated list of recently visited urls (limited to 5)
+            recently_visited_urls = recently_visited_urls[:5]
+
+            # query for status of privileges
+
+            # save status of privileges. More efficient to query once and pass to template? If so how?
+            editingPrivilege, created = Privilege.objects.get_or_create(
+                user=self.request.user, name="Editing"
+            )
+            kwargs["Editing_status"] = editingPrivilege.status
+            commentingPrivlege, created = Privilege.objects.get_or_create(
+                user=self.request.user, name="Commenting"
+            )
+            kwargs["Commenting_status"] = commentingPrivlege.status
+            spoilerFlaggingPrivilege, created = Privilege.objects.get_or_create(
+                user=self.request.user, name="Spoiler flagging"
+            )
+            kwargs["Spoiler_flagging_status"] = spoilerFlaggingPrivilege.status
+            wikiCreationPrivilege, created = Privilege.objects.get_or_create(
+                user=self.request.user, name="Wiki creation"
+            )
+            kwargs["Wiki_creation_status"] = wikiCreationPrivilege.status
+
+            user_progress = self.request.COOKIES.get("user_progress", None)
+            if user_progress:
+                kwargs["user_progress"] = user_progress
+            else:
+                kwargs["user_progress"] = ""
+
+        kwargs["has_potential_spoilers"] = self.article.has_potential_spoilers
+
         kwargs["button_state"] = self.request.session.get("button_state", "on")
         kwargs["spoiler_free_button_state"] = self.request.session.get(
             "spoiler_free_button_state", "on"
@@ -72,7 +137,27 @@ class ArticleView(TemplateView, ArticleMixin):
         return ArticleMixin.get_context_data(self, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        # breakpoint()
+        # flags page for spoilers
+        if "flag-spoilers-button-off" in request.POST:
+
+            print("article id", self.article.id)
+
+            currArticle = Article.objects.get(id=self.article.id)
+            currArticle.has_potential_spoilers = True
+            currArticle.save()
+            kwargs["has_potential_spoilers"] = True
+            return redirect("wiki:get", path=self.urlpath.path)
+
+        elif "flag-spoilers-button-on" in request.POST:
+
+            currArticle = Article.objects.get(id=self.article.id)
+            currArticle.has_potential_spoilers = False
+            currArticle.save()
+            kwargs["has_potential_spoilers"] = False
+            return redirect("wiki:get", path=self.urlpath.path)
+
+        # Chatbot functionality
+
         context = self.get_context_data(**kwargs)
         urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
         session = str(urlPath) + str(request.user)
@@ -164,6 +249,8 @@ class Create(FormView, ArticleMixin):
             form_class = self.get_form_class()
         if self.urlpath.path == "":
             form_class = forms.CreateWikiForm
+        elif len(self.urlpath.path.split("/")) == 2:
+            form_class = forms.AddMediaForm
         kwargs = self.get_form_kwargs()
         initial = kwargs.get("initial", {})
         initial["slug"] = self.request.GET.get("slug", None)
@@ -190,8 +277,72 @@ class Create(FormView, ArticleMixin):
 
     def form_valid(self, form):
         try:
-            if self.urlpath.path == "":
+            if "is_book" in form.cleaned_data and form.cleaned_data["is_book"] == True:
+                matches = models.URLPath.objects.can_read(self.request.user)
+                media = str(self.urlpath).split("/")[1]
+                fandom = str(self.urlpath).split("/")[0]
+                if media == "tv":
+                    media = "season"
+                matches = matches.filter(slug__icontains=media)
+                matches = matches.filter(parent__parent__slug__icontains=fandom)
 
+                num_books = 0
+                for match in matches:
+                    if re.search(f"{media}\d*/$", str(match)):
+                        num_books += 1
+
+                if media == "season":
+                    self.newpath = models.URLPath._create_urlpath_from_request(
+                        self.request,
+                        self.article,
+                        self.urlpath,
+                        "season" + str(num_books + 1),
+                        form.cleaned_data["title"],
+                        "[article_list depth:3]",
+                        form.cleaned_data["summary"],
+                    )
+
+                    # Creates wikis for how many episodes are in a season
+                    episode_path = self.newpath
+                    episode_article = self.newpath.article
+                    for j in range(1, form.cleaned_data["num_chapters"] + 1):
+                        self.newpath = models.URLPath._create_urlpath_from_request(
+                            self.request,
+                            episode_article,
+                            episode_path,
+                            "episode" + str(j),
+                            "Episode " + str(j),
+                            "",
+                            form.cleaned_data["summary"],
+                        )
+                # Other types of media
+                else:
+                    self.newpath = models.URLPath._create_urlpath_from_request(
+                        self.request,
+                        self.article,
+                        self.urlpath,
+                        media + str(num_books + 1),
+                        form.cleaned_data["title"],
+                        "[article_list depth:3]",
+                        form.cleaned_data["summary"],
+                    )
+
+                    # Creates wikis for chapters in a book
+                    chapter_path = self.newpath
+                    chapter_article = self.newpath.article
+                    for j in range(1, form.cleaned_data["num_chapters"] + 1):
+                        self.newpath = models.URLPath._create_urlpath_from_request(
+                            self.request,
+                            chapter_article,
+                            chapter_path,
+                            "chapter" + str(j),
+                            "Chapter " + str(j),
+                            "",
+                            form.cleaned_data["summary"],
+                        )
+                return self.get_success_url()
+
+            if self.urlpath.path == "":
                 # Creates Homepage for wiki
                 self.newpath = models.URLPath._create_urlpath_from_request(
                     self.request,
@@ -218,9 +369,13 @@ class Create(FormView, ArticleMixin):
                     + " Wiki ("
                     + form.cleaned_data["media"]
                     + ")",
-                    "Change "
+                    ">> Change "
                     + form.cleaned_data["media"]
-                    + " wikis to include title if applicable\n[article_list depth:2]",
+                    + " wikis to include title if applicable [](wiki:/"
+                    + form.cleaned_data["slug"]
+                    + "/"
+                    + form.cleaned_data["media"].lower()
+                    + ")\n[article_list depth:2]",
                     form.cleaned_data["summary"],
                 )
                 messages.success(
@@ -228,7 +383,29 @@ class Create(FormView, ArticleMixin):
                     _("New article '%s' created.")
                     % self.newpath.article.current_revision.title,
                 )
-
+            elif len(self.urlpath.path.split("/")) == 2:
+                # Creates Media type wiki
+                self.newpath = models.URLPath._create_urlpath_from_request(
+                    self.request,
+                    self.article,
+                    self.urlpath,
+                    form.cleaned_data["media"].lower(),
+                    str(self.article) + " Wiki (" + form.cleaned_data["media"] + ")",
+                    ">> Change "
+                    + form.cleaned_data["media"]
+                    + " wikis to include title if applicable [](wiki:/"
+                    + form.cleaned_data["slug"]
+                    + "/"
+                    + form.cleaned_data["media"].lower()
+                    + ")\n[article_list depth:2]",
+                    form.cleaned_data["summary"],
+                )
+                messages.success(
+                    self.request,
+                    _("New article '%s' created.")
+                    % self.newpath.article.current_revision.title,
+                )
+            if self.urlpath.path == "" or len(self.urlpath.path.split("/")) == 2:
                 # Creates Wikis For Books/Seasons
                 path = self.newpath
                 article = self.newpath.article
@@ -1257,86 +1434,28 @@ class ProgressPathSearch(View):
         return object_to_json_response(matches)
 
 
-# def handle_message_without_llm_knowledge(self, userPrompt, urlPath, session):
-#     """chatbot response to user input
+# class Chatbot(TemplateView):
+#     template_name = 'wiki/includes/article_rightbar.html'
+#     # pass in url of current wiki page and query. Return chabot response
+#     def getResponse(request):
+#         response= "Hi, I'm your friendly chatbot"
+#         context = {'response': response}
+#         return render(request, template_name, context)    # pass response to template
+# def responseContext(self):
+#     # get prompt
+#     if request.method == "POST":
+#         prompt = request.POST.get("prompt")
 
-#     Args:
-#         userPrompt (str): user prompt
+# class Chatbot(TemplateView):
+#     template_name = 'wiki/includes/article_rightbar.html'
 
-#     Returns:
-#         str: chatbot response
-#     """
-#     global vectorstoreDict
-#     # breakpoint()
+#     def get(self, request, *args, **kwargs):
+#         response = "Hi, I'm your friendly chatbot"
+#         context = self.get_context_data(**kwargs)
+#         context['response'] = response
+#         return self.render_to_response(context)
 
-#     # find if vectorstroe already holds contents of wiki page, else  scrape and create a new vectorstore if the URL hasn't been scraped yet
-#     if urlPath in vectorstoreDict:
-
-#         vectorstore = vectorstoreDict[urlPath]
-#         docs = docsDict[urlPath]
-
-#         if docs[0].page_content == "\n":
-#             docs[0].page_content = "No content found"
-
-#     else:
-#         # Scrape the wiki page
-#         loader = WebBaseLoader(
-#             web_paths=("http://localhost:8000/" + urlPath,),
-#             bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
-#         )
-#         docs = loader.load()
-
-#         if docs[0].page_content == "\n":
-#             docs[0].page_content = "No content found"
-
-#         docsDict[urlPath] = docs
-
-#         text_splitter = RecursiveCharacterTextSplitter(
-#             chunk_size=1000, chunk_overlap=200
-#         )
-#         splits = text_splitter.split_documents(docs)
-
-#         # create new vectore store
-
-#         vectorstore = Chroma.from_documents(
-#             documents=splits,
-#             embedding=OpenAIEmbeddings(),
-#             persist_directory="./chroma_db",
-#             # makes it so each stored db collection only holds document containing the contents of the single wiki page
-#             collection_name=urlPath.replace("/", ""),
-#         )
-#         vectorstoreDict[urlPath] = vectorstore
-
-#     # Retrieve and generate using the relevant snippets of the wiki page.
-#     retriever = vectorstore.as_retriever(
-#         search_type="similarity", search_kwargs={"k": 6}
-#     )
-
-#     prompt = hub.pull("rlm/rag-prompt")
-
-#     def format_docs(docs):
-#         return "\n\n".join(doc.page_content for doc in docs)
-
-#     rag_chain = (
-#         {"context": retriever | format_docs, "question": RunnablePassthrough()}
-#         | prompt
-#         | llm
-#         | StrOutputParser()
-#     )
-
-#     session_id1 = SQLChatMessageHistory(
-#         session_id=session,
-#         connection_string="sqlite:///sqlite.db",
-#     )
-
-#     # Add messages to the chat history
-
-#     userPromptMessage = HumanMessage(content=userPrompt)
-
-#     session_id1.add_user_message(userPromptMessage)
-
-#     response = rag_chain.invoke(userPrompt)
-
-#     responseMessage = AIMessage(content=response)
-#     session_id1.add_ai_message(responseMessage)
-#     return response
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         print(context)  # Print the context to the console for debugging
+#         return context

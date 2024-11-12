@@ -13,6 +13,7 @@ enable/disable the core plugins:
 -  ``'wiki.plugins.citations.apps.CitationsConfig'``
 -  ``'wiki.plugins.macros.apps.MacrosConfig'``
 -  ``'wiki.plugins.notifications.apps.NotificationsConfig'``
+-  ``'wiki.plugins.userprogress.apps.UserProgressConfig'``
 
 The notifications plugin is mandatory for an out-of-the-box installation. You
 can safely remove it from ``INSTALLED_APPS`` if you also override the

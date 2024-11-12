@@ -108,6 +108,8 @@ def get_article(  # noqa: max-complexity 19
     def wrapper(request, *args, **kwargs):
         path = kwargs.pop("path", None)
         article_id = kwargs.pop("article_id", None)
+        user_progress = request.COOKIES.get('user_progress', '')
+        
         try:
             article, urlpath = which_article(path, article_id)
         except NoRootURL:
@@ -172,6 +174,7 @@ def get_article(  # noqa: max-complexity 19
             return response_forbidden(request, article, urlpath)
 
         kwargs["urlpath"] = urlpath
+        kwargs["user_progress"] = user_progress
 
         return func(request, article, *args, **kwargs)
 

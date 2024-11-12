@@ -8,6 +8,7 @@ settings.WIKI_SIGNUP_URL = '/your/signup/url'
 SETTINGS.LOGIN_URL
 SETTINGS.LOGOUT_URL
 """
+
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -19,12 +20,14 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import CreateView
+from django.views.generic import CreateView, DeleteView
 from django.views.generic import FormView
 from django.views.generic import UpdateView
 from django.views.generic import View
 from wiki import forms
 from wiki.conf import settings
+from wiki.models.account import UserProfile
+from wiki.models.account import UserProgress
 
 User = get_user_model()
 
@@ -42,15 +45,8 @@ class Signup(CreateView):
         if not settings.ACCOUNT_HANDLING:
             return redirect(settings.SIGNUP_URL)
         # Allow superusers to use signup page...
-        if (
-            not request.user.is_superuser
-            and not settings.ACCOUNT_SIGNUP_ALLOWED
-        ):
-            c = {
-                "error_msg": _(
-                    "Account signup is only allowed for administrators."
-                )
-            }
+        if not request.user.is_superuser and not settings.ACCOUNT_SIGNUP_ALLOWED:
+            c = {"error_msg": _("Account signup is only allowed for administrators.")}
             return render(request, "wiki/error.html", context=c)
 
         return super().dispatch(request, *args, **kwargs)
@@ -123,7 +119,7 @@ class Login(FormView):
 class Update(UpdateView):
     model = User
     form_class = forms.UserUpdateForm
-    template_name = "wiki/accounts/account_settings.html"
+    template_name = "wiki/accounts/account.html"
 
     def get_object(self, queryset=None):
         return get_object_or_404(self.model, pk=self.request.user.pk)
@@ -155,3 +151,87 @@ class Update(UpdateView):
             return redirect(django_settings.LOGIN_REDIRECT_URL)
         return redirect("wiki:root")
 
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.views.generic import TemplateView
+
+
+# Give the user the possibility to update their account and delete it
+class UserAccountView(TemplateView):
+    model = User
+    template_name = "wiki/accounts/account_settings.html"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(self.model, pk=self.request.user.pk)
+
+    def get(self, request, *args, **kwargs):
+        """
+        Save the initial referer
+        """
+        self.referer = request.META.get("HTTP_REFERER", "")
+        request.session["login_referer"] = self.referer
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["update_form"] = forms.UserUpdateForm(instance=self.request.user)
+        context["delete_form"] = forms.UserDeleteForm()
+        context["img_form"] = forms.UserProfileImgForm()
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if "update_account" in request.POST:
+            self.referer = request.session.get("login_referer", "")
+            update_form = forms.UserUpdateForm(
+                request.POST, request.FILES, instance=request.user
+            )
+            if update_form.is_valid():
+                pw = update_form.cleaned_data["password1"]
+                if pw != "":
+                    self.object.set_password(pw)
+                self.object.save()
+                print("saved!")
+        elif "delete_account" in request.POST:
+            delete_form = forms.UserDeleteForm(request.POST)
+            if delete_form.is_valid() and delete_form.cleaned_data["confirm_deletion"]:
+                request.user.delete()
+                print("deleted!")
+                return redirect("wiki:root")
+        elif "update_img" in request.POST:
+            img_form = forms.UserProfileImgForm(request.POST, request.FILES)
+            print(request.FILES)
+            if img_form.is_valid():
+                # Check if a UserProfile instance already exists for the current user - allows for updating the profile image instead of creating a new entry in db
+                try:
+                    # Fetch the existing user profile instance
+                    user_profile = UserProfile.objects.get(user=request.user)
+                    # Bind the form to the existing instance
+                    img_form = forms.UserProfileImgForm(
+                        request.POST, request.FILES, instance=user_profile
+                    )
+                except UserProfile.DoesNotExist:
+                    # If no instance exists, create a new one
+                    img_form = forms.UserProfileImgForm(request.POST, request.FILES)
+                    user_profile = img_form.save(commit=False)
+                    user_profile.user = request.user
+
+                if img_form.is_valid():
+                    # Save the updated instance
+                    user_profile.save()
+                    print("Profile picture updated successfully")
+                else:
+                    print("Form is not valid")
+                    print(img_form.errors)
+
+                self.request.session["profile_picture"] = user_profile.profile_image.url
+
+                print("Profile image updated successfully!")
+            else:
+                print("Form is not valid.")
+                print(img_form.errors)
+
+        return self.get(request, *args, **kwargs)

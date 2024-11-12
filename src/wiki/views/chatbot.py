@@ -17,6 +17,8 @@ from langchain_core.chat_history import HumanMessage, AIMessage, BaseMessage
 
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate
+from wiki.models import Article, URLPath
+from django.contrib.auth.models import User
 
 
 import getpass
@@ -138,6 +140,53 @@ class Chatbot:
 
         return all_docs
 
+    def process_all_chapters(self, urlPath):
+        # Get all previous chapter URLs
+        previous_chapters_urls = self.get_previous_chapters(urlPath)
+
+        # Add current URL to the list to process it as well
+        all_urls = previous_chapters_urls
+
+        # List to store all articles' content
+        all_articles_content = []
+
+        # Process each URL
+        for url in all_urls:
+            path_segments = url.split("/")
+            # Remove empty strings from path segments
+            path_segments = [segment for segment in path_segments if segment]
+
+            print(f"Processing path segments: {path_segments}")
+
+            try:
+                # Find the root node first
+                root = URLPath.objects.filter(slug=path_segments[0])[0]
+
+                # Traverse down the tree
+                current_path = root
+                for segment in path_segments[1:]:
+                    current_path = current_path.get_children().get(slug=segment)
+
+                print(f"Found path: {current_path}")
+
+                # Get the article from the URL path
+                article = current_path.article
+
+                # Append article content to the list
+                all_articles_content.append(f"### Chapter: {current_path.slug} ###\n")
+                all_articles_content.append(article.current_revision.content)
+                all_articles_content.append("\n\n")
+
+            except URLPath.DoesNotExist:
+                print(f"Path not found: {url}")
+                continue
+
+        # Write all content to a single file
+        with open("all_articles.txt", "w") as f:
+            f.write("\n".join(all_articles_content))
+
+        print(f"Successfully processed {len(all_articles_content) // 3} articles")
+
     def handle_message_given_location(
         self,
         userPrompt,
@@ -164,13 +213,88 @@ class Chatbot:
             print("saved")
 
         else:
+            # process all chapters up to the current chapter
+            self.process_all_chapters(urlPath)
             # docs = self.scrape_chapters(urlPath.replace("and-below", ""))
 
             # Scrape the wiki page
-            loader = WebBaseLoader(
-                web_paths=("http://localhost:8000/" + urlPath,),
-                bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
-            )
+            # loader = WebBaseLoader(
+            #     web_paths=("http://localhost:8000/" + urlPath,),
+            #     bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("wiki-article"))),
+            # )
+
+            # print("urlPath", urlPath)
+
+            # previous_chapters_urls = self.get_previous_chapters(urlPath)
+
+            # path_segments = urlPath.split("/")
+
+            # # remove empty string from path segments
+            # path_segments = [segment for segment in path_segments if segment]
+
+            # print("path segments", path_segments)
+
+            # try:
+            #     # Find the root node first
+            #     root = URLPath.objects.filter(slug=path_segments[0])[
+            #         0
+            #     ]  # 'harry-potter'
+
+            #     # Then traverse down the tree
+            #     current_path = root
+            #     for segment in path_segments[1:]:
+            #         current_path = current_path.get_children().get(slug=segment)
+
+            #     print(f"Found path: {current_path}")
+            # except URLPath.DoesNotExist:
+            #     print("Path not found")
+
+            # # get the url path from path segments
+
+            # # get the article from the url path
+            # article = current_path.article
+
+            # # put article content in text file
+            # with open("article.txt", "w") as f:
+            #     f.write(article.current_revision.content)
+
+            # # print("article", article.current_revision.content)
+
+            # # # get current user username
+            # # user = getpass.getuser()
+            # # userObj = User.objects.get_or_create(username=user)
+
+            # # print("userObj", userObj[0])
+
+            # # # convert urlpath string to json
+            # # urlPath
+
+            # # filteredContent = article.render(
+            # #     article.current_revision.content, userObj[0]
+            # # )
+
+            # # print("filtered content", filteredContent)
+
+            # # get the article  current revision
+            # # article = Article.objects.get( )[0].current_revision
+            # # article = URLPath.objects.filter(
+            # #     article=urlPath, id=0
+            # # ).article.current_revision
+            # print(urlPath)
+            # url_path = URLPath.objects.filter(slug=urlPath)[0].article.current_revision
+
+            # print(url_path)
+
+            # get article from urlpath and id
+            # article = URLPath.objects.get(article=urlPath).article.current_revision
+
+            # get the article content
+            # article_content = article.render()
+
+            # print("article content", article_content)
+
+            loader = TextLoader("all_articles.txt")
+
             docs = loader.load()
 
             if docs[0].page_content == "\n":
@@ -178,9 +302,9 @@ class Chatbot:
 
             docsDict[urlPath] = docs
 
-            print(urlPath)
+            # print(urlPath)
 
-            print("docs", docs)
+            # print("docs", docs)
 
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=1000, chunk_overlap=200
