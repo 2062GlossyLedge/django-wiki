@@ -1,0 +1,29 @@
+{% extends "wiki/base.html" %}
+{% load i18n wiki_tags %}
+
+{% block wiki_contents %}
+
+<h1>{% trans "Your Current Progress" %}</h1>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>{% trans "Wiki" %}</th>
+      <th>{% trans "Progress" %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for progress in progress_list %}
+      <tr>
+        <td>{{ progress.wiki_id|media_process }}</td>
+        <td>{{ progress.progress|progress_process }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="2">{% trans "No progress recorded yet." %}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% load i18n sekizai_tags static %}
+
+<div class="dropdown-divider"></div>
+<a class="dropdown-item" href="{% url 'wiki:user_progress' %}">
+    <i class="fa fa-bookmark"></i>
+    {% trans "User Progress" %}
+</a>
+
+
+
+{% addtoblock "js" %}
+<script type="text/javascript" src="{% static 'wiki/plugins/userprogress/ui/ui.js' %}"></script>
+{% endaddtoblock %}

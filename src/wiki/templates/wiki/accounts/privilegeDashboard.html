@@ -1,0 +1,98 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block wiki_contents %}
+
+{% addtoblock "js" %}
+<script src="{% static 'wiki/js/privilegeDashboard.js' %}"></script>
+{% endaddtoblock %}
+
+
+<head>
+    <link rel='stylesheet' href="{%static 'wiki/css/privilegeDashboard.css' %}">
+</head>
+
+
+<h2>Privileges</h2>
+
+<table class="privileges-table">
+    <thead>
+        <tr>
+            <th>Privilege</th>
+            <th>Status</th>
+            <th>Privilege Regain Date</th>
+            <th>Total Infractions</th>
+            <th>Infraction Events</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for privilege in privileges %}
+        <tr>
+            <td>{{ privilege.name }}</td>
+            <td>{{ privilege.get_status_display }}</td>
+            <td>{{ privilege.get_timeout_length}}</td>
+            <td>{{ privilege.infractions}}</td>
+            <td>
+
+                <ol>
+                    {% for event in privilege.infraction_events.all %}
+                    <li>
+                        {{ event.date|date:"Y-m-d" }} - {{ event.article_title }}
+                        <a href="{{ event.article_history_link }}" target="_blank">(History)</a>
+                    </li>
+                    {% empty %}
+                    <li>No infractions</li>
+                    {% endfor %}
+
+                </ol>
+
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Rubric</h2>
+<table id="rubric-table">
+    <thead>
+        <tr>
+            <th>Privileges</th>
+            <th>Infraction Description</th>
+            <th>Total Infractions Before Losing Privilege</th>
+            <th>Timeout Length</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Commenting</td>
+            <td>Commenting a spoiler</td>
+            <td>3</td>
+            <td>3 days</td>
+        </tr>
+        <tr>
+            <td>Editing</td>
+            <td>Adding a spoiler or deleting approved content</td>
+            <td>3</td>
+            <td>3 days</td>
+        </tr>
+        <tr>
+            <td>Spoil flagging</td>
+            <td>Flagging text that is not a spoiler</td>
+            <td>3</td>
+            <td>3 days</td>
+        </tr>
+        <tr>
+            <td>Creating wiki pages</td>
+            <td>Creating duplicate or fake wikis</td>
+            <td>3</td>
+            <td>3 days</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+
+
+{% endblock %}
