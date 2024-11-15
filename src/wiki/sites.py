@@ -6,7 +6,8 @@ from django.utils.module_loading import import_string
 from wiki.conf import settings
 from wiki.core.plugins import registry
 from wiki.views.progress_views import SaveUserProgressView, UserProgressView, ResetCacheView, ResetCacheViewArticle
-from wiki.views.submit_report import SubmitReportView, ApproveReportView
+from wiki.views.submit_report import SubmitReportView, ApproveReportView, SubmitDiscussionReport
+from wiki.views.submit_discussion_post import SubmitDiscussionPost
 from wiki.views.badges import IncrementBadgeProgressView
 
 class WikiSite:
@@ -137,6 +138,9 @@ class WikiSite:
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/incrementbadge/$', IncrementBadgeProgressView.as_view(), name='increment_badge_progress'),
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/submit_report/$', SubmitReportView.as_view(), name='submit_report'),
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/approve_report/$', ApproveReportView.as_view(), name='approve_report'),
+        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/submit_discussion/$', SubmitDiscussionPost.as_view(), name='submit_discussion_post'),
+        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/submit_discussion_report/$', SubmitDiscussionReport.as_view(), name='submit_discussion_report'),
+
         # This ALWAYS has to be the last of all the patterns since
         # the paths in theory could wrongly match other targets.
         urlpatterns += self.get_article_path_urls()

@@ -16,19 +16,20 @@
     // Toggle the dropdown visibility
     document.getElementById(dropdownId).classList.toggle("show");
   }
-//   window.onclick = function(event) {
-//   if (!event.target.matches('.btn')) {
-//     // Get all dropdowns and hide them if clicked outside
-//     var dropdowns = document.getElementsByClassName("dropdown-content");
-//     for (var i = 0; i < dropdowns.length; i++) {
-//       var openDropdown = dropdowns[i];
-//       if (openDropdown.classList.contains('show')) {
-//         openDropdown.classList.remove('show');
-//       }
-//     }
-//   }
-// }
-  function sendReport(revision_id, report_type, article_id, revision_number) {
+
+  window.onclick = function(event) {
+  if (!event.target.matches('.btn')) {
+    // Get all dropdowns and hide them if clicked outside
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    for (var i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+  function sendReport(revision_id, report_type, article_id, revision_number, dropdownId) {
     $.ajax({
       url: "_plugin/submit_report/",
       type: "POST",
@@ -41,6 +42,7 @@
         'csrfmiddlewaretoken': '{{ csrf_token }}'
       }
     });
+    reportDropdown(dropdownId)
   }
   function incrementReportBadge() {
     $.ajax({
@@ -159,9 +161,9 @@
               <div class="dropdown">
                 <button class="btn btn-secondary" onclick="reportDropdown('dropdown{{ revision.id }}'); event.preventDefault()">Report</button>
                 <div id="dropdown{{ revision.id }}" class="dropdown-content">
-                  <a href="#" onclick="sendReport({{ revision.id }}, 'Spoiler', {{ article.id }}, {{ revision.revision_number }}); incrementReportBadge(); return false;">Spoiler</a>
-                  <a href="#" onclick="sendReport({{ revision.id }}, 'Innacurate Info', {{ article.id }}, {{ revision.revision_number }}); incrementReportBadge(); return false;">Inaccurate Info</a>
-                  <a href="#" onclick="sendReport({{ revision.id }}, 'Inappropriate', {{ article.id }}, {{ revision.revision_number }}); incrementReportBadge(); return false;">Inappropriate</a>
+                  <a href="#" onclick="sendReport({{ revision.id }}, 'Spoiler', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Spoiler</a>
+                  <a href="#" onclick="sendReport({{ revision.id }}, 'Innacurate Info', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Inaccurate Info</a>
+                  <a href="#" onclick="sendReport({{ revision.id }}, 'Inappropriate', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Inappropriate</a>
                 </div>
               </div>
 
