@@ -7,7 +7,7 @@ from wiki.conf import settings
 from wiki.core.plugins import registry
 from wiki.views.progress_views import SaveUserProgressView, UserProgressView, ResetCacheView, ResetCacheViewArticle
 from wiki.views.submit_report import SubmitReportView, ApproveReportView
-
+from wiki.views.badges import IncrementBadgeProgressView
 
 class WikiSite:
     """
@@ -27,6 +27,7 @@ class WikiSite:
             home,
             sidebar,
             privileges,
+            badges,
             admin_dashboard
         )
 
@@ -48,6 +49,11 @@ class WikiSite:
         # privileges view
         self.privileges_view = getattr(
             self, "privileges_view", privileges.Privileges.as_view()
+        )
+        
+        #badges view
+        self.badges_view = getattr(
+            self, "badges_view", badges.Badges.as_view()
         )
 
         self.admin_view = getattr(
@@ -128,6 +134,7 @@ class WikiSite:
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/getprogress/$', UserProgressView.as_view(), name='get_user_progress'),
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/resetcache/$', ResetCacheView.as_view(), name='reset_cache'),
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/resetcachearticle/$', ResetCacheViewArticle.as_view(), name='reset_cache_article'),
+        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/incrementbadge/$', IncrementBadgeProgressView.as_view(), name='increment_badge_progress'),
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/submit_report/$', SubmitReportView.as_view(), name='submit_report'),
         urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/approve_report/$', ApproveReportView.as_view(), name='approve_report'),
         # This ALWAYS has to be the last of all the patterns since
@@ -144,6 +151,7 @@ class WikiSite:
             re_path(r"^help/$", self.help_view, name="help"),
             re_path(r"^homepage/$", self.homepage_view, name="homepage"),
             re_path(r"^privileges/$", self.privileges_view, name="privileges"),
+            re_path(r"^badges/$", self.badges_view, name="badges"),
             re_path(r"^admin_dashboard/$", self.admin_view, name="admin_dashboard"),
             re_path(r"^$", self.article_view, name="root", kwargs={"path": ""}),
             re_path(r"^create-root/$", self.root_view, name="root_create"),

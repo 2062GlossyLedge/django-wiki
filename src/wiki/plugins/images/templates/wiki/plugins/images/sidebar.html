@@ -33,6 +33,24 @@ function insert_image(data) {
 function add_image(form) {
     $(form).submit();
 }
+function incrementPainterBadge() {
+    $.ajax({
+        url: "_plugin/incrementbadge/",
+        type: "POST",
+        data: {
+        'badge_id': 'Painter',
+        'increment': 1,
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+            if (response.message) {
+            console.log('Badges queried successfully');
+        } else {
+            console.log(response);
+        } 
+        },
+    });
+}
 </script>
 {% endaddtoblock %}
 
@@ -112,7 +130,7 @@ function add_image(form) {
   </p>
 
   <p>
-    <button type="button" onClick="add_image(this.form)" name="{{ plugin.slug }}_save" value="1" class="btn btn-secondary btn-md">
+    <button type="button" onClick="add_image(this.form); incrementPainterBadge();" name="{{ plugin.slug }}_save" value="1" class="btn btn-secondary btn-md">
       <span class="fa fa-upload"></span>
       {% trans "Add image" %}
     </button>
