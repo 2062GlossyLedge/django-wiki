@@ -44,6 +44,24 @@
     });
     reportDropdown(dropdownId)
   }
+  function incrementReportBadge() {
+    $.ajax({
+        url: "_plugin/incrementbadge/",
+        type: "POST",
+        data: {
+        'badge_id': 'Reporter',
+        'increment': 1,
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+            if (response.message) {
+            console.log('Badges queried successfully');
+        } else {
+            console.log(response);
+        } 
+        },
+    });
+  }
 </script>
 {% endaddtoblock %}
 {% addtoblock "css" %}
@@ -143,9 +161,9 @@
               <div class="dropdown">
                 <button class="btn btn-secondary" onclick="reportDropdown('dropdown{{ revision.id }}'); event.preventDefault()">Report</button>
                 <div id="dropdown{{ revision.id }}" class="dropdown-content">
-                  <a href="#" onclick="sendReport({{ revision.id }}, 'Spoiler', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); return false;">Spoiler</a>
-                  <a href="#" onclick="sendReport({{ revision.id }}, 'Innacurate Info', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); return false;">Inaccurate Info</a>
-                  <a href="#" onclick="sendReport({{ revision.id }}, 'Inappropriate', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); return false;">Inappropriate</a>
+                  <a href="#" onclick="sendReport({{ revision.id }}, 'Spoiler', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Spoiler</a>
+                  <a href="#" onclick="sendReport({{ revision.id }}, 'Innacurate Info', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Inaccurate Info</a>
+                  <a href="#" onclick="sendReport({{ revision.id }}, 'Inappropriate', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Inappropriate</a>
                 </div>
               </div>
 

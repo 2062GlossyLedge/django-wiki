@@ -11,6 +11,7 @@ from wiki.models.account import (
     UserProfile,
     UserProgress,
     Privilege,
+    UserBadge,
     InfractionEvent,
     RecentlyVisitedWikiPages,
     Report,
@@ -132,4 +133,5 @@ class InfractionEventAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Privilege)
+admin.site.register(UserBadge)
 admin.site.register(RecentlyVisitedWikiPages)
