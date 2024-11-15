@@ -12,6 +12,7 @@ dist
 .eggs
 testproject/testproject/whoosh_index/
 testproject/testproject/xapian_index/
+testproject/testproject/media/
 
 tests/media
 
