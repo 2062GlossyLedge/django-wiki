@@ -12,6 +12,8 @@ dist
 .eggs
 testproject/testproject/whoosh_index/
 testproject/testproject/xapian_index/
+testproject/testproject/media
+!testproject/testproject/media/profile_pics/default2.png
 
 tests/media
 
