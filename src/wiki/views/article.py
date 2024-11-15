@@ -36,6 +36,7 @@ from wiki.core.plugins import registry as plugin_registry
 from wiki.core.utils import object_to_json_response
 from wiki.decorators import get_article
 from wiki.models.article import Article, ArticleRevision
+from wiki.models.account import DiscussionBoard, UserProfile
 from wiki.views.mixins import ArticleMixin
 from wiki.models.account import UserProfile, Privilege, RecentlyVisitedWikiPages
 
@@ -112,7 +113,7 @@ class ArticleView(ArticleMixin, TemplateView):
                 kwargs["user_progress"] = ''
 
         kwargs["has_potential_spoilers"] = self.article.has_potential_spoilers
-
+        kwargs["discussion_board_data"] = self.get_discussion_data()
         return ArticleMixin.get_context_data(self, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -135,6 +136,21 @@ class ArticleView(ArticleMixin, TemplateView):
 
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
+    
+    def get_discussion_data(self):
+        context = []
+        posts = DiscussionBoard.objects.filter(article_id = self.article.id).order_by("date")
+        for post in posts:
+            profile = UserProfile.objects.get(user = post.user)
+            context.append(
+                {
+                    "user": post.user,
+                    "content": post.content,
+                    "date": post.date,
+                    "pic": profile.profile_image,
+                    "postID" : post.post_id
+                })
+        return context
 
 
 class Create(FormView, ArticleMixin):

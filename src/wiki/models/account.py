@@ -118,4 +118,18 @@ class Report(models.Model):
 
     def __str__(self):
         return f"{self.revision_id} - {self.article_id} - {self.report_type} - {self.current_page}"
+    
+class DiscussionBoard(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="discussion_board")
+    article_id = models.IntegerField()
+    content = models.TextField(blank=True, verbose_name= ("discussion_contents"))
+    date = models.DateTimeField(auto_now_add=True)
+    post_id = models.AutoField(primary_key=True)
 
+class DiscussionReport(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="discussion_report")
+    article_id = models.IntegerField()
+    date = models.DateTimeField(auto_now_add=True)
+    post_id = models.IntegerField()
+    report_type = models.CharField(max_length=255)
+    current_page = models.CharField(max_length=255)
