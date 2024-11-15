@@ -1,0 +1,127 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block wiki_contents %}
+
+{% addtoblock "js" %}
+<script src="{% static 'wiki/js/activity.js' %}"></script>
+{% endaddtoblock %}
+
+<h2>Activity Overview</h2>
+
+<!-- Tabs for different charts -->
+<div class="tabs">
+    <button class="tablink active" onclick="openTab(event, 'RevisionsOverTime')">Revisions Over Time</button>
+    <button class="tablink" onclick="openTab(event, 'TopEditedArticles')">Top Edited Articles</button>
+    <button class="tablink" onclick="openTab(event, 'TopEditors')">Top Editors</button>
+    <button class="tablink" onclick="openTab(event, 'EditDistribution')">Edit Distribution</button>
+</div>
+
+<!-- Tab Content: Revisions Over Time -->
+<div id="RevisionsOverTime" class="tabcontent" style="display: block;">
+    <canvas id="revisionsChart" width="400" height="200"></canvas>
+</div>
+
+<!-- Tab Content: Top Edited Articles -->
+<div id="TopEditedArticles" class="tabcontent">
+    <canvas id="topArticlesChart" width="400" height="200"></canvas>
+</div>
+
+<!-- Tab Content: Top Editors -->
+<div id="TopEditors" class="tabcontent">
+    <canvas id="topEditorsChart" width="400" height="200"></canvas>
+</div>
+
+<!-- Tab Content: Edit Distribution -->
+<div id="EditDistribution" class="tabcontent">
+    <canvas id="editDistributionChart" width="400" height="200"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  // Data passed from Django view
+  const revisionData = {{ revision_data|safe }};
+  const topArticlesData = {{ top_articles_data|safe }};
+  const topEditorsData = {{ top_editors_data|safe }};
+  const editDistributionData = {{ edit_distribution_data|safe }};
+
+  // Initialize each chart
+  const revisionsCtx = document.getElementById('revisionsChart').getContext('2d');
+  const revisionsChart = new Chart(revisionsCtx, {
+      type: 'line',
+      data: {
+          labels: revisionData.labels,
+          datasets: [{
+              label: 'Number of Revisions',
+              data: revisionData.data,
+              borderColor: '#00A7E3',
+              borderWidth: 2,
+              fill: false
+          }]
+      }
+  });
+
+  const topArticlesCtx = document.getElementById('topArticlesChart').getContext('2d');
+  const topArticlesChart = new Chart(topArticlesCtx, {
+      type: 'bar',
+      data: {
+          labels: topArticlesData.labels,
+          datasets: [{
+              label: 'Revisions',
+              data: topArticlesData.data,
+              backgroundColor: '#00A7E3'
+          }]
+      }
+  });
+
+  const topEditorsCtx = document.getElementById('topEditorsChart').getContext('2d');
+  const topEditorsChart = new Chart(topEditorsCtx, {
+      type: 'bar',
+      data: {
+          labels: topEditorsData.labels,
+          datasets: [{
+              label: 'Revisions',
+              data: topEditorsData.data,
+              backgroundColor: '#00A7E3'
+          }]
+      }
+  });
+
+  const editDistributionCtx = document.getElementById('editDistributionChart').getContext('2d');
+  const editDistributionChart = new Chart(editDistributionCtx, {
+      type: 'bar',
+      data: {
+          labels: editDistributionData.labels,
+          datasets: [{
+              label: 'Edits by Day/Hour',
+              data: editDistributionData.data,
+              backgroundColor: '#00A7E3'
+          }]
+      }
+  });
+
+  // Tab functionality
+  function openTab(evt, tabName) {
+      const tabContents = document.getElementsByClassName('tabcontent');
+      for (const tabContent of tabContents) {
+          tabContent.style.display = "none";
+      }
+      const tabLinks = document.getElementsByClassName('tablink');
+      for (const tabLink of tabLinks) {
+          tabLink.className = tabLink.className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+  }
+</script>
+
+<style>
+  /* Tab styles */
+  .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+  .tablink { padding: 10px; cursor: pointer; background-color: #f1f1f1; border: none; outline: none; }
+  .tablink.active { background-color: #00A7E3; color: white; }
+  .tabcontent { display: none; }
+</style>
+
+{% endblock %}

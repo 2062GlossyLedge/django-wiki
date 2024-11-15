@@ -81,6 +81,10 @@
                 <i class="fa fa-crown"></i>
                 {% trans "Privilege Dashboard"%}
               </a>
+              <a class="dropdown-item" href="{% url 'wiki:activity' %}">
+                <i class="fa fa-chart-line"></i>
+                {% trans "Activity Dashboard"%}
+              </a>
               <a href="{{ 'LOGOUT_URL'|wiki_settings }}" class="dropdown-item">
                 <i class="fa fa-power-off"></i>
                 {% trans "Log out" %}
