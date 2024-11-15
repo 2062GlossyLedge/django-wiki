@@ -48,7 +48,7 @@ class ApproveReportView(View):
                     privilege = privilege[0],
                     article_title = wiki,
                     admin_user = self.request.user,
-                    article_history_link = "http://localhost:8000" + wiki
+                    article_history_link = "http://www.wikiward.wiki" + wiki
                 )
                 post.delete()
             report = DiscussionReport.objects.get(post_id = post_id)
@@ -62,7 +62,7 @@ class ApproveReportView(View):
                     privilege = privilege[0],
                     article_title = wiki,
                     admin_user = self.request.user,
-                    article_history_link = "http://localhost:8000"+ wiki + "_history/"
+                    article_history_link = "http://www.wikiward.wiki"+ wiki + "_history/"
                 )
 
             report = Report.objects.get(

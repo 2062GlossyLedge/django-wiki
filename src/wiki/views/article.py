@@ -147,7 +147,7 @@ class ArticleView(ArticleMixin, TemplateView):
                     "user": post.user,
                     "content": post.content,
                     "date": post.date,
-                    "pic": profile.profile_image,
+                    "pic": profile.profile_image.url,
                     "postID" : post.post_id
                 })
         return context
