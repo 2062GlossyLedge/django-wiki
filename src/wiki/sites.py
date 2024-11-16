@@ -12,6 +12,7 @@ from wiki.views.progress_views import (
     ResetCacheViewArticle,
 )
 from wiki.views.submit_report import SubmitReportView, ApproveReportView
+from wiki.views.badges import IncrementBadgeProgressView
 
 
 class WikiSite:
@@ -30,7 +31,9 @@ class WikiSite:
             article,
             deleted_list,
             home,
+            sidebar,
             privileges,
+            badges,
             admin_dashboard,
         )
 
@@ -51,8 +54,6 @@ class WikiSite:
         self.agnostic_Chatbot_view = getattr(
             self, "agnostic_Chatbot_view", home.AgnosticChatbot.as_view()
         )
-        # help view
-        self.help_view = getattr(self, "help_view", home.HelpPage.as_view())
 
         # privileges view
         self.privileges_view = getattr(
@@ -62,6 +63,13 @@ class WikiSite:
         self.admin_view = getattr(
             self, "admin_view", admin_dashboard.AdminDashboard.as_view()
         )
+        # chatbot view
+        self.chatbot_view = getattr(self, "chatbot_view", sidebar.Chatbot.as_view())
+
+        # privileges view
+
+        # badges view
+        self.badges_view = getattr(self, "badges_view", badges.Badges.as_view())
 
         # basic views
         self.article_view = getattr(self, "article_view", article.ArticleView.as_view())
@@ -187,7 +195,7 @@ class WikiSite:
 
     def get_root_urls(self):
         urlpatterns = [
-            re_path(r"^homepage/$", self.homepage_view, name="homepage"),
+            re_path(r"^badges/$", self.badges_view, name="badges"),
             re_path(
                 r"^agnosticChatbot/$",
                 self.agnostic_Chatbot_view,

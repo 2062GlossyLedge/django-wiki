@@ -11,11 +11,11 @@ from wiki.models.account import (
     UserProfile,
     UserProgress,
     Privilege,
+    UserBadge,
     InfractionEvent,
     RecentlyVisitedWikiPages,
-    Report
+    Report,
 )
-
 
 
 class ArticleObjectAdmin(GenericTabularInline):
@@ -128,4 +128,5 @@ class InfractionEventAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Privilege)
+admin.site.register(UserBadge)
 admin.site.register(RecentlyVisitedWikiPages)

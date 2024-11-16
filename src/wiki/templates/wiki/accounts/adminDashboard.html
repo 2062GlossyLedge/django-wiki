@@ -142,7 +142,24 @@
             }
         });
     }
-
+    function incrementReportBadge() {
+        $.ajax({
+            url: "_plugin/incrementbadge/",
+            type: "POST",
+            data: {
+                'badge_id': 'Moderator',
+                'increment': 1,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (response) {
+                if (response.message) {
+                    console.log('Badges queried successfully');
+                } else {
+                    console.log(response);
+                }
+            },
+        });
+    }
 </script>
 {% endaddtoblock %}
 {% addtoblock "css" %}
@@ -251,10 +268,10 @@
             <td>{{report.reason}}</td>
             <td>
                 <button class="rep_btn approve"
-                    onclick="sendReport('Valid', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); return false;">
+                    onclick="sendReport('Valid', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); incrementReportBadge(); return false;">
                     Valid Change </button>
                 <button class="rep_btn deny"
-                    onclick="sendReport('Infraction', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); return false;">
+                    onclick="sendReport('Infraction', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); incrementReportBadge(); return false;">
                     Infraction </button>
             </td>
         </tr>

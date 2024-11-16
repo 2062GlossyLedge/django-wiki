@@ -4,11 +4,13 @@ from django.db.models import JSONField
 from collections import deque
 from datetime import datetime, timedelta
 from django.shortcuts import redirect
+from django.utils import timezone
 
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     profile_image = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
+    account_created = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.user.username
@@ -86,6 +88,46 @@ class Privilege(models.Model):
         return None
 
 
+class UserBadge(models.Model):
+    BADGE_LEVELS = [
+        ("none", "None"),
+        ("normal", "Normal"),
+        ("silver", "Silver"),
+        ("gold", "Gold"),
+    ]
+
+    badge_id = models.CharField(max_length=255)  # Unique identifier for each badge
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="badges"
+    )  # Foreign key to the User model
+    level = models.CharField(
+        max_length=10, choices=BADGE_LEVELS, default="none"
+    )  # Overall badge level (None, Normal, Silver, Gold)
+    num_things = (
+        models.PositiveIntegerField()
+    )  # Contribution count for determining level
+
+    def determine_level(self):
+        """
+        Determines the badge level based on badge_id and contributions.
+        The criteria can be customized per badge_id.
+        """
+        if self.badge_id == "example_badge":
+            if self.num_things >= 20:
+                self.level = "gold"
+            elif self.num_things >= 10:
+                self.level = "silver"
+            elif self.num_things >= 5:
+                self.level = "normal"
+            else:
+                self.level = "none"
+        # Additional badge criteria can be added here for other badge IDs
+        self.save()
+
+    def __str__(self):
+        return f"{self.user.username} - {self.badge_id} - Level: {self.level} - Contributions: {self.num_things}"
+
+
 class InfractionEvent(models.Model):
     # one to many relationship with Privilege
     privilege = models.ForeignKey(
@@ -108,6 +150,7 @@ class InfractionEvent(models.Model):
         self.privilege.save()
         super().save(*args, **kwargs)
 
+
 class Report(models.Model):
     revision_id = models.IntegerField()
     article_id = models.IntegerField()
@@ -118,4 +161,3 @@ class Report(models.Model):
 
     def __str__(self):
         return f"{self.revision_id} - {self.article_id} - {self.report_type} - {self.current_page}"
-

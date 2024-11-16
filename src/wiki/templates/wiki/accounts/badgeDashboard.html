@@ -1,0 +1,196 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block wiki_contents %}
+
+
+<head>
+    <link rel="stylesheet">
+    <style>
+        .badge-table {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px; /* Space between the images */
+        }
+
+        .badge-item {
+            position: relative; /* Makes it a positioned container for the tooltip */
+            text-align: center; /* Center-align text under the image */
+        }
+
+        .badge-image {
+            width: 120px;  /* Adjust the width of each badge */
+            height: auto; /* Keep the aspect ratio */
+            margin-bottom: 5px; /* Space between image and text */
+        }
+
+        /* Tooltip styles */
+        .tooltip-text {
+            visibility: hidden; /* Hide tooltip by default */
+            position: absolute;
+            bottom: 100%; /* Position the tooltip above the badge */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.75); /* Dark background */
+            color: white; /* White text */
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 14px;
+            white-space: nowrap; /* Prevent text from wrapping */
+            opacity: 0; /* Initially hide the tooltip */
+            transition: opacity 0.3s ease; /* Smooth fade-in */
+        }
+
+        /* Show the title text on hover */
+        .badge-item:hover .badge-title {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .badge-title {
+            visibility: hidden; /* Hide the title by default */
+            opacity: 0; /* Initially hide the title */
+            transition: opacity 0.3s ease; /* Smooth fade-in */
+        }
+
+        .badge-item:hover .badge-title {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<div class="container my-4">
+    <h2>Badges</h2>
+    <div class="badge-table">
+        {% for badge in badges %}
+            <div class="badge-item">
+                <img src="{% static 'wiki/img/badges/' %}{{ badge.badge_id|lower }}_{{ badge.get_level_display|lower }}.png"
+                     alt="{{ badge.badge_id }}" class="badge-image">
+                <!-- Badge Title that shows on hover -->
+                <div class="badge-title">{{ badge.badge_id }} <br> Current Badge: 
+                    {% if badge.get_level_display == "None" %}
+                        Not Earned
+                    {% elif badge.get_level_display == "Normal" %}
+                        Basic
+                    {% else %}
+                        {{ badge.get_level_display }}
+                    {% endif %} 
+                    <br>
+                    
+                    {% if badge.badge_id == "Reader" %}
+                        Number of Series in Progress: {{ badge.num_things }} <br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 1
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 5 
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 20
+                        {% endif %}
+                    {% elif badge.badge_id == "Contributor" %}
+                        Number of New Pages Created: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 5
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 10 
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 100
+                        {% endif %}
+                    {% elif badge.badge_id == "Editor" %}
+                        Number of Edits: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 10
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 100 
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 1000
+                        {% endif %}
+                    {% elif badge.badge_id == "Reviewer" %}
+                        Number of Pages Flagged for Spoilers: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 1
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 5 
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 20
+                        {% endif %}
+                    {% elif badge.badge_id == "Moderator" %}
+                        Number of Reports Reviewed: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 1
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 10
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 50
+                        {% endif %}
+                    {% elif badge.badge_id == "Explorer" %}
+                        Number of Wikis Created: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 1
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 5 
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 10
+                        {% endif %}
+                    {% elif badge.badge_id == "Survivor" %}
+                        Number of Days Account Alive: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 30
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 365 
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 1000
+                        {% endif %}
+                    {% elif badge.badge_id == "Gourmand" %}
+                        Max Books/Seasons Completed in One Series: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 3
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 5
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 10
+                        {% endif %}
+                    {% elif badge.badge_id == "Painter" %}
+                        Number of Images Uploaded: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 5
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 20 
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 100
+                        {% endif %}
+                    {% elif badge.badge_id == "Guardian" %}
+                        Number of Spoiler Flagged Articles Fixed: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 1
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 5
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 20
+                        {% endif %}
+                    {% elif badge.badge_id == "Commenter" %}
+                        Number of Comments Made: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 10
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 100 
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 1000
+                        {% endif %}
+                    {% elif badge.badge_id == "Reporter" %}
+                        Number of Users Reported: {{ badge.num_things }}<br>
+                        {% if badge.get_level_display == "None" %}
+                            Number to Unlock Badge: 1
+                        {% elif badge.get_level_display == "Normal" %}
+                            Number to Unlock Silver: 5 
+                        {% elif badge.get_level_display == "Silver"%}
+                            Number to Unlock Gold: 20
+                        {% endif %}
+                    {% endif %} 
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
