@@ -31,7 +31,6 @@ class WikiSite:
             article,
             deleted_list,
             home,
-            sidebar,
             privileges,
             badges,
             admin_dashboard,
@@ -63,8 +62,6 @@ class WikiSite:
         self.admin_view = getattr(
             self, "admin_view", admin_dashboard.AdminDashboard.as_view()
         )
-        # chatbot view
-        self.chatbot_view = getattr(self, "chatbot_view", sidebar.Chatbot.as_view())
 
         # privileges view
 
