@@ -16,19 +16,20 @@
     // Toggle the dropdown visibility
     document.getElementById(dropdownId).classList.toggle("show");
   }
-  //   window.onclick = function(event) {
-  //   if (!event.target.matches('.btn')) {
-  //     // Get all dropdowns and hide them if clicked outside
-  //     var dropdowns = document.getElementsByClassName("dropdown-content");
-  //     for (var i = 0; i < dropdowns.length; i++) {
-  //       var openDropdown = dropdowns[i];
-  //       if (openDropdown.classList.contains('show')) {
-  //         openDropdown.classList.remove('show');
-  //       }
-  //     }
-  //   }
-  // }
-  function sendReport(revision_id, report_type, article_id, revision_number) {
+
+  window.onclick = function (event) {
+    if (!event.target.matches('.btn')) {
+      // Get all dropdowns and hide them if clicked outside
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      for (var i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+          openDropdown.classList.remove('show');
+        }
+      }
+    }
+  }
+  function sendReport(revision_id, report_type, article_id, revision_number, dropdownId) {
     $.ajax({
       url: "_plugin/submit_report/",
       type: "POST",
@@ -41,6 +42,7 @@
         'csrfmiddlewaretoken': '{{ csrf_token }}'
       }
     });
+    reportDropdown(dropdownId)
   }
   function incrementReportBadge() {
     $.ajax({
@@ -182,12 +184,12 @@
                 onclick="reportDropdown('dropdown{{ revision.id }}'); event.preventDefault()">Report</button>
               <div id="dropdown{{ revision.id }}" class="dropdown-content">
                 <a href="#"
-                  onclick="sendReport({{ revision.id }}, 'Spoiler', {{ article.id }}, {{ revision.revision_number }}); incrementReportBadge(); return false;">Spoiler</a>
+                  onclick="sendReport({{ revision.id }}, 'Spoiler', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Spoiler</a>
                 <a href="#"
-                  onclick="sendReport({{ revision.id }}, 'Innacurate Info', {{ article.id }}, {{ revision.revision_number }}); incrementReportBadge(); return false;">Inaccurate
+                  onclick="sendReport({{ revision.id }}, 'Innacurate Info', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Inaccurate
                   Info</a>
                 <a href="#"
-                  onclick="sendReport({{ revision.id }}, 'Inappropriate', {{ article.id }}, {{ revision.revision_number }}); incrementReportBadge(); return false;">Inappropriate</a>
+                  onclick="sendReport({{ revision.id }}, 'Inappropriate', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Inappropriate</a>
               </div>
             </div>
 
@@ -282,7 +284,8 @@
           <h1>{% trans "Merge with current" %}</h1>
           <p class="lead"><span class="fa fa-info-circle"></span> {% trans "When you merge a revision with the current,
             all data will be retained from both versions and merged at its approximate location from each revision." %}
-            <strong>{% trans "After this, it's important to do a manual review." %}</strong></p>
+            <strong>{% trans "After this, it's important to do a manual review." %}</strong>
+          </p>
         </div>
         <div class="modal-body">
           <iframe name="mergeWindow" frameborder="0" style="min-height: 0;"></iframe>

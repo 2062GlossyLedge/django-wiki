@@ -11,7 +11,8 @@ from wiki.views.progress_views import (
     ResetCacheView,
     ResetCacheViewArticle,
 )
-from wiki.views.submit_report import SubmitReportView, ApproveReportView
+from wiki.views.submit_report import SubmitReportView, ApproveReportView, SubmitDiscussionReport
+from wiki.views.submit_discussion_post import SubmitDiscussionPost
 from wiki.views.badges import IncrementBadgeProgressView
 
 
@@ -32,6 +33,7 @@ class WikiSite:
             deleted_list,
             home,
             privileges,
+            activity,
             badges,
             admin_dashboard,
         )
@@ -57,6 +59,10 @@ class WikiSite:
         # privileges view
         self.privileges_view = getattr(
             self, "privileges_view", privileges.Privileges.as_view()
+        )
+
+        self.activity_view = getattr(
+            self, "activity_view", activity.ActivityView.as_view()
         )
 
         self.admin_view = getattr(
@@ -179,6 +185,9 @@ class WikiSite:
                 ApproveReportView.as_view(),
                 name="approve_report",
             ),
+        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/submit_discussion/$', SubmitDiscussionPost.as_view(), name='submit_discussion_post'),
+        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/submit_discussion_report/$', SubmitDiscussionReport.as_view(), name='submit_discussion_report'),
+
         )
 
         # This ALWAYS has to be the last of all the patterns since
@@ -201,6 +210,7 @@ class WikiSite:
             re_path(r"^help/$", self.help_view, name="help"),
             re_path(r"^homepage/$", self.homepage_view, name="homepage"),
             re_path(r"^privileges/$", self.privileges_view, name="privileges"),
+            re_path(r"^activity/$", self.activity_view, name="activity"),
             re_path(r"^admin_dashboard/$", self.admin_view, name="admin_dashboard"),
             re_path(r"^$", self.article_view, name="root", kwargs={"path": ""}),
             re_path(r"^create-root/$", self.root_view, name="root_create"),

@@ -16,6 +16,42 @@
 {% block wiki_contents %}
 
 
+<script src="{% static '/wiki/js/wikiPage.js' %}"></script>
+<script src="{% static '/wiki/js/discussionBoard.js' %}"></script>
+{% endaddtoblock %}
+
+{% addtoblock "css" %}
+
+<style type="text/css">
+  .discussion-dropdown {
+    display: block;
+    text-align: center;
+  }
+
+  .discussion-content {
+    display: none;
+  }
+
+  .discussion_user {
+    display: flex;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    flex-direction: column
+  }
+
+  .show {
+    display: flex;
+  }
+</style>
+
+{% endaddtoblock %}
 
 
 
@@ -71,11 +107,9 @@
   </div>
 </div>
 
-
+{% include "wiki/includes/discussion_board.html" %}
 
 {% endblock %}
-
-
 
 {% comment %} {% block wiki_footer_prepend %}
 <p style="margin-bottom: 10px;">

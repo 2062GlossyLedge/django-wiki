@@ -15,6 +15,8 @@ from wiki.models.account import (
     InfractionEvent,
     RecentlyVisitedWikiPages,
     Report,
+    DiscussionBoard,
+    DiscussionReport,
 )
 
 
@@ -118,6 +120,8 @@ admin.site.register(models.ArticleRevision, ArticleRevisionAdmin)
 admin.site.register(UserProfile)
 admin.site.register(UserProgress)
 admin.site.register(Report)
+admin.site.register(DiscussionBoard)
+admin.site.register(DiscussionReport)
 
 
 @admin.register(InfractionEvent)
