@@ -137,6 +137,25 @@
 
 </li>
 
+{% if user.is_authenticated and urlpath.parent %}
+<li class="nav-item">
+  <form method="post">
+    {% csrf_token %}
+    <a id="chatbot-toggle" class="px-3 nav-link">
+      <span class="fa fa-bahai"></span>
+      {% if button_state == "off" %}
+      <label id="chatbot-toggle-label" for="chatbot-view-button">Chatbot</label>
+      {% else %}
+      <label id="chatbot-toggle-label2" for="chatbot-view-button">Chatbot</label>
+      {% endif %}
+      <button id='chatbot-view-button' name="chatbot-view-button" class="hidden-xs" hidden=true>
+      </button>
+
+  </form>
+
+</li>
+{% endif %}
+
 {% endif %}
 
 
