@@ -7,6 +7,7 @@ from django.views import View
 from wiki.models.account import UserBadge
 from ..models.account import UserProgress
 from ..models.account import UserProfile
+from ..models.account import DiscussionBoard
 from ..models.article import ArticleRevision
 from ..models.article import Article
 from django.utils import timezone
@@ -169,7 +170,16 @@ class Badges(LoginRequiredMixin, TemplateView):
             guardianBadge.level = "normal"
         guardianBadge.save()
         
-        # Put commenter here once comment boards are implemented
+        commenterBadge = UserBadge.objects.filter(user=user, badge_id="Commenter").first()
+        commentCount = DiscussionBoard.objects.filter(user=user).count()
+        commenterBadge.num_things = commentCount
+        if commenterBadge.num_things >= 1000:
+            commenterBadge.level = "gold"
+        elif commenterBadge.num_things >= 100:
+            commenterBadge.level = "silver"
+        elif commenterBadge.num_things >= 10:
+            commenterBadge.level = "normal"
+        commenterBadge.save()
         
         reporterBadge = UserBadge.objects.filter(user=user, badge_id="Reporter").first()
         if reporterBadge.num_things >= 20:
