@@ -11,7 +11,11 @@ from wiki.views.progress_views import (
     ResetCacheView,
     ResetCacheViewArticle,
 )
-from wiki.views.submit_report import SubmitReportView, ApproveReportView, SubmitDiscussionReport
+from wiki.views.submit_report import (
+    SubmitReportView,
+    ApproveReportView,
+    SubmitDiscussionReport,
+)
 from wiki.views.submit_discussion_post import SubmitDiscussionPost
 from wiki.views.badges import IncrementBadgeProgressView
 
@@ -185,9 +189,21 @@ class WikiSite:
                 ApproveReportView.as_view(),
                 name="approve_report",
             ),
-        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/submit_discussion/$', SubmitDiscussionPost.as_view(), name='submit_discussion_post'),
-        urlpatterns += re_path(r'^(?P<path>.+/|)_plugin/submit_discussion_report/$', SubmitDiscussionReport.as_view(), name='submit_discussion_report'),
+        )
+        urlpatterns += (
+            re_path(
+                r"^(?P<path>.+/|)_plugin/submit_discussion/$",
+                SubmitDiscussionPost.as_view(),
+                name="submit_discussion_post",
+            ),
+        )
 
+        urlpatterns += (
+            re_path(
+                r"^(?P<path>.+/|)_plugin/submit_discussion_report/$",
+                SubmitDiscussionReport.as_view(),
+                name="submit_discussion_report",
+            ),
         )
 
         # This ALWAYS has to be the last of all the patterns since
