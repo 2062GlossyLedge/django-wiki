@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -40,18 +40,32 @@ from wiki.models.account import DiscussionBoard, UserProfile
 from wiki.views.mixins import ArticleMixin
 from wiki.models.account import UserProfile, Privilege, RecentlyVisitedWikiPages
 
+from wiki.views.chatbot import Chatbot
 
 log = logging.getLogger(__name__)
+import pdb
 
 
-class ArticleView(ArticleMixin, TemplateView):
+# Class based views
+# https://docs.djangoproject.com/en/5.0/topics/class-based-views/intro/
+
+
+class ArticleView(TemplateView, ArticleMixin):
     template_name = "wiki/view.html"
+    chatbot = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.chatbot = Chatbot()
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
+        print("article content", article.current_revision)
+
         return super().dispatch(request, article, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         kwargs["selected_tab"] = "view"
 
         if self.request.user.is_authenticated:
@@ -105,14 +119,21 @@ class ArticleView(ArticleMixin, TemplateView):
                 user=self.request.user, name="Wiki creation"
             )
             kwargs["Wiki_creation_status"] = wikiCreationPrivilege.status
-            
-            user_progress = self.request.COOKIES.get('user_progress', None)
+
+            user_progress = self.request.COOKIES.get("user_progress", None)
             if user_progress:
                 kwargs["user_progress"] = user_progress
             else:
-                kwargs["user_progress"] = ''
+                kwargs["user_progress"] = ""
 
         kwargs["has_potential_spoilers"] = self.article.has_potential_spoilers
+
+        kwargs["button_state"] = self.request.session.get("button_state", "on")
+        kwargs["spoiler_free_button_state"] = self.request.session.get(
+            "spoiler_free_button_state", "on"
+        )
+        urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
+        kwargs["chat_history"] = self.chatbot.get_chat_history(str(urlPath))
         kwargs["discussion_board_data"] = self.get_discussion_data()
         return ArticleMixin.get_context_data(self, **kwargs)
 
@@ -134,22 +155,98 @@ class ArticleView(ArticleMixin, TemplateView):
             kwargs["has_potential_spoilers"] = False
             return redirect("wiki:get", path=self.urlpath.path)
 
+        # Chatbot functionality
+
         context = self.get_context_data(**kwargs)
+        urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
+        session = str(urlPath) + str(request.user)
+        selected_chapter_url = None
+
+        # prompt chatbot
+        if "prompt" in request.POST:
+
+            user_message = request.POST.get("prompt", "")
+
+            # check if spoiler free button is toggled, if so, use the chatbot without LLM knowledge
+            if request.session.get("spoiler_free_button_state", "on") == "on":
+                self.chatbot.handle_message_without_llm_knowledge(
+                    user_message,
+                    str(urlPath),
+                    session,
+                )
+            else:
+                self.chatbot.handle_message_with_llm_knowledge(
+                    user_message,
+                    str(urlPath),
+                    self.request.session.get("personality", "default"),
+                    session,
+                )
+
+        # toggle chatbot view
+        elif "chatbot-view-button" in request.POST:
+            current_state = self.request.session.get("button_state", "off")
+            new_state = "on" if current_state == "off" else "off"
+            self.request.session["button_state"] = new_state  # Update the session state
+            context["button_state"] = new_state
+
+        elif "spoiler-free-button" in request.POST:
+            current_state = self.request.session.get("spoiler_free_button_state", "off")
+            new_state = "on" if current_state == "off" else "off"
+            # only allow personality to be default if spoiler free is on
+            if new_state == "on":
+                self.request.session["personality"] = "default"
+            self.request.session["spoiler_free_button_state"] = new_state
+            context["spoiler_free_button_state"] = new_state
+
+        elif "dropdown-button" in request.POST:
+            current_state = self.request.session.get("dropdown_button_state", "off")
+            new_state = "on" if current_state == "off" else "off"
+            self.request.session["dropdown_button_state"] = new_state
+            context["dropdown_button_state"] = new_state
+
+        elif "user-selected-personality" in request.POST:
+            user_selected_personality = request.POST.get(
+                "user-selected-personality", "default"
+            )
+            self.request.session["personality"] = user_selected_personality
+
+        elif "default-personality" in request.POST:
+            self.request.session["personality"] = "default"
+
+        elif "delete-chat-history" in request.POST:
+            self.chatbot.delete_chat_history(session)
+
+        # elif "chatbot-chooses-personality" in request.POST:
+        #     context["personality"] = "chatbot-chooses"
+        context["personality"] = self.request.session.get("personality", "default")
+        context["dropdown_button_state"] = self.request.session.get(
+            "dropdown_button_state", "off"
+        )
+        context["button_state"] = self.request.session.get("button_state", "on")
+        context["spoiler_free_button_state"] = self.request.session.get(
+            "spoiler_free_button_state", "on"
+        )
+
+        # update chat history
+        context["chat_history"] = self.chatbot.get_chat_history(session)
         return self.render_to_response(context)
-    
+
     def get_discussion_data(self):
         context = []
-        posts = DiscussionBoard.objects.filter(article_id = self.article.id).order_by("date")
+        posts = DiscussionBoard.objects.filter(article_id=self.article.id).order_by(
+            "date"
+        )
         for post in posts:
-            profile = UserProfile.objects.get(user = post.user)
+            profile = UserProfile.objects.get(user=post.user)
             context.append(
                 {
                     "user": post.user,
                     "content": post.content,
                     "date": post.date,
                     "pic": profile.profile_image.url,
-                    "postID" : post.post_id
-                })
+                    "postID": post.post_id,
+                }
+            )
         return context
 
 

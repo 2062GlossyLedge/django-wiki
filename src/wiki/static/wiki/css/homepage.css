@@ -18,28 +18,28 @@
     --text-color: var(--black);
     --card-background-color: #f8f8f8;
 
-    --link-color: #a33924; 
-    --link-hover-color: #5F3229; 
-    --link-disabled-color: #3e3e3e; 
+    --link-color: #a33924;
+    --link-hover-color: #5F3229;
+    --link-disabled-color: #3e3e3e;
     --header-text: #464646;
 
     --table-background-color: #f5f5f5;
 
-    --button-background: #1f1f1f; 
-    --button-text-color: #ffffff; 
-    --card-background-color: #ffffff; 
+    --button-background: #1f1f1f;
+    --button-text-color: #ffffff;
+    --card-background-color: #ffffff;
 }
 
 body.dark-mode {
-    --background-color: #121212; 
-    --text-color: #ffffff; 
+    --background-color: #121212;
+    --text-color: #ffffff;
 
 
-    --link-color: #a33924; 
-    --link-hover-color: #5F3229; 
-    --link-disabled-color: #3e3e3e; 
-    --button-background: #ffffff; 
-    --button-text-color: #1f1f1f; 
+    --link-color: #a33924;
+    --link-hover-color: #5F3229;
+    --link-disabled-color: #3e3e3e;
+    --button-background: #ffffff;
+    --button-text-color: #1f1f1f;
 
     --header-text: #a0a0a0;
 

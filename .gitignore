@@ -42,6 +42,10 @@ docs/modules.rst
 
 # Test project
 testproject/testproject/settings/local.py
+testproject/chroma_db
+testproject/testproject/media/*
+
+chroma_db/
 
 # Installer logs
 pip-log.txt

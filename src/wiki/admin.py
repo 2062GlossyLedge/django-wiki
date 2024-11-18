@@ -20,7 +20,6 @@ from wiki.models.account import (
 )
 
 
-
 class ArticleObjectAdmin(GenericTabularInline):
     model = models.ArticleForObject
     extra = 1

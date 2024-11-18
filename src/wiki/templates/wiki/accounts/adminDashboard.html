@@ -171,16 +171,16 @@
             url: "_plugin/incrementbadge/",
             type: "POST",
             data: {
-            'badge_id': 'Moderator',
-            'increment': 1,
-            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                'badge_id': 'Moderator',
+                'increment': 1,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function (response) {
                 if (response.message) {
-                console.log('Badges queried successfully');
-            } else {
-                console.log(response);
-            } 
+                    console.log('Badges queried successfully');
+                } else {
+                    console.log(response);
+                }
             },
         });
     }

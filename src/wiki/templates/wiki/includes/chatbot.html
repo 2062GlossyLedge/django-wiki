@@ -1,0 +1,132 @@
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% addtoblock "js" %}
+<script type="text/javascript" src="{% static 'wiki/js/chatbot.js' %}">
+
+</script>
+{% endaddtoblock %}
+
+<link href="{% static 'wiki/css/chatbot.css' %}" rel="stylesheet">
+
+
+<div id="chatbot-container">
+    <nav id="chatbot-menu" class="navbar navbar-expand-md nav-pills ">
+        <ul class="navbar-nav w-75">
+
+            <h3 class="text-3xl font-bold">Hi, I'm the Mentat</h3>
+        </ul>
+
+        <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
+
+
+
+
+            {% if spoiler_free_button_state == "off" %}
+            <li class="nav-item px-3">
+
+                <!-- Button to trigger dropdown -->
+                <form method="post">
+                    {% csrf_token %}
+                    {% if dropdown_button_state == "off" %}
+                    <label for="dropdown-button" class="px-3 nav-link" style="color:#5c1b1b">Personalities</label>
+                    {% else %}
+                    <label for="dropdown-button" class="px-3 nav-link"
+                        style="background-color:#5c1b1b; color:white;">Personalities</label>
+                    {% endif %}
+                    <button id="dropdown-button" name="dropdown-button">
+
+
+                        <!-- <i class="arrow"></i> -->
+
+                    </button>
+                </form>
+                {% if dropdown_button_state == "on" %}
+                <div id="personality-dropdown-menu" class="personality-dropdown-menu">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="input-container">
+
+
+                            <input type="text" id="user-selected-personality" name="user-selected-personality"
+                                placeholder="Enter personality or persona" name="personality">
+                            <button type="submit">Enter</button>
+
+
+                        </div>
+                    </form>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="additional-buttons">
+
+
+                            <label for="default-personality" class="px-3 nav-link"
+                                style="color:#5c1b1b; display: none; "></label>
+                            <button id="default-personality" name="default-personality">Default
+                                Personality</button>
+
+                            <!-- <form method="post">
+                                                {% csrf_token %}
+                                                <button id="chatbot-chooses-personality">Chatbot Chooses</button>
+                                            </form> -->
+
+                        </div>
+                    </form>
+
+                </div>
+
+
+                {% endif %}
+
+            </li>
+            {% endif %}
+
+            <li class="nav-item">
+                <form method="post">
+                    {% csrf_token %}
+                    <!-- If the spoiler free button is off, display the button as off with no green background-->
+                    {% if spoiler_free_button_state == "off" %}
+                    <label id="spoiler-free-toggle-label" for="spoiler-free-button" class="px-3 nav-link"
+                        style="color:#5c1b1b">Spoiler Free</label>
+                    {% else %}
+                    <label id="spoiler-free-toggle-label2" for="spoiler-free-button" class="px-3 nav-link "
+                        style="background-color:#5c1b1b; color:white;">Spoiler Free</label>
+                    {% endif %}
+
+                    <button id='spoiler-free-button' name="spoiler-free-button">
+                    </button>
+                </form>
+
+            </li>
+            <li class="nav-item">
+                <form method="post">
+                    {% csrf_token %}
+                    <!-- If the spoiler free button is off, display the button as off with no green background-->
+
+                    <label id="delete-chat-history-label" for="delete-chat-history" class="px-3 nav-link"
+                        style="color:#5c1b1b">Delete Chat History</label>
+
+                    <button id='delete-chat-history' name="delete-chat-history">
+                    </button>
+                </form>
+
+            </li>
+        </ul>
+
+    </nav>
+
+    <div>
+        <div id="chatbot-history">
+
+            {% for message in chat_history %}
+            <p> {{message}}</p>
+            {% endfor %}
+        </div>
+        <form method="post" id="query-chatbot" class="mt-4 flex">
+            {% csrf_token %}
+            <textarea class="form-control" type="textarea" id="prompt" name="prompt" rows="3"
+                placeholder="Message The Mentat"></textarea>
+            <br>
+            <button class="btn btn-primary" type="submit" id="message-to-AI">Submit</button>
+        </form>
+    </div>
+</div>

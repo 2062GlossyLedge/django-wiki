@@ -9,26 +9,26 @@
 {% include "wiki/includes/modals.html" %}
 
 {% addtoblock "js" %}
-<script type="text/javascript" src="{% static "wiki/js/diffview.js" %}"></script>
-<script type="text/javascript" src="{% static "wiki/js/diff.js" %}"></script>
+<script type="text/javascript" src="{% static " wiki/js/diffview.js" %}"></script>
+<script type="text/javascript" src="{% static " wiki/js/diff.js" %}"></script>
 <script>
   function reportDropdown(dropdownId) {
     // Toggle the dropdown visibility
     document.getElementById(dropdownId).classList.toggle("show");
   }
 
-  window.onclick = function(event) {
-  if (!event.target.matches('.btn')) {
-    // Get all dropdowns and hide them if clicked outside
-    var dropdowns = document.getElementsByClassName("dropdown-content");
-    for (var i = 0; i < dropdowns.length; i++) {
-      var openDropdown = dropdowns[i];
-      if (openDropdown.classList.contains('show')) {
-        openDropdown.classList.remove('show');
+  window.onclick = function (event) {
+    if (!event.target.matches('.btn')) {
+      // Get all dropdowns and hide them if clicked outside
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      for (var i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+          openDropdown.classList.remove('show');
+        }
       }
     }
   }
-}
   function sendReport(revision_id, report_type, article_id, revision_number, dropdownId) {
     $.ajax({
       url: "_plugin/submit_report/",
@@ -46,20 +46,20 @@
   }
   function incrementReportBadge() {
     $.ajax({
-        url: "_plugin/incrementbadge/",
-        type: "POST",
-        data: {
+      url: "_plugin/incrementbadge/",
+      type: "POST",
+      data: {
         'badge_id': 'Reporter',
         'increment': 1,
         'csrfmiddlewaretoken': '{{ csrf_token }}'
-        },
-        success: function (response) {
-            if (response.message) {
-            console.log('Badges queried successfully');
+      },
+      success: function (response) {
+        if (response.message) {
+          console.log('Badges queried successfully');
         } else {
-            console.log(response);
-        } 
-        },
+          console.log(response);
+        }
+      },
     });
   }
 </script>
@@ -69,130 +69,161 @@
   td.linenumber {
     width: 20px;
   }
+
   tr.insert td {
     background-color: #DFC;
   }
+
   tr.delete td {
     background-color: #FDC;
   }
+
   tr.equal td {
     background-color: #F2F2F2;
   }
 
   .diff-container td {
-    white-space: pre; font-family: monospace;
+    white-space: pre;
+    font-family: monospace;
   }
+
   .diff-container td,
   .diff-container th {
     padding: 2px 7px;
     border-right: 1px solid #DDD;
   }
+
   .diff-container td:last-child,
   .diff-container th:last-child {
     border-right: none;
   }
+
   .diff-container table {
     border-top: 1px solid #DDD;
   }
+
   .dropdown {
     position: relative;
     display: inline-block;
   }
+
   .dropdown-content {
     display: none;
     position: absolute;
     background-color: #f1f1f1;
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
   }
+
   .dropdown-content a {
-    display: block; /* Ensures the links are displayed as block-level elements */
-    padding: 8px 16px; /* Adjust padding for better spacing */
+    display: block;
+    /* Ensures the links are displayed as block-level elements */
+    padding: 8px 16px;
+    /* Adjust padding for better spacing */
   }
-  .show {display: block;}
+
+  .show {
+    display: block;
+  }
 </style>
 {% endaddtoblock %}
 
 <p class="lead">
-  {% trans "Click each revision to see a list of edited lines. Click the Preview button to see how the article looked at this stage. At the bottom of this page, you can change to a particular revision or merge an old revision with the current one." %}
+  {% trans "Click each revision to see a list of edited lines. Click the Preview button to see how the article looked at
+  this stage. At the bottom of this page, you can change to a particular revision or merge an old revision with the
+  current one." %}
 </p>
 
 <form method="GET">
   <div class="tab-content" style="overflow: visible;">
     {% for revision in revisions %}
-      <div class="" id="accordion{{ revision.revision_number }}">
-        <div class="card bg-light">
-          <div class="card-body">
-            <a class="wiki-card-toggle" data-revision="{{ revision.revision_number }}" data-json-url="{% url 'wiki:diff' revision.id %}"  style="float: left;" href="#collapse{{ revision.revision_number }}">
-              {% if revision == article.current_revision %}
-                <i class="fa fa-flag"></i>
-              {% else %}
-                <i class="fa fa-plus"></i>
-              {% endif %}
-              {% include "wiki/includes/revision_info.html" with current_revision=article.current_revision %}
-              <div class="text-muted">
-                <small>
+    <div class="" id="accordion{{ revision.revision_number }}">
+      <div class="card bg-light">
+        <div class="card-body">
+          <a class="wiki-card-toggle" data-revision="{{ revision.revision_number }}"
+            data-json-url="{% url 'wiki:diff' revision.id %}" style="float: left;"
+            href="#collapse{{ revision.revision_number }}">
+            {% if revision == article.current_revision %}
+            <i class="fa fa-flag"></i>
+            {% else %}
+            <i class="fa fa-plus"></i>
+            {% endif %}
+            {% include "wiki/includes/revision_info.html" with current_revision=article.current_revision %}
+            <div class="text-muted">
+              <small>
                 {% if revision.user_message %}
-                  {{ revision.user_message }}
+                {{ revision.user_message }}
                 {% elif revision.automatic_log %}
-                  {{ revision.automatic_log }}
+                {{ revision.automatic_log }}
                 {% else %}
-                  ({% trans "no log message" %})
+                ({% trans "no log message" %})
                 {% endif %}
-                </small>
-              </div>
-            </a>
-            <div class="progress progress-striped active" style="display: none; width: 40px; float: left; margin-top: 7px; margin-bottom: -7px;">
-              <div class="bar" style="width: 100%;"></div>
+              </small>
             </div>
-            <div class="float-right" style="vertical-align: middle; margin: 8px 8px;">
-              {% if revision == article.current_revision %}
-              <a href="#" class="btn btn-secondary disabled">
-                <span class="fa fa-lock fa-fw"></span>
-                {% trans "Preview this revision" %}
-              </a>
-              {% else %}
-              <button type="submit" class="btn btn-secondary" onclick="$('#previewModal').modal('show'); this.form.target='previewWindow'; this.form.r.value='{{ revision.id }}'; this.form.action='{% url 'wiki:preview_revision' article.id %}'; $('#previewModal .switch-to-revision').attr('href', '{% url 'wiki:change_revision' path=urlpath.path article_id=article.id revision_id=revision.id %}')">
-                <span class="fa fa-eye fa-fw"></span>
-                {% trans "Preview this revision" %}
-              </button>
-              {% endif %}
-              <div class="dropdown">
-                <button class="btn btn-secondary" onclick="reportDropdown('dropdown{{ revision.id }}'); event.preventDefault()">Report</button>
-                <div id="dropdown{{ revision.id }}" class="dropdown-content">
-                  <a href="#" onclick="sendReport({{ revision.id }}, 'Spoiler', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Spoiler</a>
-                  <a href="#" onclick="sendReport({{ revision.id }}, 'Innacurate Info', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Inaccurate Info</a>
-                  <a href="#" onclick="sendReport({{ revision.id }}, 'Inappropriate', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Inappropriate</a>
-                </div>
-              </div>
-
-              {% if article|can_write:user and not article.current_revision.locked %}
-              <input type="radio"{% if revision == article.current_revision %} disabled="true"{% endif %} style="margin: 0 10px;" value="{{ revision.id }}" name="revision_id" switch-button-href="{% url 'wiki:change_revision' path=urlpath.path revision_id=revision.id %}" merge-button-href="{% url 'wiki:merge_revision_preview' article_id=article.id revision_id=revision.id %}" merge-button-commit-href="{% url 'wiki:merge_revision' path=urlpath.path article_id=article.id revision_id=revision.id %}" />
-              {% endif %}
-
-            </div>
-            <div class="clearfix"></div>
+          </a>
+          <div class="progress progress-striped active"
+            style="display: none; width: 40px; float: left; margin-top: 7px; margin-bottom: -7px;">
+            <div class="bar" style="width: 100%;"></div>
           </div>
-          <div id="collapse{{ revision.revision_number }}" class="card-collapse collapse">
-            <div class="card-body diff-container">
-              <dl class="dl-horizontal wiki-card-toggle">
-                <dt>{% trans "Auto log:" %}</dt>
-                <dd>{{ revision.automatic_log|default:"-"|linebreaksbr }}</dd>
-              </dl>
-              <table class="table table-condensed" style="margin: 0; border-collapse: collapse;">
-                <thead>
-                  <tr>
-                    <th class="linenumber">{% if revision.previous_revision %}#{{revision.previous_revision.revision_number}}{% endif %}</th>
-                    <th class="linenumber">#{{revision.revision_number}}</th>
-                    <th>{% trans "Change" %}</th>
-                  </tr>
-                </thead>
-              </table>
+          <div class="float-right" style="vertical-align: middle; margin: 8px 8px;">
+            {% if revision == article.current_revision %}
+            <a href="#" class="btn btn-secondary disabled">
+              <span class="fa fa-lock fa-fw"></span>
+              {% trans "Preview this revision" %}
+            </a>
+            {% else %}
+            <button type="submit" class="btn btn-secondary"
+              onclick="$('#previewModal').modal('show'); this.form.target='previewWindow'; this.form.r.value='{{ revision.id }}'; this.form.action='{% url 'wiki:preview_revision' article.id %}'; $('#previewModal .switch-to-revision').attr('href', '{% url 'wiki:change_revision' path=urlpath.path article_id=article.id revision_id=revision.id %}')">
+              <span class="fa fa-eye fa-fw"></span>
+              {% trans "Preview this revision" %}
+            </button>
+            {% endif %}
+            <div class="dropdown">
+              <button class="btn btn-secondary"
+                onclick="reportDropdown('dropdown{{ revision.id }}'); event.preventDefault()">Report</button>
+              <div id="dropdown{{ revision.id }}" class="dropdown-content">
+                <a href="#"
+                  onclick="sendReport({{ revision.id }}, 'Spoiler', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Spoiler</a>
+                <a href="#"
+                  onclick="sendReport({{ revision.id }}, 'Innacurate Info', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Inaccurate
+                  Info</a>
+                <a href="#"
+                  onclick="sendReport({{ revision.id }}, 'Inappropriate', {{ article.id }}, {{ revision.revision_number }}, 'dropdown{{ revision.id }}'); incrementReportBadge(); return false;">Inappropriate</a>
+              </div>
             </div>
+
+            {% if article|can_write:user and not article.current_revision.locked %}
+            <input type="radio" {% if revision==article.current_revision %} disabled="true" {% endif %}
+              style="margin: 0 10px;" value="{{ revision.id }}" name="revision_id"
+              switch-button-href="{% url 'wiki:change_revision' path=urlpath.path revision_id=revision.id %}"
+              merge-button-href="{% url 'wiki:merge_revision_preview' article_id=article.id revision_id=revision.id %}"
+              merge-button-commit-href="{% url 'wiki:merge_revision' path=urlpath.path article_id=article.id revision_id=revision.id %}" />
+            {% endif %}
+
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        <div id="collapse{{ revision.revision_number }}" class="card-collapse collapse">
+          <div class="card-body diff-container">
+            <dl class="dl-horizontal wiki-card-toggle">
+              <dt>{% trans "Auto log:" %}</dt>
+              <dd>{{ revision.automatic_log|default:"-"|linebreaksbr }}</dd>
+            </dl>
+            <table class="table table-condensed" style="margin: 0; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th class="linenumber">{% if revision.previous_revision
+                    %}#{{revision.previous_revision.revision_number}}{% endif %}</th>
+                  <th class="linenumber">#{{revision.revision_number}}</th>
+                  <th>{% trans "Change" %}</th>
+                </tr>
+              </thead>
+            </table>
           </div>
         </div>
       </div>
+    </div>
     {% endfor %}
 
     {% include "wiki/includes/pagination.html" %}
@@ -201,11 +232,13 @@
 
     <div class="form-group form-actions">
       <div class="float-right">
-        <button type="submit" name="preview" value="1" class="btn btn-secondary" onclick="$('#mergeModal').modal('show'); this.form.target='mergeWindow'; this.form.action=$('input[type=radio]:checked').attr('merge-button-href'); $('.merge-revision-commit').attr('href', $('input[type=radio]:checked').attr('merge-button-commit-href'))">
+        <button type="submit" name="preview" value="1" class="btn btn-secondary"
+          onclick="$('#mergeModal').modal('show'); this.form.target='mergeWindow'; this.form.action=$('input[type=radio]:checked').attr('merge-button-href'); $('.merge-revision-commit').attr('href', $('input[type=radio]:checked').attr('merge-button-commit-href'))">
           <span class="fa fa-random"></span>
           {% trans "Merge selected with current..." %}
         </button>
-        <button type="submit" name="save" value="1" class="btn btn-primary" onclick="this.form.target='_self'; this.form.action=$('input[type=radio]:checked').attr('switch-button-href')">
+        <button type="submit" name="save" value="1" class="btn btn-primary"
+          onclick="this.form.target='_self'; this.form.action=$('input[type=radio]:checked').attr('switch-button-href')">
           <span class="fa fa-flag"></span>
           {% trans "Switch to selected version" %}
         </button>
@@ -234,10 +267,10 @@
             {% trans "Switch to this version" %}
           </a>
           {% else %}
-            <a href="#" class="btn btn-lg btn-primary disabled">
-              <span class="fa fa-lock"></span>
-              {% trans "Switch to this version" %}
-            </a>
+          <a href="#" class="btn btn-lg btn-primary disabled">
+            <span class="fa fa-lock"></span>
+            {% trans "Switch to this version" %}
+          </a>
           {% endif %}
         </div>
       </div>
@@ -249,7 +282,10 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1>{% trans "Merge with current" %}</h1>
-          <p class="lead"><span class="fa fa-info-circle"></span> {% trans "When you merge a revision with the current, all data will be retained from both versions and merged at its approximate location from each revision." %} <strong>{% trans "After this, it's important to do a manual review." %}</strong></p>
+          <p class="lead"><span class="fa fa-info-circle"></span> {% trans "When you merge a revision with the current,
+            all data will be retained from both versions and merged at its approximate location from each revision." %}
+            <strong>{% trans "After this, it's important to do a manual review." %}</strong>
+          </p>
         </div>
         <div class="modal-body">
           <iframe name="mergeWindow" frameborder="0" style="min-height: 0;"></iframe>
@@ -265,10 +301,10 @@
             {% trans "Create new merged version" %}
           </a>
           {% else %}
-            <a href="#" class="btn btn-lg btn-primary disabled">
-              <span class="fa fa-lock"></span>
-              {% trans "Create new merged version" %}
-            </a>
+          <a href="#" class="btn btn-lg btn-primary disabled">
+            <span class="fa fa-lock"></span>
+            {% trans "Create new merged version" %}
+          </a>
           {% endif %}
         </div>
       </div>

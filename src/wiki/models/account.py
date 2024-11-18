@@ -10,7 +10,7 @@ from django.utils import timezone
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     profile_image = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
-    account_created = models.DateTimeField(default=timezone.now)  
+    account_created = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.user.username
@@ -87,6 +87,7 @@ class Privilege(models.Model):
             return timeout_length
         return None
 
+
 class UserBadge(models.Model):
     BADGE_LEVELS = [
         ("none", "None"),
@@ -102,7 +103,9 @@ class UserBadge(models.Model):
     level = models.CharField(
         max_length=10, choices=BADGE_LEVELS, default="none"
     )  # Overall badge level (None, Normal, Silver, Gold)
-    num_things = models.PositiveIntegerField()  # Contribution count for determining level
+    num_things = (
+        models.PositiveIntegerField()
+    )  # Contribution count for determining level
 
     def determine_level(self):
         """
@@ -123,6 +126,7 @@ class UserBadge(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.badge_id} - Level: {self.level} - Contributions: {self.num_things}"
+
 
 class InfractionEvent(models.Model):
     # one to many relationship with Privilege
@@ -146,6 +150,7 @@ class InfractionEvent(models.Model):
         self.privilege.save()
         super().save(*args, **kwargs)
 
+
 class Report(models.Model):
     revision_id = models.IntegerField()
     article_id = models.IntegerField()
@@ -156,16 +161,22 @@ class Report(models.Model):
 
     def __str__(self):
         return f"{self.revision_id} - {self.article_id} - {self.report_type} - {self.current_page}"
-    
+
+
 class DiscussionBoard(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="discussion_board")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="discussion_board"
+    )
     article_id = models.IntegerField()
-    content = models.TextField(blank=True, verbose_name= ("discussion_contents"))
+    content = models.TextField(blank=True, verbose_name=("discussion_contents"))
     date = models.DateTimeField(auto_now_add=True)
     post_id = models.AutoField(primary_key=True)
 
+
 class DiscussionReport(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="discussion_report")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="discussion_report"
+    )
     article_id = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
     post_id = models.IntegerField()

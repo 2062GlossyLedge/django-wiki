@@ -14,6 +14,7 @@ $(document).ready(function () {
     $(this).css("color", "#c26451");
   });
 
+
   let flagging = false
 
   //to enable flagging 
@@ -59,6 +60,19 @@ $(document).ready(function () {
 
 
 
+  // Change color on hover
+  $("#chatbot-toggle-label").mouseenter(function () {
+
+    $(this).css("color", "black");
+  });
+
+  $("#chatbot-toggle-label").mouseleave(function () {
+    $(this).css("color", "#5c1b1b");
+  });
+
 });
+
+
+
 
 

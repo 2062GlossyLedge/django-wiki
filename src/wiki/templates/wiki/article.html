@@ -15,11 +15,9 @@
 
 {% block wiki_contents %}
 
-{% addtoblock "js" %}
 
 <script src="{% static '/wiki/js/wikiPage.js' %}"></script>
 <script src="{% static '/wiki/js/discussionBoard.js' %}"></script>
-{% endaddtoblock %}
 
 {% addtoblock "css" %}
 
@@ -28,22 +26,28 @@
     display: block;
     text-align: center;
   }
+
   .discussion-content {
     display: none;
   }
+
   .discussion_user {
     display: flex;
   }
+
   .dropdown-content {
     display: none;
     position: absolute;
     background-color: #f1f1f1;
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
     flex-direction: column
   }
-  .show {display: flex;}
+
+  .show {
+    display: flex;
+  }
 </style>
 
 {% endaddtoblock %}
@@ -56,12 +60,21 @@
   {% endif %}
 </div>
 
+{% if button_state == 'on' and user.is_authenticated and urlpath.parent %}
+<div class="chatbot-view">
+
+  {% include "wiki/includes/chatbot.html"%}
+
+</div>
+{% endif %}
 <!-- <div class="right-sidebar">
 
   {%comment%}
+  
   {% include "wiki/includes/article_rightbar.html" with response=response %}
 {%endcomment%}
 </div> -->
+
 
 <div id="article-container">
   <nav id="article-menu" class="navbar navbar-expand-md nav-pills">

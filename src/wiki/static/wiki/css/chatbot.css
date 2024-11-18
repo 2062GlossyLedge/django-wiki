@@ -1,0 +1,107 @@
+.chatbot-message {
+    background-color: #e9ecef;
+    /* Blue */
+    color: black;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    margin: 0.5rem 0;
+    text-align: left;
+    max-width: 60%;
+    align-self: flex-start;
+}
+
+.human-message {
+    background-color: black;
+    /* Grey */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    margin: 0.5rem 0;
+    text-align: left;
+    max-width: 60%;
+    align-self: flex-end;
+}
+
+
+#chatbot-history {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    max-height: 300px;
+}
+
+#chatbot-container {
+    border-bottom: 1px solid #e8edff;
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+#chatbot-menu {
+    border-bottom: 1px solid #dfe6ff;
+    margin-bottom: 1rem;
+}
+
+
+/* Dropdown menu */
+.personality-dropdown-menu {
+
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    left: 45%;
+    width: 380px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    margin-top: 5px;
+}
+
+/* Input fields inside dropdown */
+.input-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+}
+
+.personality-dropdown-menu input {
+    width: 250px;
+    padding: 10px;
+    margin-right: 10px;
+    flex-grow: 1;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.personality-dropdown-menu button {
+    display: flex;
+    width: 100px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    color: #5c1b1b;
+    cursor: pointer;
+}
+
+
+/* Additional buttons */
+.additional-buttons {
+    display: flex;
+
+}
+
+.additional-buttons button {
+    padding: 10px;
+    width: 360px;
+    margin: 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    color: #5c1b1b;
+    cursor: pointer;
+}

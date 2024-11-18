@@ -509,3 +509,27 @@ pre_save.connect(on_article_revision_pre_save, ArticleRevision)
 post_save.connect(on_article_revision_post_save, ArticleRevision)
 post_save.connect(on_article_save_clear_cache, Article)
 pre_delete.connect(on_article_delete_clear_cache, Article)
+
+from django.db import models
+from django.utils import timezone
+
+
+# class ChatHistory(models.Model):
+#     article_revision = models.ForeignKey(
+#         "ArticleRevision",
+#         on_delete=models.CASCADE,
+#         related_name="chat_histories",
+#         verbose_name=_("article revision"),
+#     )
+#     session_id = models.CharField(max_length=255, verbose_name=_("session ID"))
+#     user_message = models.TextField(verbose_name=_("user message"))
+#     bot_response = models.TextField(verbose_name=_("bot response"))
+#     timestamp = models.DateTimeField(default=timezone.now, verbose_name=_("timestamp"))
+
+#     class Meta:
+#         verbose_name = _("Chat History")
+#         verbose_name_plural = _("Chat Histories")
+#         ordering = ["-timestamp"]
+
+#     def __str__(self):
+#         return f"Chat history for {self.article_revision} at {self.timestamp}"
