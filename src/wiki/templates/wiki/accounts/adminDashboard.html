@@ -166,7 +166,7 @@
             }
         });
     }
-    function incrementReportBadge() {
+    function incrementModeratorBadge() {
         $.ajax({
             url: "_plugin/incrementbadge/",
             type: "POST",
@@ -292,10 +292,10 @@
             <td>{{report.reason}}</td>
             <td>
                 <button class="rep_btn approve"
-                    onclick="sendReport('Valid', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); incrementReportBadge(); return false;">
+                    onclick="sendReport('Valid', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); incrementModeratorBadge(); return false;">
                     Valid Change </button>
                 <button class="rep_btn deny"
-                    onclick="sendReport('Infraction', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); incrementReportBadge(); return false;">
+                    onclick="sendReport('Infraction', '{{ report.user }}', '{{ report.wiki }}', '{{ report.revision_id }}', '{{ report.article_id }}'); incrementModeratorBadge(); return false;">
                     Infraction </button>
             </td>
         </tr>
@@ -329,10 +329,10 @@
             <td>{{report.reason}}</td>
             <td>
                 <button class="rep_btn approve"
-                    onclick="sendDiscussionReport('Valid', '{{ report.user }}', '{{ report.wiki }}', '{{ report.post_id }}'); return false;">
+                    onclick="sendDiscussionReport('Valid', '{{ report.user }}', '{{ report.wiki }}', '{{ report.post_id }}'); incrementModeratorBadge(); return false;">
                     Valid Change </button>
                 <button class="rep_btn deny"
-                    onclick="sendDiscussionReport('Infraction', '{{ report.user }}', '{{ report.wiki }}', '{{ report.post_id }}'); return false;">
+                    onclick="sendDiscussionReport('Infraction', '{{ report.user }}', '{{ report.wiki }}', '{{ report.post_id }}'); incrementModeratorBadge(); return false;">
                     Infraction </button>
             </td>
         </tr>
