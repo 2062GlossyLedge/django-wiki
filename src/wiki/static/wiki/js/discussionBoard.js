@@ -55,3 +55,22 @@ function reportDropdown(dropdownId) {
     // Toggle the dropdown visibility
     document.getElementById(dropdownId).classList.toggle("show");
   }
+
+function incrementReportBadge() {
+    $.ajax({
+        url: "_plugin/incrementbadge/",
+        type: "POST",
+        data: {
+        'badge_id': 'Reporter',
+        'increment': 1,
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+            if (response.message) {
+            console.log('Badges queried successfully');
+        } else {
+            console.log(response);
+        } 
+        },
+    });
+}
