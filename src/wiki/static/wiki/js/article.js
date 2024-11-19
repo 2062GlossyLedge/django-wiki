@@ -5,14 +5,14 @@ $(document).ready(function () {
   });
 
   // Change color on hover
-  $("#flag-spoilers-button").mouseenter(function () {
+  // $("#flag-spoilers-button").mouseenter(function () {
 
-    $(this).css("color", "#5F3229");
-  });
+  //   $(this).css("color", "#5F3229");
+  // });
 
-  $("#flag-spoilers-button").mouseleave(function () {
-    $(this).css("color", "#c26451");
-  });
+  // $("#flag-spoilers-button").mouseleave(function () {
+  //   $(this).css("color", "#c26451");
+  // });
 
 
   let flagging = false
@@ -24,11 +24,11 @@ $(document).ready(function () {
 
 
   //highlights clicked text in p tag as red
-  $('.wiki-article').find('p').on('click', function (event) {
-    if (flagging) {
-      $(this).css("background-color", $(this).css("background-color") === "rgb(255, 0, 0)" ? "" : "red");
-    }
-  });
+  // $('.wiki-article').find('p').on('click', function (event) {
+  //   if (flagging) {
+  //     $(this).css("background-color", $(this).css("background-color") === "rgb(255, 0, 0)" ? "" : "red");
+  //   }
+  // });
 
   let tocTitleClosed = $("<button id='toctitleclosed'>Contents</button>")
   let tocTitle = $('.toctitle');
