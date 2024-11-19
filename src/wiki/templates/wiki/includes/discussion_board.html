@@ -1,3 +1,25 @@
+{% addtoblock "js" %}
+<script>
+    function incrementReportBadge() {
+        $.ajax({
+            url: "_plugin/incrementbadge/",
+            type: "POST",
+            data: {
+            'badge_id': 'Reporter',
+            'increment': 1,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (response) {
+                if (response.message) {
+                console.log('Badges queried successfully');
+            } else {
+                console.log(response);
+            } 
+            },
+        });
+    }
+</script>
+{% endaddtoblock %}
 <div>
     <a class="discussion-dropdown" onclick="toggleDiscussion()">View discussion board for page</a>
     <div id="discussion-content" style="display: none;">
@@ -9,16 +31,16 @@
             </div>
             {% if post.user == user %}
             <div id="{{ post.postID }}" class="dropdown-content">
-                <a href="#" onclick="sendReport('Spoiler', {{  article.id }}, {{ post.postID }}); return false;">Spoiler</a>
-                <a href="#" onclick="sendReport('Inaccurate Info', {{  article.id }}, {{ post.postID }}); return false;">Inaccurate Info</a>
-                <a href="#" onclick="sendReport('Inappropriate', {{  article.id }}, {{ post.postID }}); return false;">Inappropriate</a>
-                <a href="#" onclick="sendReport('Delete', {{  article.id }}, {{ post.postID }}); return false;">Delete</a>
+                <a href="#" onclick="sendReport('Spoiler', {{  article.id }}, {{ post.postID }}); incrementReportBadge(); return false;">Spoiler</a>
+                <a href="#" onclick="sendReport('Inaccurate Info', {{  article.id }}, {{ post.postID }}); incrementReportBadge(); return false;">Inaccurate Info</a>
+                <a href="#" onclick="sendReport('Inappropriate', {{  article.id }}, {{ post.postID }}); incrementReportBadge(); return false;">Inappropriate</a>
+                <a href="#" onclick="sendReport('Delete', {{  article.id }}, {{ post.postID }}); incrementReportBadge(); return false;">Delete</a>
               </div>
             {% else %}
             <div id="{{ post.postID }}" class="dropdown-content">
-                <a href="#" onclick="sendReport('Spoiler', {{  article.id }}, {{ post.postID }}); return false;">Spoiler</a>
-                <a href="#" onclick="sendReport('Inaccurate Info', {{  article.id }}, {{ post.postID }}); return false;">Inaccurate Info</a>
-                <a href="#" onclick="sendReport('Inappropriate', {{  article.id }}, {{ post.postID }}); return false;">Inappropriate</a>
+                <a href="#" onclick="sendReport('Spoiler', {{  article.id }}, {{ post.postID }}); incrementReportBadge(); return false;">Spoiler</a>
+                <a href="#" onclick="sendReport('Inaccurate Info', {{  article.id }}, {{ post.postID }}); incrementReportBadge(); return false;">Inaccurate Info</a>
+                <a href="#" onclick="sendReport('Inappropriate', {{  article.id }}, {{ post.postID }}); incrementReportBadge(); return false;">Inappropriate</a>
               </div>
             {% endif %}
             <p>{{post.content}}</p>
