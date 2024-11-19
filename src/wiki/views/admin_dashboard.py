@@ -9,6 +9,7 @@ from .. import models
 from wiki.models.article import Article
 
 
+# holds all the logic for the admin dashboard
 class AdminDashboard(TemplateView):
     template_name = "wiki/accounts/adminDashboard.html"
 
@@ -37,9 +38,7 @@ class AdminDashboard(TemplateView):
             )
 
         for report in discussion_report_data:
-            post = get_object_or_404(
-                DiscussionBoard, post_id=report.post_id
-            )
+            post = get_object_or_404(DiscussionBoard, post_id=report.post_id)
             discussion_reports.append(
                 {
                     "date": report.date,
@@ -48,11 +47,15 @@ class AdminDashboard(TemplateView):
                     "content": post.content,
                     "reason": report.report_type,
                     "post_id": report.post_id,
-                    "article_id": report.article_id
+                    "article_id": report.article_id,
                 }
             )
             # access all articles that have potential spoilers
         articles = Article.objects.filter(has_potential_spoilers=True)
 
-        context = {"reports": reports, "articles": articles, "discussion": discussion_reports}
+        context = {
+            "reports": reports,
+            "articles": articles,
+            "discussion": discussion_reports,
+        }
         return context
