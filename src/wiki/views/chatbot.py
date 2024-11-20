@@ -70,7 +70,7 @@ docsDict = dict()
 
 class Chatbot:
 
-    def delete_chat_history(self, session):
+    def delete_chat_history(self, session, urlPath):
         """delete chat history for a specific wiki page
 
         Args:
@@ -88,6 +88,13 @@ class Chatbot:
 
         session_id0.clear()
 
+        # clear vectorstore dict at urlPath
+        if urlPath in vectorstoreDict:
+            print("deleting vectorstore")
+            del vectorstoreDict[urlPath]
+
+    # vectorstoreDict.clear()
+
     def getUserPrompt(self, userPrompt):
         return userPrompt
 
@@ -99,7 +106,7 @@ class Chatbot:
             return f"You are {personality}. Act like this person or thing in your responses. State who you are at the beginning of your response."
 
     def get_previous_chapters(self, url_path):
-        print(url_path)
+        # print(url_path)
         # Parse the given URL path
         path_parts = url_path.strip("/").split("/")
 
@@ -214,12 +221,19 @@ class Chatbot:
 
         else:
             # process all chapters up to the current chapter
-            self.process_all_chapters(urlPath)
+            try:
+                self.process_all_chapters(urlPath)
+                loader = TextLoader("all_articles.txt")
+            except Exception as e:
+                loader = WebBaseLoader(
+                    web_paths=("http://localhost:8000/" + urlPath,),
+                    bs_kwargs=dict(
+                        parse_only=bs4.SoupStrainer(class_=("wiki-article"))
+                    ),
+                )
 
             # to differentiate between the different wiki pages, add "and-below" to signify it holds all wikis of chapters below it to uniquely id docs held in doctDict and Chroma db
             urlPath = urlPath + "and-below"
-
-            loader = TextLoader("all_articles.txt")
 
             docs = loader.load()
 
@@ -483,6 +497,7 @@ class Chatbot:
 
         # find if vectorstroe already holds contents of wiki page, else  scrape and create a new vectorstore if the URL hasn't been scraped yet
         if urlPath in vectorstoreDict:
+            # print("vectorstore already exists")
 
             vectorstore = vectorstoreDict[urlPath]
             docs = docsDict[urlPath]
