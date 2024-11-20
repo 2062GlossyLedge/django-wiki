@@ -222,6 +222,7 @@ class UserAccountView(TemplateView):
                 if img_form.is_valid():
                     # Save the updated instance
                     user_profile.save()
+                    img_form.save()
                     print("Profile picture updated successfully")
                 else:
                     print("Form is not valid")
