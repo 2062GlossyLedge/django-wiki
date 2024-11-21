@@ -1,9 +1,6 @@
 {% load wiki_tags i18n sekizai_tags static %}
 
-{% addtoblock "js" %}
-<script type="text/javascript" src="{% static 'wiki/js/article.js' %}">
-</script>
-{% endaddtoblock %}
+
 
 
 {% with selected_tab as selected %}
@@ -137,6 +134,8 @@
 
 </li>
 
+{% if selected == "view"%}
+
 {% if user.is_authenticated and urlpath.parent %}
 <li class="nav-item">
   <form method="post">
@@ -144,9 +143,9 @@
     <a id="chatbot-toggle" class="px-3 nav-link">
       <span class="fa fa-robot"></span>
       {% if button_state == "off" %}
-      <label id="chatbot-toggle-label" for="chatbot-view-button">Chatbot</label>
+      <label class="chatbot-toggle-label" for="chatbot-view-button">Chatbot</label>
       {% else %}
-      <label id="chatbot-toggle-label2" for="chatbot-view-button">Chatbot</label>
+      <label class="chatbot-toggle-label" for="chatbot-view-button">Chatbot</label>
       {% endif %}
       <button id='chatbot-view-button' name="chatbot-view-button" class="hidden-xs" hidden=true>
       </button>
@@ -155,6 +154,9 @@
 
 </li>
 {% endif %}
+{% endif %}
+
+
 
 {% endif %}
 

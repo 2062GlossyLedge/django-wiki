@@ -60,7 +60,7 @@ class ArticleView(TemplateView, ArticleMixin):
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
-        print("article content", article.current_revision)
+        # print("article content", article.current_revision)
 
         return super().dispatch(request, article, *args, **kwargs)
 
@@ -169,7 +169,7 @@ class ArticleView(TemplateView, ArticleMixin):
 
             # check if spoiler free button is toggled, if so, use the chatbot without LLM knowledge
             if request.session.get("spoiler_free_button_state", "on") == "on":
-                self.chatbot.handle_message_without_llm_knowledge(
+                self.chatbot.handle_message_given_location(
                     user_message,
                     str(urlPath),
                     session,
@@ -214,7 +214,7 @@ class ArticleView(TemplateView, ArticleMixin):
             self.request.session["personality"] = "default"
 
         elif "delete-chat-history" in request.POST:
-            self.chatbot.delete_chat_history(session)
+            self.chatbot.delete_chat_history(session, str(urlPath))
 
         # elif "chatbot-chooses-personality" in request.POST:
         #     context["personality"] = "chatbot-chooses"

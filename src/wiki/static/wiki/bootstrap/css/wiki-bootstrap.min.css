@@ -3785,7 +3785,7 @@ input[type="button"].btn-block {
 }
 
 /* toggles the toc closed */
-.wiki-article div.toc #toctitleclosed::after {
+/* .wiki-article div.toc #toctitleclosed::after {
     display: inline-block;
     margin-left: .255em;
     vertical-align: .255em;
@@ -3795,7 +3795,7 @@ input[type="button"].btn-block {
     border-bottom: 0;
     border-left: .3em solid transparent;
     transform: rotate(180deg)
-}
+} */
 
 
 
@@ -12046,7 +12046,7 @@ h1#article-title {
     max-width: 340px;
     clear: left;
     display: inline-block;
-    position: sticky;
+    /* position: sticky; */
     top: 0;
     background-color: var(--toc-background-color);
 }

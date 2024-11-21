@@ -1,11 +1,15 @@
 ### Chapter: chapter1 ###
 
->> Paul is muadib[*](wiki:/dune/book/book1/chapter1)
+### The boy who lived
+
+>> Harry potter is 11 years old [*](wiki:/harry-potter/book/book1/chapter1)
+
+>> Harry potter has brown hair[*](wiki:/harry-potter/book/book1/chapter2)
 
 
 
 ### Chapter: chapter2 ###
 
->> Paul's mom is hawk tuah [*](wiki:/dune/book/book1/chapter2)
+>>Harry likes to go to wendy's [*](wiki:/harry-potter/book/book1/chapter2)
 
 
