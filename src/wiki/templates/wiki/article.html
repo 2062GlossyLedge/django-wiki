@@ -15,9 +15,13 @@
 
 {% block wiki_contents %}
 
+{% addtoblock "js" %}
 
-<script src="{% static '/wiki/js/wikiPage.js' %}"></script>
+<script src="{% static '/wiki/js/article.js' %}"></script>
 <script src="{% static '/wiki/js/discussionBoard.js' %}"></script>
+
+{% endaddtoblock %}
+
 
 {% addtoblock "css" %}
 
