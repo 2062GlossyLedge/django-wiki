@@ -1,5 +1,7 @@
 WikiWard Web Application Setup Instructions
 
+https://docs.google.com/document/d/12y4WCdn1yzv00KjgsJ0Cactmc5Y-Mb-zDBlxUv1oXr8/edit?usp=sharing
+
 Introduction
 Wikiward builds upon the open-source project django-wiki, utilizing the Django framework and SQLite for the backend. It incorporates libraries such as Django Authentication for secure user logins. Django Templates, enhanced with Bootstrap and jQuery, is for frontend design and functionality. Wikiward extends these capabilities with tools like LangChain to provide advanced wiki features. The project is designed to be hosted on AWS.
 
