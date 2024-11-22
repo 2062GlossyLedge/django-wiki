@@ -90,40 +90,62 @@
       },
       error: function (xhr, status, error) {
         if (error == "Not Found") {  // User not logged in
-          let storedProgress = localStorage.getItem('progress');
-          if (storedProgress) {
+            let storedProgress = localStorage.getItem('progress');
             try {
-              // Perform check to see if it is the same wiki as first selection value 
-              storedProgressParsed = JSON.parse(storedProgress);
-              baseImport = getBaseWikiPath(storedProgressParsed.book);
-              wikiPath = baseImport.split("wiki:")[1].trim();
-              if (wikiPath == baseWiki) {
-                currentProgress = storedProgressParsed
-                outerSelectionPlaceholder = currentProgress.book;
-                innerSelectionPlaceholder = currentProgress.chapter;
-                firstSelectionValue = currentProgress.book.split("wiki:")[1];
-              }
-              else {
-                currentProgress.book = defaultBookIntro + baseWiki + defaultBook;
-                currentProgress.chapter = defaultChapterIntro + baseWiki + defaultChapter;
-                firstSelectionValue = baseWiki + defaultBook;
+                if (storedProgress) {
+                    // Perform check to see if it is the same wiki as first selection value 
+                    storedProgressParsed = JSON.parse(storedProgress);
+                    if (storedProgressParsed.book != '') {
+                        baseImport = getBaseWikiPath(storedProgressParsed.book);
+                        wikiPath = baseImport.split("wiki:")[1].trim();
+                        if (wikiPath == baseWiki) {
+                            currentProgress = storedProgressParsed;
+                            outerSelectionPlaceholder = currentProgress.book;
+                            innerSelectionPlaceholder = currentProgress.chapter;
+                            firstSelectionValue = currentProgress.book.split("wiki:")[1];
+                        } else {
+                            currentProgress.book = defaultBookIntro + baseWiki + defaultBook;
+                            currentProgress.chapter = defaultChapterIntro + baseWiki + defaultChapter;
+                            firstSelectionValue = baseWiki + defaultBook;
 
-                saveProgressLocally();
-                resetCachePage();
-                setTimeout(function () {
-                  window.location.reload(true);
-                }, 10);
-                resetCache();
-              }
+                            saveProgressLocally();
+                            resetCachePage();
+                            setTimeout(function () {
+                                window.location.reload(true);
+                            }, 10);
+                            resetCache();
+                        }
+                    } else {
+                        baseImport = getBaseWikiPath(storedProgressParsed.chapter);
+                        wikiPath = baseImport.split("wiki:")[1].trim();
+                        if (wikiPath == baseWiki) {
+                            currentProgress = storedProgressParsed;
+                            outerSelectionPlaceholder = defaultBookIntro + wikipath + defaultBook;
+                            innerSelectionPlaceholder = currentProgress.chapter;
+                            firstSelectionValue = currentProgress.book.split("wiki:")[1];
+                        } else {
+                            currentProgress.book = defaultBookIntro + baseWiki + defaultBook;
+                            currentProgress.chapter = defaultChapterIntro + baseWiki + defaultChapter;
+                            firstSelectionValue = baseWiki + defaultBook;
+
+                            saveProgressLocally();
+                            resetCachePage();
+                            setTimeout(function () {
+                                window.location.reload(true);
+                            }, 10);
+                            resetCache();
+                        }
+                    }
+                }
             } catch (e) {
-              console.error("Error parsing stored progress JSON:", e);
+                console.error("Error parsing stored progress JSON:", e);
             }
-          }
-          signedIn = false
         }
+        signedIn = false;
+
         // Initialize Select2 even if there's an error
         initializeSelect2();
-      }
+    }
     });
 
     function initializeSelect2() {

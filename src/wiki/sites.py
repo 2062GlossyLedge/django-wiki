@@ -205,6 +205,14 @@ class WikiSite:
                 name="submit_discussion_report",
             ),
         )
+        
+        urlpatterns += (
+            re_path(
+                r"^(?P<path>.+/|)_plugin/incrementbadge/$",
+                IncrementBadgeProgressView.as_view(),
+                name="incrementbadge",
+            ),
+        )
 
         # This ALWAYS has to be the last of all the patterns since
         # the paths in theory could wrongly match other targets.
