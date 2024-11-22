@@ -134,31 +134,33 @@
 
 </li>
 
-{% if selected == "view"%}
-
+{% if selected == "view" %}
 {% if user.is_authenticated and urlpath.parent %}
 <li class="nav-item">
-  <form method="post">
+  {% if button_state == "off" %}
+  <form method="post" class="d-inline">
     {% csrf_token %}
-    <a id="chatbot-toggle" class="px-3 nav-link">
+    <button type="submit" name="chatbot-view-button-on" class="btn btn-link nav-link px-3">
       <span class="fa fa-robot"></span>
-      {% if button_state == "off" %}
-      <label class="chatbot-toggle-label" for="chatbot-view-button">Chatbot</label>
-      {% else %}
-      <label class="chatbot-toggle-label" for="chatbot-view-button">Chatbot</label>
-      {% endif %}
-      <button id='chatbot-view-button' name="chatbot-view-button" class="hidden-xs" hidden=true>
-      </button>
-
+      <span class="chatbot-toggle-label">Enable Chatbot</span>
+    </button>
   </form>
-
+  {% else %}
+  <form method="post" class="d-inline">
+    {% csrf_token %}
+    <button type="submit" name="chatbot-view-button-off" class="btn btn-link nav-link px-3 active">
+      <span class="fa fa-robot"></span>
+      <span class="chatbot-toggle-label">Disable Chatbot</span>
+    </button>
+  </form>
+  {% endif %}
 </li>
 {% endif %}
 {% endif %}
 
 
-
 {% endif %}
+
 
 
 
