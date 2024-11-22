@@ -50,8 +50,9 @@
   }
 
   .dropdown-content.show {
-    display: flex; /* Show the dropdown with flexbox layout */
-}
+    display: flex;
+    /* Show the dropdown with flexbox layout */
+  }
 </style>
 
 {% endaddtoblock %}
@@ -110,7 +111,10 @@
   </div>
 </div>
 
+{% if Commenting_status == "ACTIVE" %}
+
 {% include "wiki/includes/discussion_board.html" %}
+{% endif %}
 
 {% endblock %}
 
