@@ -1,3 +1,5 @@
+{% load wiki_tags i18n sekizai_tags static %}
+{% if selected_tab == "view" and urlpath.parent %}
 <div>
     <a class="discussion-dropdown" onclick="toggleDiscussion()">View discussion board for page</a>
     <div id="discussion-content" style="display: none;">
@@ -32,3 +34,4 @@
         </div>
     </div>
 </div>
+{% endif %}
