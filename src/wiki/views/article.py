@@ -165,11 +165,13 @@ class ArticleView(TemplateView, ArticleMixin):
         # prompt chatbot
         if "prompt" in request.POST:
 
+            print(request.POST)
+
             user_message = request.POST.get("prompt", "")
 
             # check if spoiler free button is toggled, if so, use the chatbot without LLM knowledge
             if request.session.get("spoiler_free_button_state", "on") == "on":
-                self.chatbot.handle_message_given_location(
+                self.chatbot.handle_message_without_llm_knowledge(
                     user_message,
                     str(urlPath),
                     session,
@@ -183,11 +185,13 @@ class ArticleView(TemplateView, ArticleMixin):
                 )
 
         # toggle chatbot view
-        elif "chatbot-view-button" in request.POST:
-            current_state = self.request.session.get("button_state", "off")
-            new_state = "on" if current_state == "off" else "off"
-            self.request.session["button_state"] = new_state  # Update the session state
-            context["button_state"] = new_state
+        if "chatbot-view-button-off" in request.POST:
+            self.request.session["button_state"] = "off"
+            return redirect("wiki:get", path=self.urlpath.path)
+
+        elif "chatbot-view-button-on" in request.POST:
+            self.request.session["button_state"] = "on"
+            return redirect("wiki:get", path=self.urlpath.path)
 
         elif "spoiler-free-button" in request.POST:
             current_state = self.request.session.get("spoiler_free_button_state", "off")
@@ -222,7 +226,7 @@ class ArticleView(TemplateView, ArticleMixin):
         context["dropdown_button_state"] = self.request.session.get(
             "dropdown_button_state", "off"
         )
-        context["button_state"] = self.request.session.get("button_state", "on")
+        context["button_state"] = self.request.session.get("button_state", "off")
         context["spoiler_free_button_state"] = self.request.session.get(
             "spoiler_free_button_state", "on"
         )

@@ -203,7 +203,7 @@ class UserAccountView(TemplateView):
                 return redirect("wiki:root")
         elif "update_img" in request.POST:
             img_form = forms.UserProfileImgForm(request.POST, request.FILES)
-            print(request.FILES)
+            # print(request.FILES)
             if img_form.is_valid():
                 # Check if a UserProfile instance already exists for the current user - allows for updating the profile image instead of creating a new entry in db
                 try:
@@ -218,6 +218,8 @@ class UserAccountView(TemplateView):
                     img_form = forms.UserProfileImgForm(request.POST, request.FILES)
                     user_profile = img_form.save(commit=False)
                     user_profile.user = request.user
+
+                # img_form.save()
 
                 if img_form.is_valid():
                     # Save the updated instance
