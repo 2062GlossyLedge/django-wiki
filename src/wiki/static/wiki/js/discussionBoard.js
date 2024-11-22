@@ -51,9 +51,16 @@ function sendReport(report_type, article_id, post_id) {
     reportDropdown(post_id)
   }
 
-function reportDropdown(dropdownId) {
-    // Toggle the dropdown visibility
-    document.getElementById(dropdownId).classList.toggle("show");
+  function reportDropdown(postID) {
+    // Select the dropdown by ID
+    const dropdown = document.getElementById(postID);
+
+    if (dropdown) {
+        // Toggle the 'show' class
+        dropdown.classList.toggle("show");
+    } else {
+        console.error(`Element with ID ${postID} not found.`);
+    }
   }
 
 function incrementReportBadge() {
@@ -70,7 +77,7 @@ function incrementReportBadge() {
             console.log('Badges queried successfully');
         } else {
             console.log(response);
-        } 
+        }
         },
     });
 }

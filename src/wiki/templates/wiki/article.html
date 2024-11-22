@@ -49,9 +49,9 @@
     flex-direction: column
   }
 
-  .show {
-    display: flex;
-  }
+  .dropdown-content.show {
+    display: flex; /* Show the dropdown with flexbox layout */
+}
 </style>
 
 {% endaddtoblock %}
@@ -74,7 +74,7 @@
 <!-- <div class="right-sidebar">
 
   {%comment%}
-  
+
   {% include "wiki/includes/article_rightbar.html" with response=response %}
 {%endcomment%}
 </div> -->
