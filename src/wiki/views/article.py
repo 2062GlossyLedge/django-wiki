@@ -173,8 +173,6 @@ class ArticleView(TemplateView, ArticleMixin):
         # prompt chatbot
         if "prompt" in request.POST:
 
-            print(request.POST)
-
             user_message = request.POST.get("prompt", "")
 
             # check if spoiler free button is toggled, if so, use the chatbot without LLM knowledge
