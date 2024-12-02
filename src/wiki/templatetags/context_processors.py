@@ -3,18 +3,16 @@ from wiki.models.account import UserProfile
 
 def profile_picture(request):
     if request.user.is_authenticated:
-        # pass the profile picture url to the template, use default image if no profile picture is set
-        UserProfile.objects.get_or_create(user=request.user)
+        # Ensure a UserProfile instance exists for the current user
+        user_profile, created = UserProfile.objects.get_or_create(user=request.user)
 
-        try:
-            profile_picture = UserProfile.objects.get(
-                user=request.user
-            ).profile_image.url
-        except:
-            UserProfile.objects.update(profile_image="profile_pics/default2.png")
-            profile_picture = UserProfile.objects.get(
-                user=request.user
-            ).profile_image.url
+        # If the profile image is not set, use the default image
+        if not user_profile.profile_image:
+            user_profile.profile_image = "profile_pics/default2.png"
+            user_profile.save()  # Save only the current user's profile
+
+        # Pass the profile picture URL to the template
+        profile_picture = user_profile.profile_image.url
     else:
         profile_picture = None
 
