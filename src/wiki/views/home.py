@@ -34,8 +34,12 @@ class Homepage(TemplateView):
             else:
                 # Remove empty paths and duplicate urls masked by having different number of slashes in url
                 urls = [url.replace("//", "/") for url in urls if url != "/"]
+
+                # remove the first "/" from the url to avoid '%2F' in the url
+                urls = [url[1:] for url in urls]
                 context["urls"] = urls
 
+                # create a dictionary with the url as key and the url with spaces as value, where the value will be user facing for recently visited wikis
                 urls_dict = {url: url.replace("/", " ") for url in urls}
                 context["urls_dict"] = urls_dict
 

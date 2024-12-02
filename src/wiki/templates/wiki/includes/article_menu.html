@@ -7,6 +7,7 @@
 
 
 <li class="nav-item">
+  {{urlpath.path}}
   <a href="{% url 'wiki:get' article_id=article.id path=urlpath.path %}"
     class="px-3 nav-link{% if selected == 'view'%} active{% endif %}">
     <span class="fa fa-home"></span>
