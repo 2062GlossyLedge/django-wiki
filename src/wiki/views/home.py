@@ -41,7 +41,6 @@ class Homepage(TemplateView):
 
                 # create a dictionary with the url as key and the url with spaces as value, where the value will be user facing for recently visited wikis
                 urls_dict = {url: url.replace("/", " ") for url in urls}
-                print(urls_dict)
                 context["urls_dict"] = urls_dict
 
         return context
