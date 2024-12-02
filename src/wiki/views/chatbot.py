@@ -441,14 +441,12 @@ class Chatbot:
         qa_system_prompt = (
             self.setPersonality(personality)
             + """\
-        Use the following pieces of retrieved context to answer the question. \
-        If the retrieved context does not answer the question, just say you don't know. \
+        Answer the user's question.\
         Use three sentences maximum and keep the answer concise.\
         Context: {context}\n\nQuestion: {input}
         """
         )
 
-        # print(qa_system_prompt)
         qa_prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", qa_system_prompt),

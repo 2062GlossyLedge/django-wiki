@@ -133,7 +133,15 @@ class ArticleView(TemplateView, ArticleMixin):
             "spoiler_free_button_state", "on"
         )
         urlPath = ArticleMixin.get_context_data(self, **kwargs)["urlpath"]
-        kwargs["chat_history"] = self.chatbot.get_chat_history(str(urlPath))
+        # kwargs["chat_history"] = self.chatbot.get_chat_history(str(urlPath))
+
+        # Retrieve chat history from session or chatbot
+        # This code I beleive only runs after redirect after prompt, so chathistory must be stored in session
+        chat_history = self.request.session.get(
+            "chat_history"
+        ) or self.chatbot.get_chat_history(str(urlPath))
+
+        kwargs["chat_history"] = chat_history
         kwargs["discussion_board_data"] = self.get_discussion_data()
         return ArticleMixin.get_context_data(self, **kwargs)
 
@@ -165,8 +173,6 @@ class ArticleView(TemplateView, ArticleMixin):
         # prompt chatbot
         if "prompt" in request.POST:
 
-            print(request.POST)
-
             user_message = request.POST.get("prompt", "")
 
             # check if spoiler free button is toggled, if so, use the chatbot without LLM knowledge
@@ -183,6 +189,14 @@ class ArticleView(TemplateView, ArticleMixin):
                     self.request.session.get("personality", "default"),
                     session,
                 )
+
+                # Ensure chat history is updated in session or database
+            chat_history = self.chatbot.get_chat_history(session)
+            self.request.session["chat_history"] = (
+                chat_history  # Save in session (if applicable)
+            )
+
+            return redirect("wiki:get", path=self.urlpath.path)
 
         # toggle chatbot view
         if "chatbot-view-button-off" in request.POST:
